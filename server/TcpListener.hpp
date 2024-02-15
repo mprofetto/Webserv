@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/14 13:28:21 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/15 14:30:31 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,12 @@ class TcpListener
 		};
 
 		class	socketListeningFailure : public std::exception
+		{
+			public:
+				virtual const char *what() const throw();
+		};
+
+		class	socketSelectFailure : public std::exception
 		{
 			public:
 				virtual const char *what() const throw();
