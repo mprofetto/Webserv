@@ -1,32 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*   Route.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/16 14:16:35 by mprofett         ###   ########.fr       */
+/*   Created: 2024/02/16 11:34:39 by mprofett          #+#    #+#             */
+/*   Updated: 2024/02/16 12:35:50 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserv.hpp"
+#ifndef ROUTE_HPP
+# define ROUTE_HPP
 
-int	main(int argc, char **argv)
+# include <string>
+
+class Route
 {
-	(void)argc;
-	(void)argv;
-	TcpListener server("127.0.0.1", 80, 4096);
+	public:
 
-	try
-	{
-		server.init();
-		server.run();
-	}
-	catch (std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
-		std::cout << strerror(errno) << std::endl;
-	}
-	return (0);
-}
+	private:
+		bool			_autoindex;
+		bool			_cgi;
+		bool			_delete;
+		bool			_get;
+		bool			_post;
+		std::string		_index;
+		std::string		_path;
+		std::string		_redirection;
+		std::string		_root;
+};
+
+#endif
