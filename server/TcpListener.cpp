@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:37:47 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/15 15:22:59 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/16 14:46:30 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,15 @@ TcpListener::~TcpListener()
 	return;
 }
 
-TcpListener::TcpListener(const char * ipAdress, int port) :
+TcpListener::TcpListener(std::string conf)
+{
+	return;
+}
+
+TcpListener::TcpListener(const char * ipAdress, int port, int buffer_max) :
 	_ipAdress(ipAdress),
-	_port(port)
+	_port(port),
+	_buffer_max(buffer_max)
 {
 	(void) this->_ipAdress;
 	return;
@@ -81,8 +87,9 @@ void		TcpListener::init()
 	bindSocket();
 	if (listen(this->_socket, SOMAXCONN) < 0)
 		throw socketListeningFailure();
-	FD_ZERO(&this->_master_fd);
-	FD_SET(this->_socket, &this->_master_fd);
+	FD_ZERO(&this->_read_master_fd);
+	FD_ZERO(&this->_write_master_fd);
+	FD_SET(this->_socket, &this->_read_master_fd);
 }
 
 void	send_test_reponse_to_client(int client_socket)
@@ -94,64 +101,69 @@ void	send_test_reponse_to_client(int client_socket)
 
 void	TcpListener::handleNewConnection()
 {
-	std::cout << "Handling new connection\n";
+	std::cout << "handling new connection\n";
 	int			client_socket;
 	sockaddr	client_addr;
 	socklen_t	addr_size = sizeof(sockaddr);
 
-	client_socket = accept(this->_socket, &client_addr, &addr_size);\
+	client_socket = accept(this->_socket, &client_addr, &addr_size);
 	if (client_socket < 0)
 		throw socketAcceptingNewConnectionFailure();
-	FD_SET(client_socket, &this->_master_fd);
+	FD_SET(client_socket, &this->_read_master_fd);
 }
 
-void	TcpListener::handleNewMessage(int client_socket)
+void	TcpListener::readRequest(int client_socket)
 {
-	std::cout << "Handling new message\n";
-	char	buf[4096]; //limit should be fixed later
+	std::cout << "reading new request\n";
+	char	buf[this->_buffer_max];
 	int		bytesReceveid;
 
-	memset(&buf, 0, 4096);
-	bytesReceveid = recv(client_socket, buf, 4096, 0);
+	memset(&buf, 0, this->_buffer_max);
+	bytesReceveid = recv(client_socket, buf, this->_buffer_max, 0);
 	if (bytesReceveid <= 0)
 	{
 		std::cout << "We closed " << client_socket << " connection\n";
 		close(client_socket);
-		FD_CLR(client_socket, &this->_master_fd);
+		FD_CLR(client_socket, &this->_read_master_fd);
 		return;
 	}
 	std::string request(buf);
 	std::cout << "Request is " << request << std::endl;
-	send_test_reponse_to_client(client_socket);
+	FD_SET(client_socket, &this->_write_master_fd);
+}
+
+void	TcpListener::writeResponse(int client_socket)
+{
+	std::cout << "sending response\n";
+	std::string	hello("HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!");
+
+	send(client_socket, hello.c_str(), hello.size(), 0);
+	FD_CLR(client_socket, &this->_write_master_fd);
 }
 
 void	TcpListener::run()
 {
 	bool	running = true;
-	fd_set	ready_sockets;
+	fd_set	ready_to_read_fds;
+	fd_set	ready_to_write_fds;
 
 	while (running)
 	{
-		ready_sockets = this->_master_fd;
-		std::cout << "Before Select\n";
-		if (select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL) < 0)
+		ready_to_read_fds = this->_read_master_fd;
+		ready_to_write_fds = this->_write_master_fd;
+		if (select(FD_SETSIZE, &ready_to_read_fds, &ready_to_write_fds, NULL, NULL) < 0)
 			throw socketSelectFailure();
 		for (int i = 0; i < FD_SETSIZE; i++)
 		{
-			if (FD_ISSET(i, &ready_sockets))
+			if (FD_ISSET(i, &ready_to_read_fds))
 			{
 				if (i == this->_socket)
-				{
-					std::cout << "i is: " << i << std::endl;
 					handleNewConnection();
-					std::cout << "New connection handled\n";
-				}
 				else
-				{
-					std::cout << "i is: " << i << std::endl;
-					handleNewMessage(i);
-				}
+					readRequest(i);
 			}
+			else if (FD_ISSET(i, &ready_to_write_fds))
+				writeResponse(i);
 		}
 	}
 }

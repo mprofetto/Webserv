@@ -1,32 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/16 14:16:35 by mprofett         ###   ########.fr       */
+/*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
+/*   Updated: 2024/02/16 13:15:50 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserv.hpp"
+#ifndef SERVER_HPP
+# define SERVER_HPP
 
-int	main(int argc, char **argv)
+# include <string>
+# include <list>
+# include "Route.hpp"
+
+class Server
 {
-	(void)argc;
-	(void)argv;
-	TcpListener server("127.0.0.1", 80, 4096);
+	public:
 
-	try
-	{
-		server.init();
-		server.run();
-	}
-	catch (std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
-		std::cout << strerror(errno) << std::endl;
-	}
-	return (0);
-}
+	private:
+		std::list<Route>		_routes;
+		std::list<std::string>	_server_names;
+		std::string				_index;
+		std::string				_ipAdress;
+		std::string				_root;
+		int						_port;
+};
+
+#endif
