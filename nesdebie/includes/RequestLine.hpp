@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:20 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/19 13:13:02 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:47:53 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <iostream>
 # include <fstream>
 
-enum {DELETE, GET, POST, PUT, ERROR}; //PUT not mandatory
+enum {DELETE, GET, POST, ERROR}; //PUT not mandatory
 
 class RequestLine {
 private:

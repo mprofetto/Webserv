@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 11:25:54 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:47:56 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ Request::Request(std::string & req): _raw(req){ // TEMP
         if (count == 0) {
             try {
                 std::vector<std::string> arr = vectorSplit(line, SPACE);
-                std::string httpMethods[4] = {"DELETE", "GET", "POST", "PUT"}; //put not mandatory
+                std::string httpMethods[3] = {"DELETE", "GET", "POST"}; //put not mandatory
                 int method;
 
-                for (method = 0; method < 4 && httpMethods[method] != arr[0]; method++);
+                for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
                 RequestLine reqline(method, arr[1], arr[2]);
                 _req = reqline;
                 count++;
