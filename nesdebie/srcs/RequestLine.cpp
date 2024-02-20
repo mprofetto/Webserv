@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 11:21:49 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 12:00:28 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 
 RequestLine::RequestLine() {}
 
-RequestLine::RequestLine(const int& method, const std::string& path, const std::string& http_version) : _method(method), _path(path), _http_version(http_version) {
-    if (_method == ERROR)
-        throw std::exception();
+RequestLine::RequestLine(const int& method, const std::string& path, const std::string& http_version, const std::string& methodName) : _method(method), _path(path), _http_version(http_version) {
+    if (_method == UNVALID)
+        _not_valid = methodName;
+    else
+        _not_valid = "";
     /*std::ifstream file(path); // TO EDIT
     if (!file.is_open())
         throw std::runtime_error("Error: data.csv not found.");*/
@@ -49,9 +51,13 @@ std::string RequestLine::getHTTPVersion() const {
     return _http_version;
 }
 
+std::string RequestLine::getNotValid() const {
+    return _not_valid;
+}
+
 std::ostream & operator<<(std::ostream & o, RequestLine const & obj)
 {
-    std::string httpMethods[4] = {"DELETE", "GET", "POST", "PUT"};
+    std::string httpMethods[4] = {"DELETE", "GET", "POST", obj.getNotValid()};
 	o << httpMethods[obj.getMethod()]<< ": " << obj.getPath() << " " << obj.getHTTPVersion() << std::endl;
     return o;
 }

@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 11:47:56 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:56:58 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Request::Request(std::string & req): _raw(req){ // TEMP
                 int method;
 
                 for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
-                RequestLine reqline(method, arr[1], arr[2]);
+                RequestLine reqline(method, arr[1], arr[2], arr[0]);
                 _req = reqline;
                 count++;
                 continue ;
