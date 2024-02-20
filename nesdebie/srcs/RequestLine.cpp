@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 12:00:28 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 14:08:31 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ RequestLine& RequestLine::operator=(const RequestLine& op) {
         _method = op._method;
         _path = op._path;
         _http_version = op._http_version;
+        _not_valid = op._not_valid;
     }
     return *this;
 }

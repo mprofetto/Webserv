@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 11:56:58 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 14:09:42 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,9 +165,9 @@ std::string Request::getHeader(std::string const & name) {
     return it->second;
 }
 
-/*
-// DEBUG
 
+// DEBUG
+/*
 int main() {
     std::string str0 = "GET / HTTP/1.1";
     Request obj0(str0);

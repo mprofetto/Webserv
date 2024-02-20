@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 11:25:40 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 14:05:03 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@
 # include <map>
 
 # include "RequestLine.hpp"
-//# include "Route.hpp"
-//# include "Server.hpp"
-# include "../../server/Route.hpp" // TO SWITCH ONCE MERGED
-# include "../../server/Server.hpp" //
+//# include "Route.hpp" // TO UNCOMMENT ONCE MERGED
+//# include "Server.hpp" // TO UNCOMMENT ONCE MERGED
+# include "../../server/Route.hpp" // TO COMMENT ONCE MERGED
+# include "../../server/Server.hpp" // TO COMMENT ONCE MERGED
 
 class RequestLine;
 class Route;
