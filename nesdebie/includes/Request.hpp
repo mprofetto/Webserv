@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RequestManager.hpp                                 :+:      :+:    :+:   */
+/*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/19 13:15:49 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:25:40 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REQUESTMANAGER_HPP
-# define REQUESTMANAGER_HPP
+#ifndef REQUEST_HPP
+# define REQUEST_HPP
 
 # define SPACE 32
 
@@ -33,7 +33,7 @@ class Route;
 class Server;
 
 
-class RequestManager{
+class Request{
     private:
         std::string _raw;
         RequestLine _req;
@@ -41,10 +41,10 @@ class RequestManager{
         std::string _body;
 
     public:
-        RequestManager(std::string & req); //TEMP a retirer quand Route et Server achevés
-        //RequestManager(std::string & req, Route & route, Server & server); uncomment once fixed
-        RequestManager(RequestManager const & copy);
-        ~RequestManager();
+        Request(std::string & req); //TEMP a retirer quand Route et Server achevés
+        //Request(std::string & req, Route & route, Server & server); uncomment once fixed
+        Request(Request const & copy);
+        ~Request();
 
         std::vector<std::string> vectorSplit(std::string str, char sep);
         void setData(std::string head, std::string val);
@@ -56,9 +56,9 @@ class RequestManager{
         std::map<std::string, std::string> getHeaders() const;
         std::string getBody() const;
 
-        RequestManager & operator=(RequestManager const & op);
+        Request & operator=(Request const & op);
 };
 
-std::ostream &  operator<<(std::ostream & o, RequestManager const & obj);
+std::ostream &  operator<<(std::ostream & o, Request const & obj);
 
 #endif

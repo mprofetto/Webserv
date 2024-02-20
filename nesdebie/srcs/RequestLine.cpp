@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/19 12:21:31 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:21:49 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ std::string RequestLine::getPath() const {
 std::string RequestLine::getHTTPVersion() const {
     return _http_version;
 }
-
 
 std::ostream & operator<<(std::ostream & o, RequestLine const & obj)
 {
