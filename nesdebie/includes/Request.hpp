@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 14:05:03 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/21 20:06:11 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,9 @@ class Request{
         std::string _body;
 
     public:
-        Request(std::string & req); //TEMP a retirer quand Route et Server achevés
+        Request(std::string &req); //TEMP a retirer quand Route et Server achevés
         //Request(std::string & req, Route & route, Server & server); uncomment once fixed
-        Request(Request const & copy);
+        Request(Request const &copy);
         ~Request();
 
         std::vector<std::string> vectorSplit(std::string str, char sep);
@@ -52,13 +52,13 @@ class Request{
     
         std::string getRaw() const;
         RequestLine getRequestLine() const;
-        std::string getHeader(std::string const & name);
+        std::string getHeader(std::string const &name);
         std::map<std::string, std::string> getHeaders() const;
         std::string getBody() const;
 
-        Request & operator=(Request const & op);
+        Request & operator=(Request const &op);
 };
 
-std::ostream &  operator<<(std::ostream & o, Request const & obj);
+std::ostream & operator<<(std::ostream &o, Request const &obj);
 
 #endif

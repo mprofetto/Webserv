@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 14:09:42 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/21 20:13:52 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,20 +87,14 @@ Request::Request(std::string & req, Route & route, Server & server): _raw(req){
     }
 }*/
 
-Request::Request(Request const & copy) {
+Request::Request(Request const &copy) {
     *this = copy;
 }
 
 Request::~Request() {
 }
 
-Request & Request::operator=(Request const & op) {
-    _raw = op._raw;
-    _req = op._req;
-    _headers = op._headers;
-    _body = op._body;
-    return *this;
-}
+/* ----- CLASS FUNCTIONS ----- */
 
 std::vector<std::string> Request::vectorSplit(std::string str, char sep){
     std::vector<std::string> arr;
@@ -119,24 +113,10 @@ void Request::setData(std::string head, std::string val) {
     this->_headers.insert(std::make_pair(head, val));
 }
 
-std::string Request::ft_strtrim(std::string & s) {
+std::string Request::ft_strtrim(std::string &s) {
     s.erase(s.find_last_not_of(" \t\n\r") + 1);
     s.erase(0, s.find_first_not_of(" \t\n\r"));
     return s;
-}
-
-std::ostream & operator<<(std::ostream & o, Request const & obj)
-{
-	o << obj.getRequestLine();
-    std::map<std::string, std::string> headers = obj.getHeaders();
-    std::map<std::string, std::string>::iterator it = headers.begin();
-    for (int i = 0; i < headers.size(); i++){
-        o << it->first << ": " << it->second << std::endl;
-        it++;
-    }
-    if (strlen(obj.getBody().c_str()))
-        o << std::endl << obj.getBody();
-    return o;
 }
 
 
@@ -158,7 +138,7 @@ std::map<std::string, std::string> Request::getHeaders() const {
     return _headers;
 }
 
-std::string Request::getHeader(std::string const & name) {
+std::string Request::getHeader(std::string const &name) {
     std::map<std::string, std::string>::iterator it = this->_headers.find(name);
     if (it->first != name)
         return 0;
@@ -166,8 +146,32 @@ std::string Request::getHeader(std::string const & name) {
 }
 
 
-// DEBUG
+/* ----- OPERATORS ----- */
+
+Request & Request::operator=(Request const &op) {
+    _raw = op._raw;
+    _req = op._req;
+    _headers = op._headers;
+    _body = op._body;
+    return *this;
+}
+
+std::ostream & operator<<(std::ostream &o, Request const &obj)
+{
+	o << obj.getRequestLine();
+    std::map<std::string, std::string> headers = obj.getHeaders();
+    std::map<std::string, std::string>::iterator it = headers.begin();
+    for (int i = 0; i < headers.size(); i++){
+        o << it->first << ": " << it->second << std::endl;
+        it++;
+    }
+    if (strlen(obj.getBody().c_str()))
+        o << std::endl << obj.getBody();
+    return o;
+}
+
 /*
+// DEBUG
 int main() {
     std::string str0 = "GET / HTTP/1.1";
     Request obj0(str0);

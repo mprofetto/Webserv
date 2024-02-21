@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLine.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:20 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/20 14:07:39 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/21 20:06:23 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@ private:
 
 public:
     RequestLine();
-    RequestLine(const int&  method, const std::string& path, const std::string& http_version, const std::string& methodName);
-    RequestLine(const RequestLine& copy);
+    RequestLine(int const &method, std::string const &path, std::string const &http_version, std::string const &methodName);
+    RequestLine(RequestLine const &copy);
     ~RequestLine();
 
-    RequestLine& operator=(const RequestLine& op);
+    RequestLine& operator=(RequestLine const &op);
     
     int getMethod() const;
     std::string getPath() const;
@@ -40,7 +40,7 @@ public:
     std::string getNotValid() const;
 };
 
-std::ostream &  operator<<(std::ostream & o, RequestLine const & obj);
+std::ostream & operator<<(std::ostream &o, RequestLine const &obj);
 
 #endif
 
