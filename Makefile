@@ -6,13 +6,18 @@
 #    By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/12 14:48:07 by mprofett          #+#    #+#              #
-#    Updated: 2024/02/14 13:26:27 by mprofett         ###   ########.fr        #
+#    Updated: 2024/02/21 14:23:18 by mprofett         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= ./webserv
 
-SRC			= webserv.cpp server/TcpListener.cpp
+SRC			= webserv.cpp \
+			server/TcpListener.cpp \
+			server/configuration_file_parsing/parser.cpp \
+			server/configuration_file_parsing/tokenizer.cpp \
+			server/Server.cpp \
+			server/Route.cpp \
 
 OBJ			= ${SRC:.cpp=.o}
 
