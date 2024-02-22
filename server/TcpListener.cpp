@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:37:47 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/16 14:46:30 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/22 15:43:12 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,13 +42,20 @@ const char	*TcpListener::socketAcceptingNewConnectionFailure::what(void) const t
 	return ("Socket Accepting New Connection Failure");
 }
 
+const char	*TcpListener::socketPortIdentificationFailure::what(void) const throw()
+{
+	return ("Socket Port identification Failure");
+}
+
 TcpListener::~TcpListener()
 {
+	clearList(this->_servers);
 	return;
 }
 
-TcpListener::TcpListener(std::string conf)
+TcpListener::TcpListener(std::string configfile) : _buffer_max(MAXBUFFERSIZE)
 {
+	parseConfigurationFile(configfile);
 	return;
 }
 
@@ -57,7 +64,6 @@ TcpListener::TcpListener(const char * ipAdress, int port, int buffer_max) :
 	_port(port),
 	_buffer_max(buffer_max)
 {
-	(void) this->_ipAdress;
 	return;
 }
 
@@ -71,6 +77,18 @@ void	TcpListener::bindSocket()
 	memset(&(server.sin_zero), 0, 8);
 	if (bind(this->_socket, (sockaddr *)&server, sizeof(sockaddr)) < 0)
 		throw socketBindingFailure();
+}
+
+int		TcpListener::getPortFromSocket(int *socket)
+{
+	int			port;
+	sockaddr_in	addr;
+	socklen_t	addr_len = sizeof(sockaddr);
+
+	if (getsockname(*socket, (sockaddr *)&addr, &addr_len) < 0)
+		throw socketPortIdentificationFailure();
+	port = htons(addr.sin_port);
+	return (port);
 }
 
 void		TcpListener::init()
@@ -128,7 +146,11 @@ void	TcpListener::readRequest(int client_socket)
 		return;
 	}
 	std::string request(buf);
-	std::cout << "Request is " << request << std::endl;
+	std::cout << "Request is:\n" << request << std::endl;
+	std::cout << "Port is " << getPortFromSocket(&client_socket) << std::endl;
+	//give request to request parse
+	//get result from request parser and give it to request handler
+	//store reponse from request handler in map<fd, response> for response sending
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
@@ -165,5 +187,20 @@ void	TcpListener::run()
 			else if (FD_ISSET(i, &ready_to_write_fds))
 				writeResponse(i);
 		}
+	}
+}
+
+void					TcpListener::printServers(void) const
+{
+	std::list<Server *>::const_iterator	it;
+	const Server *	serv;
+
+	it = this->_servers.begin();
+	while (it != this->_servers.end())
+	{
+		serv = *it;
+		serv->printDatas();
+		std::cout << "\n";
+		it++;
 	}
 }
