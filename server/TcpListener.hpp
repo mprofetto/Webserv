@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/21 14:27:40 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/22 14:08:13 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,12 +116,23 @@ class TcpListener
 		std::list<Server *>			_servers;
 
 		//parse config file utils
-		void					getMaxBodySizeConfig(std::string arg);
+		void					isDigit(std::string) const;
+		std::list<std::string>	popFrontToken(std::list<std::string> token_list);
+		std::list<std::string>	getListenDirective(std::list<std::string> token_list, Server *new_server);
+		std::list<std::string>	getHostDirective(std::list<std::string> token_list, Server *new_server);
+		std::list<std::string>	getServerNameDirective(std::list<std::string> token_list, Server *new_server);
+		std::list<std::string>	getErrorPageDirective(std::list<std::string> token_list, Server *new_server);
+		std::list<std::string>	getRootDirective(std::list<std::string> token_list, Server *new_server);
+		std::list<std::string>	getIndexDirective(std::list<std::string> token_list, Server *new_server);
+		// std::list<std::string>	getLocationDirective(std::list<std::string> token_list, Server *new_server);
+		std::list<std::string>	getMaxBodySizeDirective(std::list<std::string> token_list);
+
 		std::list<std::string>	getNextDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getNextServerConfig(std::list<std::string> token_list);
 		std::list<std::string>	getServerDirectives(std::list<std::string>	token_list);
 		// void					parseConfigurationFile(std::string filename);
 		std::list<std::string>	tokenizeConfigurationFile(std::string filename);
+		void					printServers() const;
 
 		//init servers utils
 		void			bindSocket();

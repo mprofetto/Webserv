@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:37:47 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/21 13:51:04 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/22 15:43:12 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,12 @@ const char	*TcpListener::socketPortIdentificationFailure::what(void) const throw
 
 TcpListener::~TcpListener()
 {
+	clearList(this->_servers);
 	return;
 }
 
 TcpListener::TcpListener(std::string configfile) : _buffer_max(MAXBUFFERSIZE)
 {
-	// parseConfigFile(configfile);
 	parseConfigurationFile(configfile);
 	return;
 }
@@ -64,7 +64,6 @@ TcpListener::TcpListener(const char * ipAdress, int port, int buffer_max) :
 	_port(port),
 	_buffer_max(buffer_max)
 {
-	(void) this->_ipAdress;
 	return;
 }
 
@@ -188,5 +187,20 @@ void	TcpListener::run()
 			else if (FD_ISSET(i, &ready_to_write_fds))
 				writeResponse(i);
 		}
+	}
+}
+
+void					TcpListener::printServers(void) const
+{
+	std::list<Server *>::const_iterator	it;
+	const Server *	serv;
+
+	it = this->_servers.begin();
+	while (it != this->_servers.end())
+	{
+		serv = *it;
+		serv->printDatas();
+		std::cout << "\n";
+		it++;
 	}
 }
