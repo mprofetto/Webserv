@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:37:47 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/22 15:43:12 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:49:11 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,20 +59,20 @@ TcpListener::TcpListener(std::string configfile) : _buffer_max(MAXBUFFERSIZE)
 	return;
 }
 
-TcpListener::TcpListener(const char * ipAdress, int port, int buffer_max) :
-	_ipAdress(ipAdress),
+TcpListener::TcpListener(const char * ipAddress, int port, int buffer_max) :
+	_ipAddress(ipAddress),
 	_port(port),
 	_buffer_max(buffer_max)
 {
 	return;
 }
 
-void	TcpListener::bindSocket()
+void	TcpListener::bindSocket(int port)
 {
 	sockaddr_in server;
 
 	server.sin_family = AF_INET;
-	server.sin_port = htons(this->_port);
+	server.sin_port = htons(port);
 	server.sin_addr.s_addr = INADDR_ANY;
 	memset(&(server.sin_zero), 0, 8);
 	if (bind(this->_socket, (sockaddr *)&server, sizeof(sockaddr)) < 0)
@@ -93,7 +93,9 @@ int		TcpListener::getPortFromSocket(int *socket)
 
 void		TcpListener::init()
 {
-	int option_value = 1;
+	// std::list<Server *>::const_iterator	it = this->_servers.begin();
+	// Server								*server;
+	int 									option_value = 1;
 
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_socket < 0 || fcntl(this->_socket, F_SETFL, O_NONBLOCK) < 0)
@@ -102,7 +104,13 @@ void		TcpListener::init()
 		throw socketConfigurationFailure();
 	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEPORT, &option_value, sizeof(option_value)) < 0)
 		throw socketConfigurationFailure();
-	bindSocket();
+	bindSocket(this->_port);
+	// while(it != this->_servers.end())
+	// {
+	// 	server = *it;
+		// bindSocket(server->getPort());
+	// 	it++;
+	// }
 	if (listen(this->_socket, SOMAXCONN) < 0)
 		throw socketListeningFailure();
 	FD_ZERO(&this->_read_master_fd);
