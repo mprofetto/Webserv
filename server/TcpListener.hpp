@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/22 14:08:13 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:45:27 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include <arpa/inet.h>
 # include <unistd.h>
 # include "Server.hpp"
+# include "Route.hpp"
 # include "../utils.hpp"
 
 # define MAXBUFFERSIZE 2097152
@@ -96,16 +97,15 @@ class TcpListener
 		};
 
 		TcpListener(std::string	configfile);
-		TcpListener(const char * ipAdress, int port, int buffer_max);
+		TcpListener(const char * ipAddress, int port, int buffer_max);
 		~TcpListener();
 
 		void	init();
 		void	run();
 		void	parseConfigurationFile(std::string filename);
 
-
 	private:
-		const char *_ipAdress; //temporary var
+		const char *_ipAddress; //temporary var
 		int			_port; //temporary var
 
 		long long int				_buffer_max;
@@ -118,24 +118,33 @@ class TcpListener
 		//parse config file utils
 		void					isDigit(std::string) const;
 		std::list<std::string>	popFrontToken(std::list<std::string> token_list);
+
+		std::list<std::string>	getNextLocationDirective(std::list<std::string> token_list, Route *new_route);
+		std::list<std::string>	getAutoIndexDirective(std::list<std::string> token_list, Route *new_route);
+		std::list<std::string>	getAllowMethodsDirective(std::list<std::string> token_list, Route *new_route);
+		std::list<std::string>	getCgiPathDirective(std::list<std::string> token_list, Route *new_route);
+		std::list<std::string>	getIndexDirective(std::list<std::string> token_list, Route *new_route);
+		std::list<std::string>	getProxyPassDirective(std::list<std::string> token_list, Route *new_route);
+		std::list<std::string>	getRootDirective(std::list<std::string> token_list, Route *new_route);
+
+		std::list<std::string>	getNextServerDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getListenDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getHostDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getServerNameDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getErrorPageDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getRootDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getIndexDirective(std::list<std::string> token_list, Server *new_server);
-		// std::list<std::string>	getLocationDirective(std::list<std::string> token_list, Server *new_server);
-		std::list<std::string>	getMaxBodySizeDirective(std::list<std::string> token_list);
+		std::list<std::string>	getLocationDirective(std::list<std::string> token_list, Server *new_server);
 
-		std::list<std::string>	getNextDirective(std::list<std::string> token_list, Server *new_server);
+		std::list<std::string>	getMaxBodySizeDirective(std::list<std::string> token_list);
 		std::list<std::string>	getNextServerConfig(std::list<std::string> token_list);
 		std::list<std::string>	getServerDirectives(std::list<std::string>	token_list);
-		// void					parseConfigurationFile(std::string filename);
 		std::list<std::string>	tokenizeConfigurationFile(std::string filename);
+		// void					parseConfigurationFile(std::string filename);
 		void					printServers() const;
 
 		//init servers utils
-		void			bindSocket();
+		void			bindSocket(int port);
 
 		//listening request utils
 		void			handleNewConnection();

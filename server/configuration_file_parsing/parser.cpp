@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:43:00 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/22 15:31:06 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:05:34 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	TcpListener::parseConfigurationFile(std::string filename)
 	this->printServers();
 }
 
-std::list<std::string>	TcpListener::getNextDirective(std::list<std::string> token_list, Server	*new_server)
+std::list<std::string>	TcpListener::getNextServerDirective(std::list<std::string> token_list, Server	*new_server)
 {
 	std::string	arg;
 
@@ -59,8 +59,8 @@ std::list<std::string>	TcpListener::getNextDirective(std::list<std::string> toke
 		token_list = getRootDirective(token_list, new_server);
 	else if (arg.compare("index") == 0)
 		token_list = getIndexDirective(token_list, new_server);
-	// else if (arg.compare("location"))
-		// token_list = getLocationDirective(token_list, new_server);
+	else if (arg.compare("location") == 0)
+		token_list = getLocationDirective(token_list, new_server);
 	else
 		throw confFileMisconfiguration();
 	return (token_list);
@@ -70,11 +70,10 @@ std::list<std::string>	TcpListener::getServerDirectives(std::list<std::string> t
 {
 	Server	*new_server = new Server();
 	while (token_list.front().compare("}") != 0)
-		token_list = getNextDirective(token_list, new_server);
-	// if (new_server->getPort() == 0 || new_server->getRoute().empty() == true)
-		//ajouter si pas de root general et pas de root dans chaque location
-		//idem avec index
-		// throw confFileMissingDirective();
+		token_list = getNextServerDirective(token_list, new_server);
+	if (new_server->getIndex().empty() == true)
+		new_server->addIndex("index.html");
+	// if not enough error pages, set default error pages
 	token_list.pop_front();
 	this->_servers.push_back(new_server);
 	return (token_list);

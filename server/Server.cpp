@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/22 15:56:18 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:21:29 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,6 @@
 const char	*Server::invalidPortRange::what(void) const throw()
 {
 	return ("Port not in 1-65353 range");
-}
-
-const char	*Server::invalidRootDirectory::what(void) const throw()
-{
-	return ("Root directory doesnt exist");
 }
 
 const char	*Server::invalidErrorPageCode::what(void) const throw()
@@ -37,17 +32,18 @@ const char	*Server::invalidHostFormat::what(void) const throw()
 	return ("Host not formatted as XXX.XXX.XXX.XXX or not in a range from 0.0.0.0. to 255.255.255.255");
 }
 
-Server::Server() : _ipAdress(LOCALHOST), _root(""), _port(0)
+Server::Server() : _ipAddress(LOCALHOST), _root(""), _port(80)
 {
 	return;
 }
 
 Server::~Server()
 {
+	clearList(this->_routes);
 	return;
 }
 
-std::list<Route>			Server::getRoute(void) const
+std::list<Route *>			Server::getRoute(void) const
 {
 	return (this->_routes);
 }
@@ -62,9 +58,9 @@ std::list<std::string>		Server::getIndex(void) const
 	return (this->_index);
 }
 
-std::string					Server::getIpAdress(void) const
+std::string					Server::getipAddress(void) const
 {
-	return (this->_ipAdress);
+	return (this->_ipAddress);
 }
 
 int							Server::getPort(void) const
@@ -82,7 +78,7 @@ std::map<int, std::string>	Server::getErrorPages(void) const
 	return (this->_error_pages);
 }
 
-void						Server::addRoute(Route route)
+void						Server::addRoute(Route *route)
 {
 	this->_routes.push_back(route);
 }
@@ -140,15 +136,20 @@ std::string	Server::convertIpAddress(std::vector<std::string> address)
 	return (result);
 }
 
-void						Server::setIpAdress(std::string ip)
+void						Server::setipAddress(std::string ip)
 {
 	std::vector<std::string>	address;
 	std::stringstream			str_stream(ip);
 	std::string					str;
 
-	while (getline(str_stream, str, '.'))
-		address.push_back(str);
-	this->_ipAdress = convertIpAddress(address);
+	if (ip.compare("localhost"))
+		this->_ipAddress = "127.0.0.1";
+	else
+	{
+		while (getline(str_stream, str, '.'))
+			address.push_back(str);
+		this->_ipAddress = convertIpAddress(address);
+	}
 }
 
 void						Server::setPort(int port)
@@ -161,26 +162,34 @@ void						Server::setPort(int port)
 
 void						Server::setRoot(std::string path)
 {
-	if (access(path.c_str(), F_OK) != 0)
-		throw invalidRootDirectory();
 	this->_root = path;
 }
 
 void						Server::printDatas(void) const
 {
+	std::list<Route *>::const_iterator			it_routes;
 	std::list<std::string>::const_iterator		it_server_names;
 	std::list<std::string>::const_iterator		it_index;
 	std::map<int, std::string>::const_iterator	it_error_pages;
 	std::string									str;
+	Route										*route;
 	std::pair<int, std::string>					error_page;
 
 	std::cout << "Port: " << this->_port << "\n";
 	std::cout << "Root: " << this->_root << "\n";
-	std::cout << "Ip Adress: " << this->_ipAdress << "\n";
+	std::cout << "Ip Adress: " << this->_ipAddress << "\n";
 	if (this->_routes.empty() == false)
 	{
-		//show route;
-		;
+		std::cout << "Nbr of Routes is " << this->_routes.size() << "\n";
+		it_routes = this->_routes.begin();
+		while (it_routes != this->_routes.end())
+		{
+			route = *it_routes;
+			std::cout << "********************\n";
+			route->printRoute();
+			std::cout << "********************\n";
+			it_routes++;
+		}
 	}
 	else
 		std::cout << "No routes setup for this server\n";

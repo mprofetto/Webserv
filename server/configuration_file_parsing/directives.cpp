@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:25:19 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/22 14:10:48 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/23 14:05:14 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ std::list<std::string>	TcpListener::getHostDirective(std::list<std::string> toke
 
 	token_list = popFrontToken(token_list);
 	host = token_list.front();
-	new_server->setIpAdress(host);
+	new_server->setipAddress(host);
 	token_list = popFrontToken(token_list);
 	if (token_list.front().compare(";") != 0)
 		throw confFileMisconfiguration();
@@ -88,6 +88,7 @@ std::list<std::string>	TcpListener::getIndexDirective(std::list<std::string> tok
 	{
 		new_server->addIndex(name);
 		token_list = popFrontToken(token_list);
+		name = token_list.front();
 	}
 	token_list = popFrontToken(token_list);
 	return (token_list);
@@ -135,3 +136,148 @@ std::list<std::string>	TcpListener::getErrorPageDirective(std::list<std::string>
 	return (token_list);
 }
 
+std::list<std::string>	TcpListener::getLocationDirective(std::list<std::string> token_list, Server *new_server)
+{
+	Route		*new_route = new Route();
+	std::string	arg;
+
+	token_list = popFrontToken(token_list);
+	arg = token_list.front();
+	if (*(arg.c_str()) == '.')
+		new_route->setExtension(arg);
+	else if (*(arg.c_str()) == '/')
+		new_route->setPath(arg);
+	else
+		throw confFileMisconfiguration();
+	token_list = popFrontToken(token_list);
+	arg = token_list.front();
+	if (arg.compare("{") != 0)
+		throw confFileMisconfiguration();
+	token_list = popFrontToken(token_list);
+	while (token_list.front().compare("}") != 0)
+		token_list = getNextLocationDirective(token_list, new_route);
+	token_list = popFrontToken(token_list);
+	new_server->addRoute(new_route);
+	return (token_list);
+}
+
+std::list<std::string>	TcpListener::getNextLocationDirective(std::list<std::string> token_list, Route *new_route)
+{
+	std::string	arg;
+
+	arg = token_list.front();
+	if (arg.compare("autoindex") == 0)
+		token_list = getAutoIndexDirective(token_list, new_route);
+	else if (arg.compare("allow_methods") == 0)
+		token_list = getAllowMethodsDirective(token_list, new_route);
+	else if (arg.compare("proxy_pass") == 0)
+		token_list = getProxyPassDirective(token_list, new_route);
+	else if (arg.compare("cgi_path") == 0)
+		token_list = getCgiPathDirective(token_list, new_route);
+	else if (arg.compare("root") == 0)
+		token_list = getRootDirective(token_list, new_route);
+	else if (arg.compare("index") == 0)
+		token_list = getIndexDirective(token_list, new_route);
+	else
+		throw confFileMisconfiguration();
+	return (token_list);
+}
+
+std::list<std::string>	TcpListener::getIndexDirective(std::list<std::string> token_list, Route *new_route)
+{
+	std::string	name;
+
+	token_list = popFrontToken(token_list);
+	name = token_list.front();
+	while(name.compare(";") != 0)
+	{
+		new_route->addIndex(name);
+		token_list = popFrontToken(token_list);
+		name = token_list.front();
+	}
+	token_list = popFrontToken(token_list);
+	return (token_list);
+}
+
+std::list<std::string>	TcpListener::getRootDirective(std::list<std::string> token_list, Route *new_route)
+{
+	std::string	root;
+
+	token_list = popFrontToken(token_list);
+	root = token_list.front();
+	new_route->setRoot(root);
+	token_list = popFrontToken(token_list);
+	if (token_list.front().compare(";") != 0)
+		throw confFileMisconfiguration();
+	token_list = popFrontToken(token_list);
+	return (token_list);
+}
+
+std::list<std::string>	TcpListener::getAutoIndexDirective(std::list<std::string> token_list, Route *new_route)
+{
+	std::string	arg;
+
+	token_list = popFrontToken(token_list);
+	arg = token_list.front();
+	if (arg.compare("off") == 0)
+		new_route->setAutoindex(false);
+	else if (arg.compare("on") == 0)
+		new_route->setAutoindex(true);
+	else
+		throw confFileMisconfiguration();
+	token_list = popFrontToken(token_list);
+	if (token_list.front().compare(";") != 0)
+		throw confFileMisconfiguration();
+	token_list = popFrontToken(token_list);
+	return (token_list);
+}
+
+std::list<std::string>	TcpListener::getProxyPassDirective(std::list<std::string> token_list, Route *new_route)
+{
+	std::string	arg;
+
+	token_list = popFrontToken(token_list);
+	new_route->setRedirection(token_list.front());
+	token_list = popFrontToken(token_list);
+	if (token_list.front().compare(";") != 0)
+		throw confFileMisconfiguration();
+	token_list = popFrontToken(token_list);
+	return (token_list);
+}
+
+std::list<std::string>	TcpListener::getCgiPathDirective(std::list<std::string> token_list, Route *new_route)
+{
+	std::string	arg;
+
+	token_list = popFrontToken(token_list);
+	new_route->setPath(token_list.front());
+	token_list = popFrontToken(token_list);
+	if (token_list.front().compare(";") != 0)
+		throw confFileMisconfiguration();
+	token_list = popFrontToken(token_list);
+	new_route->setCgi(true);
+	return (token_list);
+}
+
+std::list<std::string>	TcpListener::getAllowMethodsDirective(std::list<std::string> token_list, Route *new_route)
+{
+	std::string	name;
+
+	token_list = popFrontToken(token_list);
+	name = token_list.front();
+	while(name.compare(";") != 0)
+	{
+		if (name.compare("GET") == 0)
+			new_route->setGet(true);
+		else if (name.compare("POST") == 0)
+			new_route->setPost(true);
+		else if (name.compare("DELETE") == 0)
+			new_route->setDelete(true);
+		else
+			throw confFileMisconfiguration();
+		token_list = popFrontToken(token_list);
+		name = token_list.front();
+	}
+	token_list = popFrontToken(token_list);
+	return (token_list);
+}
