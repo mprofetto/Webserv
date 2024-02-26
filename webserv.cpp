@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/21 11:58:55 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/26 15:07:06 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,12 @@ int	main(int argc, char **argv)
 {
 	if (checkArguments(argc, argv) == 1)
 		return (1);
-	TcpListener server("127.0.0.1", 80, 4096);
-
-	// server.parseConfigFile(argv[1]);
-	// server.parseConfigFile
-	server.parseConfigurationFile(argv[1]);
 	try
 	{
-		server.init();
-		server.run();
+		TcpListener server(argv[1]);
+
+		server.initTcpListener();
+		server.runTcpListener();
 	}
 	catch (std::exception &e)
 	{
