@@ -3,53 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/21 20:13:52 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/26 17:08:53 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
 
-Request::Request(std::string & req): _raw(req){ // TEMP 
-    _body = "";
-    std::istringstream          iss(req);
-    std::string                 line;
-    int                         count = 0;
-
-    while (std::getline(iss, line, '\n'))
-    {
-        if (strlen(line.c_str()) == 0)
-            continue ;
-        if (count == 0) {
-            try {
-                std::vector<std::string> arr = vectorSplit(line, SPACE);
-                std::string httpMethods[3] = {"DELETE", "GET", "POST"}; //put not mandatory
-                int method;
-
-                for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
-                RequestLine reqline(method, arr[1], arr[2], arr[0]);
-                _req = reqline;
-                count++;
-                continue ;
-            } catch (const std::exception & e) {
-                throw std::runtime_error("ERROR");
-            }
-        }
-        size_t pos = line.find(':');
-        if (pos == std::string::npos) { // ajouter des IF selon methode
-            _body = line;
-            continue ;
-        } // mettre le reste dans else quand nouvelles conditions if
-        std::string headerName = line.substr(0, pos);
-        std::string headerVal = line.substr(pos + 1).c_str();
-        this->setData(headerName, ft_strtrim(headerVal));
-    }
-}
-/*
-Request::Request(std::string & req, Route & route, Server & server): _raw(req){ 
-    (void) route;
+Request::Request(std::string & req, Server * server): _raw(req){ 
     (void) server;
     
     _body = ""; //a changer cas particuliers
@@ -68,7 +31,7 @@ Request::Request(std::string & req, Route & route, Server & server): _raw(req){
                 int method;
 
                 for (method = 0; method < 4 && httpMethods[method] != arr[0]; method++);
-                RequestLine reqline(method, arr[1], arr[2]);
+                RequestLine reqline(method, arr[1], arr[2], arr[0]);
                 _req = reqline;
                 count++;
                 continue ;
@@ -85,7 +48,7 @@ Request::Request(std::string & req, Route & route, Server & server): _raw(req){
         std::string headerVal = line.substr(pos + 1).c_str();
         this->setData(headerName, ft_strtrim(headerVal));
     }
-}*/
+}
 
 Request::Request(Request const &copy) {
     *this = copy;
