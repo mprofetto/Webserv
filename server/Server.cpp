@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/23 14:21:29 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/26 10:32:33 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,13 @@ const char	*Server::invalidHostFormat::what(void) const throw()
 	return ("Host not formatted as XXX.XXX.XXX.XXX or not in a range from 0.0.0.0. to 255.255.255.255");
 }
 
-Server::Server() : _ipAddress(LOCALHOST), _root(""), _port(80)
+const char	*Server::invalidSocket::what(void) const throw()
+{
+	return ("Socket given is not valid or server has already open too many sockets");
+}
+
+
+Server::Server() : _ipAddress(LOCALHOST), _root(""), _port(80), _socket(-1)
 {
 	return;
 }
@@ -71,6 +77,11 @@ int							Server::getPort(void) const
 std::string					Server::getRoot(void) const
 {
 	return (this->_root);
+}
+
+int							Server::getSocket(void) const
+{
+	return (this->_socket);
 }
 
 std::map<int, std::string>	Server::getErrorPages(void) const
@@ -163,6 +174,15 @@ void						Server::setPort(int port)
 void						Server::setRoot(std::string path)
 {
 	this->_root = path;
+}
+
+void						Server::setSocket(int socket)
+{
+	if (socket > 0 && socket < FD_SETSIZE)
+		this->_socket = socket;
+	else
+		throw invalidSocket();
+
 }
 
 void						Server::printDatas(void) const

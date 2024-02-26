@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/23 14:45:27 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/26 15:12:46 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@
 # include "../utils.hpp"
 
 # define MAXBUFFERSIZE 2097152
+
+class Server;
 
 class TcpListener
 {
@@ -97,16 +99,15 @@ class TcpListener
 		};
 
 		TcpListener(std::string	configfile);
-		TcpListener(const char * ipAddress, int port, int buffer_max);
 		~TcpListener();
 
-		void	init();
-		void	run();
-		void	parseConfigurationFile(std::string filename);
+		void			initTcpListener();
+		void			runTcpListener();
+
+		//temporary debug methods
+		void			printServers() const;
 
 	private:
-		const char *_ipAddress; //temporary var
-		int			_port; //temporary var
 
 		long long int				_buffer_max;
 		int							_socket;
@@ -115,10 +116,22 @@ class TcpListener
 		std::map<int, std::string>	_responses;
 		std::list<Server *>			_servers;
 
-		//parse config file utils
+		//Init Methods
+		void			bindSocket(Server *server);
+		void			initServer(Server *server);
+
+		//Communication Methods
+		void			handleNewConnection(Server *server);
+		void			readRequest(int socket);
+		void			writeResponse(int socket, std::string response);
+
+		//Utils
+		Server			*getServerBySocket(int socket);//return NULL if there is no server for this socket
+		int				getPortBySocket(int *socket);
+
+		//Parse config file
 		void					isDigit(std::string) const;
 		std::list<std::string>	popFrontToken(std::list<std::string> token_list);
-
 		std::list<std::string>	getNextLocationDirective(std::list<std::string> token_list, Route *new_route);
 		std::list<std::string>	getAutoIndexDirective(std::list<std::string> token_list, Route *new_route);
 		std::list<std::string>	getAllowMethodsDirective(std::list<std::string> token_list, Route *new_route);
@@ -126,7 +139,6 @@ class TcpListener
 		std::list<std::string>	getIndexDirective(std::list<std::string> token_list, Route *new_route);
 		std::list<std::string>	getProxyPassDirective(std::list<std::string> token_list, Route *new_route);
 		std::list<std::string>	getRootDirective(std::list<std::string> token_list, Route *new_route);
-
 		std::list<std::string>	getNextServerDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getListenDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getHostDirective(std::list<std::string> token_list, Server *new_server);
@@ -135,22 +147,11 @@ class TcpListener
 		std::list<std::string>	getRootDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getIndexDirective(std::list<std::string> token_list, Server *new_server);
 		std::list<std::string>	getLocationDirective(std::list<std::string> token_list, Server *new_server);
-
 		std::list<std::string>	getMaxBodySizeDirective(std::list<std::string> token_list);
 		std::list<std::string>	getNextServerConfig(std::list<std::string> token_list);
 		std::list<std::string>	getServerDirectives(std::list<std::string>	token_list);
 		std::list<std::string>	tokenizeConfigurationFile(std::string filename);
-		// void					parseConfigurationFile(std::string filename);
-		void					printServers() const;
-
-		//init servers utils
-		void			bindSocket(int port);
-
-		//listening request utils
-		void			handleNewConnection();
-		void			readRequest(int socket);
-		void			writeResponse(int socket);
-		int				getPortFromSocket(int *socket);
+		void					parseConfigurationFile(std::string filename);
 };
 
 #endif
