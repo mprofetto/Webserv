@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/23 14:15:22 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/26 15:09:56 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,12 @@ class Server
 				virtual const char *what() const throw();
 		};
 
+		class	invalidSocket : public std::exception
+		{
+			public:
+				virtual const char *what() const throw();
+		};
+
 		Server();
 		~Server();
 
@@ -65,6 +71,7 @@ class Server
 		std::string					getipAddress(void) const;
 		int							getPort(void) const;
 		std::string					getRoot(void) const;
+		int							getSocket(void) const;
 
 		void						addRoute(Route *route);
 		void						addServerName(std::string name);
@@ -73,8 +80,9 @@ class Server
 		void						setipAddress(std::string ip);
 		void						setPort(int port);
 		void						setRoot(std::string path);
+		void						setSocket(int socket);
 
-		Route 						*getRoute(std::string path); //check if a route exist, if so return a pointer to that Route, otherwise null is returned
+		Route 						*getRoute(std::string path);
 
 		std::string					convertIpAddress(std::vector<std::string> address);
 		void						printDatas(void) const;
@@ -87,6 +95,7 @@ class Server
 		std::string					_ipAddress;
 		std::string					_root;
 		int							_port;
+		int							_socket;
 };
 
 #endif
