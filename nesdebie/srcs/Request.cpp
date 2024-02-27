@@ -6,19 +6,18 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/27 13:03:40 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/27 14:04:15 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
 
-Request::Request(std::string & req, Server * server): _raw(req){ 
+Request::Request(std::string & req): _raw(req){ 
     
     _body = "";
     std::istringstream          iss(req);
     std::string                 line;
     int                         count = 0;
-    _port = server->getPort();
     while (std::getline(iss, line, '\n'))
     {
         if (strlen(line.c_str()) == 0)
@@ -87,10 +86,6 @@ std::string Request::ft_strtrim(std::string &s) {
 
 std::string Request::getRaw() const {
     return _raw;
-}
-
-int Request::getPort() const {
-    return _port;
 }
 
 RequestLine Request::getRequestLine() const {

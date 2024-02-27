@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/27 12:55:38 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/27 14:03:36 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,18 +33,16 @@ class Request{
     private:
         std::string _raw;
         RequestLine _req;
-        int _port;
         std::map<std::string, std::string>  _headers;
         std::string _body;
 
     public:
-        Request(std::string & req, Server * server);
+        Request(std::string & req);
         Request(Request const &copy);
         ~Request();
 
         Request & operator=(Request const &op);
 
-        int getPort() const;
         std::string getRaw() const;
         RequestLine getRequestLine() const;
         std::string getHeader(std::string const &name);
