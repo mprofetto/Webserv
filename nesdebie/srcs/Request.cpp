@@ -6,20 +6,19 @@
 /*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/26 17:08:53 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/27 13:03:40 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
 
 Request::Request(std::string & req, Server * server): _raw(req){ 
-    (void) server;
     
-    _body = ""; //a changer cas particuliers
+    _body = "";
     std::istringstream          iss(req);
     std::string                 line;
     int                         count = 0;
-
+    _port = server->getPort();
     while (std::getline(iss, line, '\n'))
     {
         if (strlen(line.c_str()) == 0)
@@ -27,10 +26,10 @@ Request::Request(std::string & req, Server * server): _raw(req){
         if (count == 0) {
             try {
                 std::vector<std::string> arr = vectorSplit(line, SPACE);
-                std::string httpMethods[4] = {"DELETE", "GET", "POST", "PUT"};
+                std::string httpMethods[3] = {"DELETE", "GET", "POST"};
                 int method;
 
-                for (method = 0; method < 4 && httpMethods[method] != arr[0]; method++);
+                for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
                 RequestLine reqline(method, arr[1], arr[2], arr[0]);
                 _req = reqline;
                 count++;
@@ -56,6 +55,7 @@ Request::Request(Request const &copy) {
 
 Request::~Request() {
 }
+
 
 /* ----- CLASS FUNCTIONS ----- */
 
@@ -87,6 +87,10 @@ std::string Request::ft_strtrim(std::string &s) {
 
 std::string Request::getRaw() const {
     return _raw;
+}
+
+int Request::getPort() const {
+    return _port;
 }
 
 RequestLine Request::getRequestLine() const {
@@ -132,24 +136,3 @@ std::ostream & operator<<(std::ostream &o, Request const &obj)
         o << std::endl << obj.getBody();
     return o;
 }
-
-/*
-// DEBUG
-int main() {
-    std::string str0 = "GET / HTTP/1.1";
-    Request obj0(str0);
-    std::cout << obj0 << std::endl << std::endl;
-
-    std::string str = "GET / HTTP/1.1\nUser-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\nHost: developer.mozilla.org\nAccept-Language: fr";
-    Request obj(str);
-    std::cout << obj << std::endl << std::endl;
-
-    std::string str2 = "GET /hello.htm HTTP/1.1\nUser-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\nHost: www.tutorialspoint.com\nAccept-Language: en-us\nAccept-Encoding: gzip, deflate\nConnection: Keep-Alive";
-    Request obj2(str2);
-    std::cout << obj2 << std::endl << std::endl;
-
-    std::string str3 = "POST /cgi-bin/process.cgi HTTP/1.1\nUser-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\nHost: www.tutorialspoint.com\nContent-Type: application/x-www-form-urlencoded\nContent-Length: length\nAccept-Language: en-us\nAccept-Encoding: gzip, deflate\nConnection: Keep-Alive\n\nlicenseID=string&content=string&/paramsXML=string";
-    Request obj3(str3);
-    std::cout << obj3 << std::endl << std::endl;
-}
-*/
