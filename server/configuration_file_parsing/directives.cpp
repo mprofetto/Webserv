@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:25:19 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/23 14:05:14 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/28 13:08:36 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ std::list<std::string>	TcpListener::getHostDirective(std::list<std::string> toke
 
 	token_list = popFrontToken(token_list);
 	host = token_list.front();
-	new_server->setipAddress(host);
+	new_server->setHost(host);
 	token_list = popFrontToken(token_list);
 	if (token_list.front().compare(";") != 0)
 		throw confFileMisconfiguration();
