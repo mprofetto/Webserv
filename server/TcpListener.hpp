@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/26 15:12:46 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/28 14:45:13 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <unistd.h>
 # include "Server.hpp"
 # include "Route.hpp"
+# include "../request_manager/includes/Request.hpp"
 # include "../utils.hpp"
 
 # define MAXBUFFERSIZE 2097152
@@ -123,11 +124,14 @@ class TcpListener
 		//Communication Methods
 		void			handleNewConnection(Server *server);
 		void			readRequest(int socket);
+		void			registerReponse(int socket, std::string response);
 		void			writeResponse(int socket, std::string response);
 
 		//Utils
+		Server			*getServerByHost(int port, std::string host);
 		Server			*getServerBySocket(int socket);//return NULL if there is no server for this socket
 		int				getPortBySocket(int *socket);
+		std::string		getResponse(int socket);
 
 		//Parse config file
 		void					isDigit(std::string) const;

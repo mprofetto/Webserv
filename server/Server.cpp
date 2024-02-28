@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/26 10:32:33 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/28 13:18:26 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,7 @@ const char	*Server::invalidSocket::what(void) const throw()
 	return ("Socket given is not valid or server has already open too many sockets");
 }
 
-
-Server::Server() : _ipAddress(LOCALHOST), _root(""), _port(80), _socket(-1)
+Server::Server() : _host(LOCALHOST), _root(""), _port(80), _socket(-1)
 {
 	return;
 }
@@ -64,9 +63,9 @@ std::list<std::string>		Server::getIndex(void) const
 	return (this->_index);
 }
 
-std::string					Server::getipAddress(void) const
+std::string					Server::getHost(void) const
 {
-	return (this->_ipAddress);
+	return (this->_host);
 }
 
 int							Server::getPort(void) const
@@ -147,20 +146,11 @@ std::string	Server::convertIpAddress(std::vector<std::string> address)
 	return (result);
 }
 
-void						Server::setipAddress(std::string ip)
+void						Server::setHost(std::string host)
 {
-	std::vector<std::string>	address;
-	std::stringstream			str_stream(ip);
-	std::string					str;
-
-	if (ip.compare("localhost"))
-		this->_ipAddress = "127.0.0.1";
-	else
-	{
-		while (getline(str_stream, str, '.'))
-			address.push_back(str);
-		this->_ipAddress = convertIpAddress(address);
-	}
+	if (host.compare("localhost") == 0)
+		host = "127.0.0.1";
+	this->_host = host;
 }
 
 void						Server::setPort(int port)
@@ -185,6 +175,26 @@ void						Server::setSocket(int socket)
 
 }
 
+bool						Server::isServerName(std::string name) const
+{
+	std::list<std::string>::const_iterator		it_server_names;
+	std::string									server_name;
+
+	if (this->_server_names.empty() == false)
+		{
+			it_server_names = this->_server_names.begin();
+			while (it_server_names != this->_server_names.end())
+			{
+				server_name = *it_server_names;
+				
+				if (name.compare(server_name) == 0)
+					return (true);
+				it_server_names++;
+			}
+		}
+	return (false);
+}
+
 void						Server::printDatas(void) const
 {
 	std::list<Route *>::const_iterator			it_routes;
@@ -197,7 +207,7 @@ void						Server::printDatas(void) const
 
 	std::cout << "Port: " << this->_port << "\n";
 	std::cout << "Root: " << this->_root << "\n";
-	std::cout << "Ip Adress: " << this->_ipAddress << "\n";
+	std::cout << "Host: " << this->_host << "\n";
 	if (this->_routes.empty() == false)
 	{
 		std::cout << "Nbr of Routes is " << this->_routes.size() << "\n";
