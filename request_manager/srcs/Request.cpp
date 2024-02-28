@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/27 14:04:15 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/27 14:16:30 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
 
-Request::Request(std::string & req): _raw(req){ 
-    
+Request::Request(std::string & req): _raw(req){
+
     _body = "";
     std::istringstream          iss(req);
     std::string                 line;
@@ -123,7 +123,7 @@ std::ostream & operator<<(std::ostream &o, Request const &obj)
 	o << obj.getRequestLine();
     std::map<std::string, std::string> headers = obj.getHeaders();
     std::map<std::string, std::string>::iterator it = headers.begin();
-    for (int i = 0; i < headers.size(); i++){
+    for (unsigned long i = 0; i < headers.size(); i++){
         o << it->first << ": " << it->second << std::endl;
         it++;
     }
