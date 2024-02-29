@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/28 14:45:13 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/29 11:19:38 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,8 @@ class TcpListener
 		void			readRequest(int socket);
 		void			registerReponse(int socket, std::string response);
 		void			writeResponse(int socket, std::string response);
+		void			handleRequest(Request &request, Server *server,int client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
+
 
 		//Utils
 		Server			*getServerByHost(int port, std::string host);
