@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/21 20:10:29 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/02/29 14:05:55 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,14 @@ RequestLine::RequestLine(int const &method, std::string const &path, std::string
         _not_valid = methodName;
     else
         _not_valid = "";
-    /*std::ifstream file(path); // TO EDIT
-    if (!file.is_open())
-        throw std::runtime_error("Error: data.csv not found.");*/
 }
 
-RequestLine::RequestLine(const RequestLine & copy){
+RequestLine::RequestLine(const RequestLine & copy) {
     *this = copy;
 }
 
-RequestLine::~RequestLine() {}
+RequestLine::~RequestLine() {
+}
 
 
 /* ----- GETTERS ----- */
@@ -62,8 +60,7 @@ RequestLine& RequestLine::operator=(RequestLine const &op) {
     return *this;
 }
 
-std::ostream & operator<<(std::ostream &o, RequestLine const &obj)
-{
+std::ostream & operator<<(std::ostream &o, RequestLine const &obj) {
     std::string httpMethods[4] = {"DELETE", "GET", "POST", obj.getNotValid()};
 	o << httpMethods[obj.getMethod()]<< ": " << obj.getPath() << " " << obj.getHTTPVersion() << std::endl;
     return o;
