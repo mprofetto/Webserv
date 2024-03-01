@@ -1,25 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ResponseManager.cpp                                :+:      :+:    :+:   */
+/*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/02/19 17:31:34 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:23:59 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ResponseManager.hpp"
+#include "Response.hpp"
 #include <sstream>
+#include <fstream>
 
 // ============================================================================== CONSTRUCTORS
 
-ResponseManager::ResponseManager(const int statusCode) : _statusCode(statusCode) {
+Response::Response(const int statusCode) : _statusCode(statusCode) {
     return;
 }
 
-ResponseManager::~ResponseManager() {
+Response::~Response() {
     return;
 }
 
@@ -35,10 +36,23 @@ std::string getHeaders() {//          which header is important ?
 }
 
 std::string getBody() {//             what kind of body message do we need ? Is it necessary ?
-    return "";
+    
+	std::ifstream			myfile;
+    std::string             line;
+    std::string             body;
+    
+    myfile.open("../index/home.html");
+	if (std::ios_base::failbit == true)
+		std::cout << "ERROR OPENING" << std::endl;
+    
+    while (std::getline(myfile, line)) {
+        body += line;
+    }
+    
+    return line;
 }
 
-void ResponseManager::getResponseLine() {
+void Response::getResponseLine() {
     
     std::stringstream   ss;
     std::string         headers;
@@ -54,5 +68,7 @@ void ResponseManager::getResponseLine() {
         body = getBody() /*+ "\n"*/;
 
     _responseLine = _statusLine + headers + body;
+
+    std::cout << "RESPONSE :\n" << _responseLine << std::endl;
     return;
 }

@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ResponseManager.hpp                                :+:      :+:    :+:   */
+/*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/02/19 17:17:51 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/01 10:50:06 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RESPONSEMANAGER_HPP
-#define RESPONSEMANAGER_HPP
+#ifndef RESPONSE_HPP
+#define RESPONSE_HPP
 
 #include <iostream>
 #include <map>
@@ -22,11 +22,11 @@
 //      - opt message body
 
 
-class ResponseManager {
+class Response {
 
     public:
-        ResponseManager(const int statusCode);
-        ~ResponseManager();
+        Response(const int statusCode);
+        ~Response();
 
         void getResponseLine();
 

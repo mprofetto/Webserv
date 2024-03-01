@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/29 14:18:20 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/29 17:17:26 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,17 +84,24 @@ void	TcpListener::readRequest(int client_socket)
 	std::cout << "Path in request is " << request.getRequestLine().getPath() << std::endl;
 	std::cout << "Server root: is " << server->getRoot() << std::endl;
 	this->registerReponse(client_socket, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!");
-	// handleRequest(request, server, client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
+	handleRequest(request, server, client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
 }
 
 void	TcpListener::handleRequest(Request &request, Server *server, int client_socket)
 {
 	std::string result;
 
+	std::cout << "Request : " << request.getRequestLine() << std::endl;
+	// headers ? 
+	std::cout << "Body : " << request.getBody() << std::endl;
+	std::cout << std::endl; 
+	std::cout << "SERVER" << std::endl << "Host: " << server->getHost() << std::endl << "Root: " << server->getRoot() << std::endl;
+	std::cout << "Client socket : " << client_socket << std::endl;
+
 	/*Doing some stuff*/
 	(void) request;
 	(void) server;
-	// FD_SET(client_socket, &this->_write_master_fd);
+	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, result);
 }
 
