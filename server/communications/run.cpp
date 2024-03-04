@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/29 17:17:26 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/04 11:55:34 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,18 +91,21 @@ void	TcpListener::handleRequest(Request &request, Server *server, int client_soc
 {
 	std::string result;
 
-	std::cout << "Request : " << request.getRequestLine() << std::endl;
-	// headers ? 
-	std::cout << "Body : " << request.getBody() << std::endl;
-	std::cout << std::endl; 
-	std::cout << "SERVER" << std::endl << "Host: " << server->getHost() << std::endl << "Root: " << server->getRoot() << std::endl;
-	std::cout << "Client socket : " << client_socket << std::endl;
+	// std::cout << "Request : " << request.getRequestLine() << std::endl;
+	// // headers ? 
+	// std::cout << "Body : " << request.getBody() << std::endl;
+	// std::cout << std::endl; 
+	// std::cout << "SERVER" << std::endl << "Host: " << server->getHost() << std::endl << "Root: " << server->getRoot() << std::endl;
+	// std::cout << "Client socket : " << client_socket << std::endl;
 
-	/*Doing some stuff*/
+	Response response(200);
+
+	response.getResponseLine();
+
 	(void) request;
 	(void) server;
 	FD_SET(client_socket, &this->_write_master_fd);
-	this->registerReponse(client_socket, result);
+	this->registerReponse(client_socket, response.getRepsonse());
 }
 
 void	TcpListener::registerReponse(int socket, std::string response)
@@ -125,6 +128,7 @@ void	TcpListener::registerReponse(int socket, std::string response)
 void	TcpListener::writeResponse(int client_socket, std::string response)
 {
 	std::cout << "Sending response\n";
+	std::cout << response << std::endl;
 	send(client_socket, response.c_str(), response.size(), 0);
 	FD_CLR(client_socket, &this->_write_master_fd);
 }

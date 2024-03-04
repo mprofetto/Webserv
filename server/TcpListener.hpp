@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TcpListener.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/29 11:19:38 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/04 11:53:11 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 # include "Route.hpp"
 # include "../request_manager/includes/Request.hpp"
 # include "../utils.hpp"
+# include "../response_manager/Response.hpp"
 
 # define MAXBUFFERSIZE 2097152
 

@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/01 10:50:06 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/04 11:52:01 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,10 @@ class Response {
         ~Response();
 
         void getResponseLine();
+        std::string     getResponse();
 
     private:
+        // const int                           _clientSocket;
         const int                           _statusCode;
         std::string                         _responseLine;
         std::string                         _statusLine;

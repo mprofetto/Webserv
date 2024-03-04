@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/26 15:07:06 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/04 11:52:25 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,11 @@ int	main(int argc, char **argv)
 
 		server.initTcpListener();
 		server.runTcpListener();
+
+		// TEMP
+		// Response response(200);
+
+		// response.getResponseLine();
 	}
 	catch (std::exception &e)
 	{

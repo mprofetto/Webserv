@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:22:51 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/21 14:24:11 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/04 09:56:38 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ std::list<std::string>	TcpListener::tokenizeConfigurationFile(std::string filena
 	std::string				token = "temp";
 	std::string				line;
 	size_t					pos = 0;
+
+	std::cout << "\n\n!!!\nFILENAME : " << filename << "\n!!!\n\n";
 
 	myfile.open(filename);
 	if (std::ios_base::failbit == true)
