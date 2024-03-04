@@ -6,26 +6,21 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/04 19:50:57 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/04 20:33:09 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Cgi.hpp"
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <cstring>
+#include "../includes/Cgi.hpp"
 
-Cgi::Cgi(Request & request) : _env(NULL)
-{
+
+Cgi::Cgi(Request & request) : _env(NULL) {
 	_file_path = request.getRequestLine().getPath();
 	_bin_path = ""; // TODO => path to the CGI script being executed
 	_cgi_pid = -1;
 	_body_file = NULL;
 	_cgi_stdout = -1;
 	_cgi_stderr = -1;
-    _cgi_env.clear();
-	_cgi_env = fillEnvs(request);
+	fillEnvs(request);
 }
 
 Cgi::Cgi(Cgi const &copy) {
@@ -47,7 +42,7 @@ Cgi &Cgi::operator=(Cgi const &op) {
 		_body_file = op._body_file;
 		_cgi_stdout = op._cgi_stdout;
 		_cgi_stderr = op._cgi_stderr;
-		_cgi_env = op._cgi_env;
+		_map = op._map;
 	}
 	return *this;
 }
@@ -55,7 +50,7 @@ Cgi &Cgi::operator=(Cgi const &op) {
 
 /*----- FUNCTIONS -----*/
 
-std::map<std::string, std::string> Cgi::fillEnvs(Request & request) {
+void Cgi::fillEnvs(Request & request) {
 /* Variables fondamentales pour majorite CGI */
 	char **methods = NULL;
 	methods[0] = "DELETE";
@@ -84,11 +79,33 @@ std::map<std::string, std::string> Cgi::fillEnvs(Request & request) {
 	this->setData("HTTP_VERSION", request.getRequestLine().getHTTPVersion());
 	this->setData("SERVER_PROTOCOL", request.getRequestLine().getHTTPVersion());
 	this->setData("PATH_INFO", request.getRequestLine().getPath());
-	return _cgi_env;
+
+	for (std::map<std::string, std::string>::iterator it = _map.begin(); it != _map.end(); it++) {
+			_vec.push_back(it->first + "=" + it->second);
+		}
+		_env = new char*[_vec.size() + 1];
+		if (_env == NULL) {
+			std::cout << "failed to allocate memory for the cgi envirenement variables";
+			// throw une erreur
+		}
+		for (size_t i = 0; i < _vec.size(); i++) {
+			_env[i] = strdup(_vec[i].c_str());
+			if (_env[i] == NULL) {
+				std::cout << "failed to allocate memory for the cgi envirenement variables";
+				// throw une erreur
+			}
+		}
+		_env[_vec.size()] = NULL;
+		if (request.getRequestLine().getMethod() == POST) {
+			if (!this->create_body_file(request)) {
+				std::cout << "failed to create a temporary file for the request body";
+				// throw une erreur
+			}
+		}
 }
 
-void Cgi::setData(std::string head, std::string val) {
-    this->_cgi_env.insert(std::make_pair(head, val));
+void Cgi::setData(std::string & head, std::string & val) {
+    this->_map.insert(std::make_pair(head, val));
 }
 
 bool	Cgi::validateBinPath() {
@@ -157,9 +174,12 @@ bool	Cgi::execute(Request &request) {
 		args[0] = _bin_path.c_str(); // TODO
 		args[1] = _file_path.c_str();
 		args[2] = NULL;
-		if (execve(args[0], (char* const*)args, _env) == -1)
+		if (execve(args[0], (char* const*)args, _env) == -1) {
+			delete _env;
 			exit(EXIT_FAILURE);
+		}
 	}
+	delete _env;
 	return true;
 }
 
