@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/27 14:03:36 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/03 22:35:17 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,12 @@
 # include <map>
 
 # include "RequestLine.hpp"
-//# include "Server.hpp" // TO UNCOMMENT ONCE MERGED
-# include "../../server/Server.hpp" // TO COMMENT ONCE MERGED
+# include "../../server/Server.hpp"
 
 class RequestLine;
 class Server;
 
-class Request{
+class Request {
     private:
         std::string _raw;
         RequestLine _req;

@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/27 14:16:30 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/02/28 17:23:40 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
 
 Request::Request(std::string & req): _raw(req){
-
     _body = "";
     std::istringstream          iss(req);
     std::string                 line;
@@ -101,6 +100,8 @@ std::map<std::string, std::string> Request::getHeaders() const {
 }
 
 std::string Request::getHeader(std::string const &name) {
+    if (this->_headers.size() == 0)
+        return 0;
     std::map<std::string, std::string>::iterator it = this->_headers.find(name);
     if (it->first != name)
         return 0;
