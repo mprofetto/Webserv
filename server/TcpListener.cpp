@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:37:47 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/28 14:13:30 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/05 11:23:03 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ TcpListener::~TcpListener()
 	return;
 }
 
-TcpListener::TcpListener(std::string configfile) : _buffer_max(MAXBUFFERSIZE)
+TcpListener::TcpListener(std::string configfile) : _buffer_max(MAXBUFFERSIZE), _socket_nbr(0)
 {
 	parseConfigurationFile(configfile);
 	return;
