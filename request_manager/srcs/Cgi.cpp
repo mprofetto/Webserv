@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 12:48:14 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:32:28 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ bool	Cgi::execute(Request &request) {
 	if (_cgi_pid == 0)
 	{
 		if (request.getRequestLine().getMethod() == POST)
-			write(STDIN_FILENO, request.getBody().c_str(), strlen(request.getBody().c_str()));
+			write(STDIN_FILENO, request.getBody().c_str(), request.getContentLenght());
 		if (dup2(_cgi_stdout, STDOUT_FILENO) == -1)
 			exit(EXIT_FAILURE);
 		if (dup2(_cgi_stderr, STDERR_FILENO) == -1)

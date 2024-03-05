@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 12:53:15 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:43:23 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ Request::Request(std::string & req): _raw(req){
     }
     if (_req.getMethod() == POST) {
         _content_length = atoi(getHeader("Content-Length").c_str());
+        if (_content_length > CONTENT_LENGTH_MAX)
+            throw ContentLengthException();
         if (_content_length < strlen(_body.c_str()))
             _complete = false;
     }
@@ -161,6 +163,10 @@ std::ostream & operator<<(std::ostream &o, Request const &obj) {
 
 const   char* Request::HeaderNotFoundException::what() const throw() {
     return "Header Not Found";
+}
+
+const   char* Request::ContentLengthException::what() const throw() {
+    return "Content-Length too big";
 }
 
 /*

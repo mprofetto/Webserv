@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 12:53:10 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:43:10 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 
 # include "./RequestLine.hpp"
 # include "../../server/Server.hpp"
+//# include "../../webserv.hpp"
+# define CONTENT_LENGTH_MAX 2000000000
 
 class RequestLine;
 
@@ -58,6 +60,10 @@ class Request {
         std::string ft_strtrim(std::string & s);
 
 		class	HeaderNotFoundException : public std::exception {
+            public:
+                const char *what() const throw();
+		};
+        class	ContentLengthException : public std::exception {
             public:
                 const char *what() const throw();
 		};
