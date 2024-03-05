@@ -6,11 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/03/03 22:35:17 by nesdebie         ###   ########.fr       */
-=======
-/*   Updated: 2024/02/29 12:46:29 by nesdebie         ###   ########.fr       */
->>>>>>> 333fa626db11e8f056a3eabc8aa985f52339e39d
+/*   Updated: 2024/03/05 11:33:51 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +21,9 @@
 # include <vector>
 # include <iostream>
 # include <map>
-<<<<<<< HEAD
 
-# include "RequestLine.hpp"
+# include "./RequestLine.hpp"
 # include "../../server/Server.hpp"
-=======
-# include <exception>
-# include "../includes/RequestLine.hpp"
->>>>>>> 333fa626db11e8f056a3eabc8aa985f52339e39d
 
 class RequestLine;
 
@@ -42,8 +33,11 @@ class Request {
         RequestLine _req;
         std::map<std::string, std::string>  _headers;
         std::string _body;
+        bool _complete;
+        int _content_length;
 
     public:
+        Request();
         Request(std::string & req);
         Request(Request const &copy);
         ~Request();
@@ -55,7 +49,10 @@ class Request {
         std::string getHeader(std::string const &name);
         std::map<std::string, std::string> getHeaders() const;
         std::string getBody() const;
+        bool getComplete() const;
+        int getContentLenght() const;
 
+        void setBody(std::string & str);
         std::vector<std::string> vectorSplit(std::string str, char sep);
         void setData(std::string head, std::string val);
         std::string ft_strtrim(std::string & s);

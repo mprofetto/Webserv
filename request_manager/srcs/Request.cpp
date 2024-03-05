@@ -6,26 +6,23 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/02/28 17:23:40 by nesdebie         ###   ########.fr       */
-=======
-/*   Updated: 2024/02/29 14:26:40 by nesdebie         ###   ########.fr       */
->>>>>>> 333fa626db11e8f056a3eabc8aa985f52339e39d
+/*   Updated: 2024/03/05 11:33:44 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
 
-<<<<<<< HEAD
+Request::Request() {
+}
+
 Request::Request(std::string & req): _raw(req){
     _body = "";
-=======
-Request::Request(std::string & req): _raw(req), _body("") {
->>>>>>> 333fa626db11e8f056a3eabc8aa985f52339e39d
     std::istringstream          iss(req);
     std::string                 line;
     int                         count = 0;
 
+    _complete = true;
+    _content_length = 0;
     while (std::getline(iss, line, '\n')) {
         if (strlen(line.c_str()) == 0)
             continue ;
@@ -54,6 +51,11 @@ Request::Request(std::string & req): _raw(req), _body("") {
         std::string headerVal = line.substr(pos + 1).c_str();
         this->setData(headerName, ft_strtrim(headerVal));
     }
+    if (_req.getMethod() == POST) {
+        _content_length = atoi(getHeader("Content-Length").c_str());
+        if (_content_length < strlen(_body.c_str()))
+            _complete = false;
+    }
 }
 
 Request::Request(Request const &copy) {
@@ -65,6 +67,10 @@ Request::~Request() {
 
 
 /* ----- CLASS FUNCTIONS ----- */
+
+void Request::setBody(std::string & str) {
+    _body += str;
+}
 
 std::vector<std::string> Request::vectorSplit(std::string str, char sep) {
     std::vector<std::string> arr;
@@ -109,19 +115,21 @@ std::map<std::string, std::string> Request::getHeaders() const {
 }
 
 std::string Request::getHeader(std::string const &name) {
-<<<<<<< HEAD
     if (this->_headers.size() == 0)
         return 0;
-=======
-    if (_headers.size() == 0)
-        throw HeaderNotFoundException();
->>>>>>> 333fa626db11e8f056a3eabc8aa985f52339e39d
     std::map<std::string, std::string>::iterator it = this->_headers.find(name);
     if (it->first != name)
         throw HeaderNotFoundException();
     return it->second;
 }
 
+bool Request::getComplete() const {
+    return _complete;
+}
+
+int Request::getContentLenght() const {
+    return _content_length;
+}
 
 /* ----- OPERATORS ----- */
 
@@ -130,6 +138,8 @@ Request & Request::operator=(Request const &op) {
     _req = op._req;
     _headers = op._headers;
     _body = op._body;
+    _complete = op._complete;
+    _content_length = op._content_length;
     return *this;
 }
 
