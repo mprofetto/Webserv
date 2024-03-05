@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/29 11:19:38 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/05 10:59:41 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@
 # define MAXBUFFERSIZE 2097152
 
 class Server;
+class Response;
+class Request;
 
 class TcpListener
 {
@@ -111,29 +113,32 @@ class TcpListener
 	private:
 
 		long long int				_buffer_max;
+		int							_socket_nbr;
 		int							_socket;
 		fd_set						_read_master_fd;
 		fd_set						_write_master_fd;
-		std::map<int, std::string>	_responses;
 		std::list<Server *>			_servers;
+		Request						_pending_request;
+		std::map<int, Request>		_incomplete_requests;
+		std::map<int, std::string>	_responses;
 
 		//Init Methods
-		void			bindSocket(Server *server);
-		void			initServer(Server *server);
+		void					bindSocket(Server *server);
+		void					initServer(Server *server);
 
 		//Communication Methods
-		void			handleNewConnection(Server *server);
-		void			readRequest(int socket);
-		void			registerReponse(int socket, std::string response);
-		void			writeResponse(int socket, std::string response);
-		void			handleRequest(Request &request, Server *server,int client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
-
+		void					handleNewConnection(Server *server);
+		void					readRequest(int socket);
+		bool					isIncompleteRequest(int socket);
+		void					registerReponse(int socket, std::string response);
+		void					writeResponse(int socket);
+		void					handleRequest(int client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
 
 		//Utils
-		Server			*getServerByHost(int port, std::string host);
-		Server			*getServerBySocket(int socket);//return NULL if there is no server for this socket
-		int				getPortBySocket(int *socket);
-		std::string		getResponse(int socket);
+		Server					*getServerByHost(int port, std::string host);
+		Server					*getServerBySocket(int socket);//return NULL if there is no server for this socket
+		int						getPortBySocket(int *socket);
+		std::string				getResponse(int socket);
 
 		//Parse config file
 		void					isDigit(std::string) const;

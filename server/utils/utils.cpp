@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:39:42 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/28 14:45:42 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/05 11:32:57 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,7 @@ Server	*TcpListener::getServerBySocket(int socket)
 			return (result);
 		it++;
 	}
-	result = NULL;
-	return  (NULL);
+	return (NULL);
 }
 
 void	TcpListener::printServers(void) const
@@ -87,3 +86,14 @@ std::string		TcpListener::getResponse(int socket)
 	else
 		return ((*it).second);
 }
+
+bool			TcpListener::isIncompleteRequest(int socket)
+{
+	std::map<int, Request>::iterator	it;
+
+	it = this->_incomplete_requests.find(socket);
+	// if (it != this->_requests.end() && (*it).second.isComplete() == false)
+	// 	return (true);
+	return (false);
+}
+

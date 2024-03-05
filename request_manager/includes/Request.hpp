@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/27 14:03:36 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 10:24:33 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,10 @@
 # include <vector>
 # include <iostream>
 # include <map>
-
-# include "RequestLine.hpp"
-//# include "Server.hpp" // TO UNCOMMENT ONCE MERGED
-# include "../../server/Server.hpp" // TO COMMENT ONCE MERGED
+# include <exception>
+# include "../includes/RequestLine.hpp"
 
 class RequestLine;
-class Server;
 
 class Request{
     private:
@@ -37,6 +34,7 @@ class Request{
         std::string _body;
 
     public:
+        Request();
         Request(std::string & req);
         Request(Request const &copy);
         ~Request();
@@ -52,6 +50,11 @@ class Request{
         std::vector<std::string> vectorSplit(std::string str, char sep);
         void setData(std::string head, std::string val);
         std::string ft_strtrim(std::string & s);
+
+		class	HeaderNotFoundException : public std::exception {
+            public:
+                const char *what() const throw();
+		};
 };
 
 std::ostream & operator<<(std::ostream &o, Request const &obj);
