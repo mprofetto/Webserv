@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 11:33:51 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:53:10 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ class Request {
         bool getComplete() const;
         int getContentLenght() const;
 
-        void setBody(std::string & str);
+        void catToBody(std::string & str);
         std::vector<std::string> vectorSplit(std::string str, char sep);
         void setData(std::string head, std::string val);
         std::string ft_strtrim(std::string & s);

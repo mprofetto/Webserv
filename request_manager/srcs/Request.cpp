@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 11:33:44 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:53:15 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ Request::~Request() {
 
 /* ----- CLASS FUNCTIONS ----- */
 
-void Request::setBody(std::string & str) {
+void Request::catToBody(std::string & str) {
     _body += str;
 }
 

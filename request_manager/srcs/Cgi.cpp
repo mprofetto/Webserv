@@ -6,18 +6,19 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/04 20:33:09 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:48:14 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Cgi.hpp"
 
+Cgi::Cgi() {
+}
 
 Cgi::Cgi(Request & request) : _env(NULL) {
 	_file_path = request.getRequestLine().getPath();
 	_bin_path = ""; // TODO => path to the CGI script being executed
 	_cgi_pid = -1;
-	_body_file = NULL;
 	_cgi_stdout = -1;
 	_cgi_stderr = -1;
 	fillEnvs(request);
@@ -39,7 +40,6 @@ Cgi &Cgi::operator=(Cgi const &op) {
 		_bin_path = op._bin_path;
 		_env = op._env;
 		_cgi_pid = op._cgi_pid;
-		_body_file = op._body_file;
 		_cgi_stdout = op._cgi_stdout;
 		_cgi_stderr = op._cgi_stderr;
 		_map = op._map;
@@ -52,33 +52,33 @@ Cgi &Cgi::operator=(Cgi const &op) {
 
 void Cgi::fillEnvs(Request & request) {
 /* Variables fondamentales pour majorite CGI */
-	char **methods = NULL;
+	const char **methods = NULL;
 	methods[0] = "DELETE";
 	methods[1] = "GET";
 	methods[2] = "POST";
-	methods[3] = NULL;
+	methods[3] = 0;
 	this->setData("REQUEST_METHOD", methods[request.getRequestLine().getMethod()]);
-	this->setData("CONTENT_TYPE", request.getHeader("Content-Type"));
+	this->setData("CONTENT_TYPE", request.getHeader("Content-Type").c_str());
 	std::stringstream ss;
 	ss << strlen(request.getBody().c_str());
-	this->setData("CONTENT_LENGTH", ss.str()); // length of the body in bytes
+	this->setData("CONTENT_LENGTH", ss.str().c_str()); // length of the body in bytes
 	this->setData("QUERY_STRING", "");  // TODO => query string portion of the URL
-	this->setData("SCRIPT_NAME", _bin_path); //TODO => path to the CGI script being executed
+	this->setData("SCRIPT_NAME", _bin_path.c_str()); //TODO => path to the CGI script being executed
 	this->setData("REMOTE_ACCESS", ""); //TODO =>  IP address of the client making the request 
-	this->setData("HTTP_USER_AGENT", request.getHeader("User-Agent"));
+	this->setData("HTTP_USER_AGENT", request.getHeader("User-Agent").c_str());
 
 	/* Autres variables */
-	this->setData("REQUEST_URI", request.getRequestLine().getPath());
-	this->setData("SERVER_NAME", request.getHeader("Host"));
+	this->setData("REQUEST_URI", request.getRequestLine().getPath().c_str());
+	this->setData("SERVER_NAME", request.getHeader("Host").c_str());
 	this->setData("SERVER_SOFTWARE", "Apache/2.4.41"); // NOT SURE (nom et version du serveur web qui execute le script)
 	this->setData("REDIRECT_STATUS", "200");
-	this->setData("HTTP_CONNECTION", request.getHeader("Connection"));
-	this->setData("HTTP_HOST", request.getHeader("Host"));
-	this->setData("HTTP_COOKIE", request.getHeader("Cookie")); // BONUS ?
-	this->setData("HTTP_ACCEPT", request.getHeader("Accept"));
-	this->setData("HTTP_VERSION", request.getRequestLine().getHTTPVersion());
-	this->setData("SERVER_PROTOCOL", request.getRequestLine().getHTTPVersion());
-	this->setData("PATH_INFO", request.getRequestLine().getPath());
+	this->setData("HTTP_CONNECTION", request.getHeader("Connection").c_str());
+	this->setData("HTTP_HOST", request.getHeader("Host").c_str());
+	this->setData("HTTP_COOKIE", request.getHeader("Cookie").c_str()); // BONUS ?
+	this->setData("HTTP_ACCEPT", request.getHeader("Accept").c_str());
+	this->setData("HTTP_VERSION", request.getRequestLine().getHTTPVersion().c_str());
+	this->setData("SERVER_PROTOCOL", request.getRequestLine().getHTTPVersion().c_str());
+	this->setData("PATH_INFO", request.getRequestLine().getPath().c_str());
 
 	for (std::map<std::string, std::string>::iterator it = _map.begin(); it != _map.end(); it++) {
 			_vec.push_back(it->first + "=" + it->second);
@@ -92,19 +92,12 @@ void Cgi::fillEnvs(Request & request) {
 			_env[i] = strdup(_vec[i].c_str());
 			if (_env[i] == NULL) {
 				std::cout << "failed to allocate memory for the cgi envirenement variables";
-				// throw une erreur
 			}
 		}
 		_env[_vec.size()] = NULL;
-		if (request.getRequestLine().getMethod() == POST) {
-			if (!this->create_body_file(request)) {
-				std::cout << "failed to create a temporary file for the request body";
-				// throw une erreur
-			}
-		}
 }
 
-void Cgi::setData(std::string & head, std::string & val) {
+void Cgi::setData(const char *head, const char *val) {
     this->_map.insert(std::make_pair(head, val));
 }
 
@@ -125,15 +118,6 @@ bool	Cgi::validateBinPath() {
 		std::cout << "Permission denied\n"; // FILE NOT EXECUTABLE
 		return false;
 	}
-	return true;
-}
-
-bool	Cgi::create_body_file(Request &request) {
-	_body_file = tmpfile(); //creates a temp file
-	if (_body_file == NULL)
-		return false;
-	for (size_t i = 0; i < request.getRaw().size(); i++)
-		fputc(request.getRaw()[i], _body_file);
 	return true;
 }
 
@@ -160,11 +144,7 @@ bool	Cgi::execute(Request &request) {
 	if (_cgi_pid == 0)
 	{
 		if (request.getRequestLine().getMethod() == POST)
-		{
-			rewind(_body_file); // sets the file position to the beginning of the file of the given stream
-			if (dup2(fileno(_body_file), STDIN_FILENO) == -1)
-				exit(EXIT_FAILURE);
-		} 
+			write(STDIN_FILENO, request.getBody().c_str(), strlen(request.getBody().c_str()));
 		if (dup2(_cgi_stdout, STDOUT_FILENO) == -1)
 			exit(EXIT_FAILURE);
 		if (dup2(_cgi_stderr, STDERR_FILENO) == -1)

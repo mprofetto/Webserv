@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/04 20:28:01 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:47:44 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@
 
 class Cgi {
 	private:
-		FILE* _body_file;
 		pid_t _cgi_pid;
 		char** _env;
 		std::string	_file_path;
@@ -36,6 +35,7 @@ class Cgi {
 		int _cgi_stderr;
 
 	public:
+		Cgi();
 		Cgi(Request & request);
 		Cgi(Cgi const &copy);
 		~Cgi();
@@ -46,8 +46,7 @@ class Cgi {
 		bool	execute(Request &request);
 		int		wait();
 		bool	setupFiles();
-		bool 	create_body_file(Request &request);
-		void 	setData(std::string &head, std::string &val);
+		void 	setData(const char *head, const char *val);
 		void	fillEnvs(Request &request);
 		int		getStdout() const;
 		int		getStderr() const;
