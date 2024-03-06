@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/04 11:52:12 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/06 15:19:40 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 // ============================================================================== CONSTRUCTORS
 
-Response::Response(const int statusCode) : _statusCode(statusCode) {
+Response::Response(const int statusCode) : _statusCode(statusCode), _path("/") {
     return;
 }
 
@@ -25,34 +25,40 @@ Response::~Response() {
     return;
 }
 
-// ============================================================================== GETTER & SETTER
-
-std::string     Response::getResponse() {
-    return _responseLine;
-}
-
-
 // ============================================================================== MEMBER FUNCTIONS
 
-std::string getReason() {//           how to get the right reason message ?
-    return "OK";
+std::string getReason(int sc) {//           how to get the right reason message ?
+
+    std::map<int, std::string> reasons;
+    reasons.insert(std::make_pair(200, "OK"));
+    reasons.insert(std::make_pair(400, "Bad Request"));
+    reasons.insert(std::make_pair(403, "Forbidden"));
+    reasons.insert(std::make_pair(404, "Not Found"));
+    reasons.insert(std::make_pair(500, "Internal Server Error"));
+
+    std::map<int, std::string>::iterator it = reasons.find(sc);
+    if (it == reasons.end()) {
+        std::cout << "Status code not implemented !" << std::endl;
+    }
+    
+    return it->second;
 }
 
 std::string getHeaders(const int s) {//          which header is important ?
     std::string h;
 
-    h += "Content-Type: text/plain\r\n";
+    h += "Content-Type: text/html\r\n";
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
     return "";
 }
 
-std::string getBody() {
+std::string Response::getBody() {
     
 	std::ifstream			myfile;
     std::string             line;
     std::string             body;
-    
-    myfile.open("index/home.html");
+
+    myfile.open(_path);
 	if (myfile.fail()) {
 		std::cout << "ERROR OPENING" << std::endl;
     }
@@ -65,16 +71,42 @@ std::string getBody() {
     return body;
 }
 
-void Response::getResponseLine() {
+void      Response::buildResponse(Request request) {
+    
+    // int method = request.getRequestLine().getMethod();
+    // std::cout << "Method : " << method << std::endl;
 
+    switch (request.getRequestLine().getMethod()) {
+        case 1:
+            buildGetResponse(request);
+            break;
+        case 2:
+            buildPostResponse(request);
+            break;
+        case 0:// DELETE
+            break;
+        default:
+            break;//    ?
+    }
+    return;
+}
+
+void Response::buildPostResponse(Request request) {
+    (void)request;
+    return;
+}
+
+void Response::buildGetResponse(Request request) {
+
+    (void)request;
     std::stringstream   ss;
     std::string         headers;
     std::string         body;
 
     ss << _statusCode;
 
-    _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason() + "\n";
-        
+    _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason(_statusCode) + "\n";
+
     // if (_body.size())
         body = getBody() /*+ "\n"*/;
     // if (_headers.size())
@@ -83,13 +115,21 @@ void Response::getResponseLine() {
     _responseLine = _statusLine + headers + body;
 
     // std::cout << "RESPONSE :\n" << _responseLine << std::endl;
-    
-    // ssize_t bytesSent = send(_clientSocket, _responseLine.c_str(), _responseLine.length(), 0);
-    // if (bytesSent < 0) {
-    //     perror("Error sending _responseLine");
-    // } else {
-    //     std::cout << "_responseLine sent successfully" << std::endl;
-    // }
 
+    return;
+}
+
+// ============================================================================== GETTER & SETTER
+
+std::string     Response::getResponse() {
+    return _responseLine;
+}
+
+std::string     Response::getPath() {
+    return _path;
+}
+
+void            Response::setPath(std::string& str) {
+    _path = str;
     return;
 }

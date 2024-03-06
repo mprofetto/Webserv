@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/04 11:55:34 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/06 15:56:38 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,29 +83,84 @@ void	TcpListener::readRequest(int client_socket)
 	std::cout << "Host in request is " << host << std::endl;
 	std::cout << "Path in request is " << request.getRequestLine().getPath() << std::endl;
 	std::cout << "Server root: is " << server->getRoot() << std::endl;
-	this->registerReponse(client_socket, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!");
-	handleRequest(request, server, client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
+	// this->registerReponse(client_socket, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!");
+	// handleRequest(request, server, client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
+}
+
+int	getFullPath(Route *route, Response& response) {
+
+	// Route *route = NULL;
+
+	// // std::list<Route *> r = server->getRoute();
+	// for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
+		
+	// 	if (!(*it)->getPath().compare(request.getRequestLine().getPath())) {
+	// 		route = *it; // while until every path sent ? like index + img ?
+	// 		break;
+	// 		// std::cout << "FOUND : " << (*it)->getPath() << " = " << request.getRequestLine().getPath() 
+	// 		// 	<< "\nAnd root is : " << (*it)->getRoot() << "\n\n";
+	// 	}
+	// }
+
+	std::string root = route->getRoot() + "/";
+	std::string index = route->getIndex().front();
+	
+	std::string p = root + index;
+
+	response.setPath(p);
+
+	std::cout << "Path complete : " << response.getPath() << std::endl;;
+
+	(void)response;
+	return 200;
+}
+
+int CGIfucntion() {
+	return 400;
 }
 
 void	TcpListener::handleRequest(Request &request, Server *server, int client_socket)
 {
-	std::string result;
+	int status_code = 200;	
+	Route *route = NULL;
 
-	// std::cout << "Request : " << request.getRequestLine() << std::endl;
-	// // headers ? 
-	// std::cout << "Body : " << request.getBody() << std::endl;
-	// std::cout << std::endl; 
-	// std::cout << "SERVER" << std::endl << "Host: " << server->getHost() << std::endl << "Root: " << server->getRoot() << std::endl;
-	// std::cout << "Client socket : " << client_socket << std::endl;
+	std::list<Route *> r = server->getRoute();
+	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
+		if (!(*it)->getPath().compare(request.getRequestLine().getPath())) {
+			route = *it; // while until every path sent ? like index + img ?
+			break;
+		}
+	}
 
-	Response response(200);
+/////////////////////// TO CGI ?
+	if (!route->getExtension().empty()
+		|| request.getRequestLine().getMethod() == 2
+		|| (request.getRequestLine().getMethod() == 1 && route->getPath().compare("/"))) {
+			/////////////////
+			
+			status_code = CGIfucntion();// temporary function for my tests
+			// il faut donc renvoyer un int pour status_code
+	
+			// Ici une fonction vers la partie/classe CGI
+			
+			////////////////////
+	}
+//////////////////////////
 
-	response.getResponseLine();
+
+	Response response(status_code);//                create response here
+
+	int pathCode = getFullPath(route, response);
+	if (pathCode != 200) {
+		std::cout << "Something went really wrong..\n";
+	}
+
+	response.buildResponse(request);
 
 	(void) request;
 	(void) server;
 	FD_SET(client_socket, &this->_write_master_fd);
-	this->registerReponse(client_socket, response.getRepsonse());
+	this->registerReponse(client_socket, response.getResponse());
 }
 
 void	TcpListener::registerReponse(int socket, std::string response)

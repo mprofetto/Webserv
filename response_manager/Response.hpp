@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/04 11:52:01 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/06 14:26:42 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,31 @@
 
 #include <iostream>
 #include <map>
-
-// MUST BUILD :
-//      - status line [ HTTPversion  -  response code  -  reason]
-//      - headers (which ones ?)
-//      - opt message body
-
+#include "../request_manager/includes/Request.hpp"
 
 class Response {
 
     public:
+
+    // CONSTRUCTORS
         Response(const int statusCode);
         ~Response();
 
-        void getResponseLine();
+    // MEMBER FUNCTIONS
+        std::string     getBody();
+        void            buildResponse(Request request);
+        void            buildGetResponse(Request request);
+        void            buildPostResponse(Request request);
+
+    // GET & SET
         std::string     getResponse();
+        std::string     getPath();
+        void            setPath(std::string& str);
 
     private:
         // const int                           _clientSocket;
         const int                           _statusCode;
+        std::string                         _path;
         std::string                         _responseLine;
         std::string                         _statusLine;
         std::map<std::string, std::string>  _headers;//           utile ?

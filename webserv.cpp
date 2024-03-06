@@ -6,11 +6,23 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/04 11:52:25 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:35:47 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
+
+/*
+
+Je dois m'occuper des erreurs d'ouverture de fichier.
+Un code d'erreur doit me parvenir a l'avance depuis le parsing. par defaut,
+mon objet reponse est set a 200. dans ce cas, pas de probleme
+
+
+Quel PATH ?
+Comment compiler le CSS ?
+
+*/
 
 int	checkArguments(int argc, char **argv)
 {
@@ -41,10 +53,6 @@ int	main(int argc, char **argv)
 		server.initTcpListener();
 		server.runTcpListener();
 
-		// TEMP
-		// Response response(200);
-
-		// response.getResponseLine();
 	}
 	catch (std::exception &e)
 	{
