@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 14:40:44 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 15:04:28 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,19 +40,19 @@ class Request {
         bool        _complete;
         size_t      _content_length;
 
-        void        _parseRequest(std::string const & request);
+        void        _parseRequest(std::string const &request);
         vec_str     _vectorSplit(std::string str, char sep);
         std::string _strtrim(std::string & s);
 
     public:
         Request();
-        Request(std::string & req);
+        Request(std::string &request);
         Request(Request const &copy);
         ~Request();
 
-        Request & operator=(Request const &op);
+        Request     &operator=(Request const &op);
 
-        void        catToBody(std::string & str);
+        void        catToBody(std::string &str);
 
         std::string getRaw() const;
         RequestLine getRequestLine() const;
@@ -68,6 +68,6 @@ class Request {
 		};
 };
 
-std::ostream & operator<<(std::ostream &o, Request const &obj);
+std::ostream        &operator<<(std::ostream &o, Request const &obj);
 
 #endif

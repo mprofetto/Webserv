@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 13:46:49 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 15:29:29 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ Cgi::Cgi(Request & request) : _env(NULL) {
 	_cgi_stdout = -1;
 	_cgi_stderr = -1;
 	_map.clear();
-	fillEnvs(request);
+	_fillEnvs(request);
 }
 
 Cgi::Cgi(Cgi const &copy) {
@@ -56,37 +56,37 @@ Cgi &Cgi::operator=(Cgi const &op) {
 
 /*----- FUNCTIONS -----*/
 
-void Cgi::fillEnvs(Request & request) {
+void Cgi::_fillEnvs(Request  &request) {
 /* Variables fondamentales pour majorite CGI */
 	const char **methods = NULL;
 	methods[0] = "DELETE";
 	methods[1] = "GET";
 	methods[2] = "POST";
 	methods[3] = 0;
-	this->setData("REQUEST_METHOD", methods[request.getRequestLine().getMethod()]);
-	this->setData("CONTENT_TYPE", request.getHeader("Content-Type").c_str());
+	this->_setMap("REQUEST_METHOD", methods[request.getRequestLine().getMethod()]);
+	this->_setMap("CONTENT_TYPE", request.getHeader("Content-Type").c_str());
 	std::stringstream ss;
 	ss << strlen(request.getBody().c_str());
-	this->setData("CONTENT_LENGTH", ss.str().c_str()); // length of the body in bytes
-	this->setData("QUERY_STRING", "");  // TODO => query string portion of the URL
-	this->setData("SCRIPT_NAME", _bin_path.c_str()); //TODO => path to the CGI script being executed
-	this->setData("REMOTE_ACCESS", ""); //TODO =>  IP address of the client making the request 
-	this->setData("HTTP_USER_AGENT", request.getHeader("User-Agent").c_str());
+	this->_setMap("CONTENT_LENGTH", ss.str().c_str()); // length of the body in bytes
+	this->_setMap("QUERY_STRING", "");  // TODO => query string portion of the URL
+	this->_setMap("SCRIPT_NAME", _bin_path.c_str()); //TODO => path to the CGI script being executed
+	this->_setMap("REMOTE_ACCESS", ""); //TODO =>  IP address of the client making the request 
+	this->_setMap("HTTP_USER_AGENT", request.getHeader("User-Agent").c_str());
 
 	/* Autres variables */
-	this->setData("REQUEST_URI", request.getRequestLine().getPath().c_str());
-	this->setData("SERVER_NAME", request.getHeader("Host").c_str());
-	this->setData("SERVER_SOFTWARE", "Apache/2.4.41"); // NOT SURE (nom et version du serveur web qui execute le script)
-	this->setData("REDIRECT_STATUS", "200");
-	this->setData("HTTP_CONNECTION", request.getHeader("Connection").c_str());
-	this->setData("HTTP_HOST", request.getHeader("Host").c_str());
-	this->setData("HTTP_COOKIE", request.getHeader("Cookie").c_str()); // BONUS ?
-	this->setData("HTTP_ACCEPT", request.getHeader("Accept").c_str());
-	this->setData("HTTP_VERSION", request.getRequestLine().getHTTPVersion().c_str());
-	this->setData("SERVER_PROTOCOL", request.getRequestLine().getHTTPVersion().c_str());
-	this->setData("PATH_INFO", request.getRequestLine().getPath().c_str());
+	this->_setMap("REQUEST_URI", request.getRequestLine().getPath().c_str());
+	this->_setMap("SERVER_NAME", request.getHeader("Host").c_str());
+	this->_setMap("SERVER_SOFTWARE", "Apache/2.4.41"); // NOT SURE (nom et version du serveur web qui execute le script)
+	this->_setMap("REDIRECT_STATUS", "200");
+	this->_setMap("HTTP_CONNECTION", request.getHeader("Connection").c_str());
+	this->_setMap("HTTP_HOST", request.getHeader("Host").c_str());
+	this->_setMap("HTTP_COOKIE", request.getHeader("Cookie").c_str()); // BONUS ?
+	this->_setMap("HTTP_ACCEPT", request.getHeader("Accept").c_str());
+	this->_setMap("HTTP_VERSION", request.getRequestLine().getHTTPVersion().c_str());
+	this->_setMap("SERVER_PROTOCOL", request.getRequestLine().getHTTPVersion().c_str());
+	this->_setMap("PATH_INFO", request.getRequestLine().getPath().c_str());
 
-	for (std::map<std::string, std::string>::iterator it = _map.begin(); it != _map.end(); it++) {
+	for (map_strstr::iterator it = _map.begin(); it != _map.end(); it++) {
 			_vec.push_back(it->first + "=" + it->second);
 		}
 		_env = new char*[_vec.size() + 1];
@@ -108,8 +108,8 @@ void Cgi::fillEnvs(Request & request) {
 		_env[_vec.size()] = NULL;
 }
 
-void Cgi::setData(const char *head, const char *val) {
-    this->_map.insert(std::make_pair(head, val));
+void Cgi::_setMap(const char *head, const char *val) {
+    _map.insert(std::make_pair(head, val));
 }
 
 bool	Cgi::validateBinPath() {
@@ -185,4 +185,18 @@ int	Cgi::getStderr() const {
 
 pid_t	Cgi::getPid() const {
 	return _cgi_pid;
+}
+
+std::string	Cgi::getBinPath() const {
+	return _bin_path;
+}
+
+std::string	Cgi::getFilePath() const {
+	return _file_path;
+}
+/* ----- OPERATORS ----- */
+
+std::ostream & operator<<(std::ostream &o, Cgi const &obj) {
+	o << "bin: " << obj.getBinPath() << "\nfile:" << obj.getFilePath() << std::endl;
+    return o;
 }

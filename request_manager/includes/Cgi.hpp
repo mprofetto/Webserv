@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 14:33:18 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 15:28:42 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,17 @@
 
 class Cgi {
 	private:
-		pid_t _cgi_pid;
-		char** _env;
+		pid_t		_cgi_pid;
+		char**		_env;
 		std::string	_file_path;
 		std::string	_bin_path;
-		std::map<std::string, std::string> _map;
-		std::vector<std::string> _vec;
-		int _cgi_stdout;
-		int _cgi_stderr;
+		map_strstr	_map;
+		vec_str		_vec;
+		int			_cgi_stdout;
+		int			_cgi_stderr;
+
+		void	_fillEnvs(Request &request);
+		void 	_setMap(const char *head, const char *val);
 
 	public:
 		Cgi();
@@ -45,11 +48,14 @@ class Cgi {
 		bool	validateBinPath();
 		bool	execute(Request &request);
 		int		wait();
-		void 	setData(const char *head, const char *val);
-		void	fillEnvs(Request &request);
+
+		std::string	getFilePath() const;
+		std::string	getBinPath() const;
 		int		getStdout() const;
 		int		getStderr() const;
 		pid_t	getPid() const;
 };
+
+std::ostream        &operator<<(std::ostream &o, Cgi const &obj);
 
 #endif

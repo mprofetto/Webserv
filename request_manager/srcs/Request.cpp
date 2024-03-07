@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 14:42:22 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 15:06:54 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ Request::Request(std::string & req): _raw(req){
     _content_length = 0;
 
     _parseRequest(req);
-
     if (_req.getMethod() == POST && strlen(getHeader("Content-Length").c_str())) {
         _content_length = atoi(getHeader("Content-Length").c_str());
         if (_content_length > CONTENT_LENGTH_MAX)
@@ -44,9 +43,10 @@ Request::~Request() {
 /* ----- PRIVATE FUNCTIONS ----- */
 
 void Request::_parseRequest(std::string const & request) {
-    std::istringstream          iss(request);
-    std::string                 line;
-    int                         count = 0;
+    std::istringstream  iss(request);
+    std::string         line;
+    int                 count = 0;
+
     while (std::getline(iss, line, '\n')) {
             if (strlen(line.c_str()) == 0)
                 continue ;
@@ -76,10 +76,11 @@ void Request::_parseRequest(std::string const & request) {
 }
 
 vec_str Request::_vectorSplit(std::string str, char sep) {
-    std::vector<std::string> arr;
-    char* cstr = const_cast<char*>(str.c_str());
-    char* token = std::strtok(cstr, &sep);
-    int count = 0;
+    vec_str arr;
+    char*   cstr = const_cast<char*>(str.c_str());
+    char*   token = std::strtok(cstr, &sep);
+    int     count = 0;
+
     while (token != 0) {
         arr.push_back(token);
         token = std::strtok(0, &sep);
