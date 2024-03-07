@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 13:32:28 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 13:46:49 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Cgi::Cgi(Request & request) : _env(NULL) {
 	_cgi_pid = -1;
 	_cgi_stdout = -1;
 	_cgi_stderr = -1;
+	_map.clear();
 	fillEnvs(request);
 }
 
@@ -29,6 +30,11 @@ Cgi::Cgi(Cgi const &copy) {
 }
 
 Cgi::~Cgi() {
+	if (_env) {
+		for (size_t i = 0; i < _vec.size(); i++)
+			free (_env[i]);
+		delete _env;
+	}
 }
 
  /*----- OPERATORS ----- */
@@ -91,7 +97,12 @@ void Cgi::fillEnvs(Request & request) {
 		for (size_t i = 0; i < _vec.size(); i++) {
 			_env[i] = strdup(_vec[i].c_str());
 			if (_env[i] == NULL) {
+				for (i; i > 0; --i)
+					free(_env[i]);
+				delete _env;
+				_env = NULL;
 				std::cout << "failed to allocate memory for the cgi envirenement variables";
+				// throw erreur
 			}
 		}
 		_env[_vec.size()] = NULL;
@@ -121,20 +132,6 @@ bool	Cgi::validateBinPath() {
 	return true;
 }
 
-bool	Cgi::setupFiles() {
-	_cgi_stdout = fileno(tmpfile());
-	if (_cgi_stdout == -1) {
-		std::cout << "failed to create a temporary file for the Cgi script output";
-		return false;
-	}
-	_cgi_stderr = fileno(tmpfile());
-	if (_cgi_stderr == -1) {
-		std::cout << "failed to create a temporary file for the Cgi script error";
-		return false;
-	}
-	return true;	
-}
-
 bool	Cgi::execute(Request &request) {
 	_cgi_pid = fork();
 	if (_cgi_pid == -1) {
@@ -151,28 +148,25 @@ bool	Cgi::execute(Request &request) {
 			exit(EXIT_FAILURE);
     
         char const *args[3]; // obligatoire a declarer comme ca (ne veut pas compiler sinon)
-		args[0] = _bin_path.c_str(); // TODO
+		args[0] = _bin_path.c_str();
 		args[1] = _file_path.c_str();
 		args[2] = NULL;
-		if (execve(args[0], (char* const*)args, _env) == -1) {
-			delete _env;
+		if (execve(args[0], (char* const*)args, _env) == -1)
 			exit(EXIT_FAILURE);
-		}
 	}
-	delete _env;
 	return true;
 }
 
 int	Cgi::wait() {
 	int		status;
-
+	
 	if (waitpid(_cgi_pid, &status, 0) == -1) {
 		std::cout << "failed to wait for the Cgi script";
 		return EXIT_FAILURE;
 	}
 	if (WIFEXITED(status)) {
 		if (WEXITSTATUS(status) == EXIT_SUCCESS)
-			return EXIT_SUCCESS;
+			return EXIT_SUCCESS; // 200
 	}
     std::cout << "the Cgi script exited with an error";
 	return EXIT_FAILURE;

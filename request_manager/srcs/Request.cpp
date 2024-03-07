@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 13:43:23 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 13:49:57 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,41 +17,12 @@ Request::Request() {
 
 Request::Request(std::string & req): _raw(req){
     _body = "";
-    std::istringstream          iss(req);
-    std::string                 line;
-    int                         count = 0;
-
     _complete = true;
     _content_length = 0;
-    while (std::getline(iss, line, '\n')) {
-        if (strlen(line.c_str()) == 0)
-            continue ;
-        if (count == 0) {
-            std::vector<std::string> arr = vectorSplit(line, SPACE);
-            std::string httpMethods[3] = {"DELETE", "GET", "POST"};
-            int method;
 
-            for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
-            RequestLine reqline(method, arr[1], arr[2], arr[0]);
-            _req = reqline;
-            count++;
-            continue ;
-        }
-        if (_body != "") {
-            _body += "\n"; //INUTILE, juste plus facile à lire
-            _body += line;
-            continue ;
-        }
-        size_t pos = line.find(':');
-        if (pos == std::string::npos && _req.getMethod() != GET) {
-            _body = line;
-            continue ;
-        }
-        std::string headerName = line.substr(0, pos);
-        std::string headerVal = line.substr(pos + 1).c_str();
-        this->setData(headerName, ft_strtrim(headerVal));
-    }
-    if (_req.getMethod() == POST) {
+    _readRequest(req);
+
+    if (_req.getMethod() == POST && strlen(getHeader("Content-Length").c_str())) {
         _content_length = atoi(getHeader("Content-Length").c_str());
         if (_content_length > CONTENT_LENGTH_MAX)
             throw ContentLengthException();
@@ -68,13 +39,41 @@ Request::~Request() {
 }
 
 
-/* ----- CLASS FUNCTIONS ----- */
+/* ----- PRIVATE FUNCTIONS ----- */
 
-void Request::catToBody(std::string & str) {
-    _body += str;
+void Request::_readRequest(std::string const & request) {
+    std::istringstream          iss(request);
+    std::string                 line;
+    int                         count = 0;
+    while (std::getline(iss, line, '\n')) {
+            if (strlen(line.c_str()) == 0)
+                continue ;
+            if (count == 0) {
+                std::vector<std::string> arr = _vectorSplit(line, SPACE);
+                std::string httpMethods[3] = {"DELETE", "GET", "POST"};
+                int method;
+
+                for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
+                _req =  RequestLine(method, arr[1], arr[2], arr[0]);
+                count++;
+                continue ;
+            }
+            if (_body != "") {
+                _body += line;
+                continue ;
+            }
+            size_t pos = line.find(':');
+            if (pos == std::string::npos && _req.getMethod() != GET) {
+                _body = line;
+                continue ;
+            }
+            std::string headerName = line.substr(0, pos);
+            std::string headerVal = line.substr(pos + 1).c_str();
+            this->_setData(headerName, _strtrim(headerVal));
+        }
 }
 
-std::vector<std::string> Request::vectorSplit(std::string str, char sep) {
+std::vector<std::string> Request::_vectorSplit(std::string str, char sep) {
     std::vector<std::string> arr;
     char* cstr = const_cast<char*>(str.c_str());
     char* token = std::strtok(cstr, &sep);
@@ -87,15 +86,23 @@ std::vector<std::string> Request::vectorSplit(std::string str, char sep) {
     return arr;
 }
 
-void Request::setData(std::string head, std::string val) {
+void Request::_setData(std::string head, std::string val) {
     this->_headers.insert(std::make_pair(head, val));
 }
 
-std::string Request::ft_strtrim(std::string &s) {
+std::string Request::_strtrim(std::string &s) {
     s.erase(s.find_last_not_of(" \t\n\r") + 1);
     s.erase(0, s.find_first_not_of(" \t\n\r"));
     return s;
 }
+
+/* ----- PUBLIC FUNCTIONS ----- */
+
+void Request::catToBody(std::string & str) {
+    _body += str;
+}
+
+
 
 
 /* ----- GETTERS ----- */
@@ -118,10 +125,10 @@ std::map<std::string, std::string> Request::getHeaders() const {
 
 std::string Request::getHeader(std::string const &name) {
     if (this->_headers.size() == 0)
-        return 0;
+        return "";
     std::map<std::string, std::string>::iterator it = this->_headers.find(name);
     if (it->first != name)
-        throw HeaderNotFoundException();
+        return "";
     return it->second;
 }
 
@@ -160,10 +167,6 @@ std::ostream & operator<<(std::ostream &o, Request const &obj) {
 
 
 /* ----- EXCEPTIONS ----- */
-
-const   char* Request::HeaderNotFoundException::what() const throw() {
-    return "Header Not Found";
-}
 
 const   char* Request::ContentLengthException::what() const throw() {
     return "Content-Length too big";

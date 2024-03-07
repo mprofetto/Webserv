@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 12:47:44 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/05 14:33:18 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ class Cgi {
 		bool	validateBinPath();
 		bool	execute(Request &request);
 		int		wait();
-		bool	setupFiles();
 		void 	setData(const char *head, const char *val);
 		void	fillEnvs(Request &request);
 		int		getStdout() const;

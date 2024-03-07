@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/05 13:43:10 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 14:01:23 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 
 # include "./RequestLine.hpp"
 # include "../../server/Server.hpp"
-//# include "../../webserv.hpp"
 # define CONTENT_LENGTH_MAX 2000000000
 
 class RequestLine;
@@ -36,7 +35,12 @@ class Request {
         std::map<std::string, std::string>  _headers;
         std::string _body;
         bool _complete;
-        int _content_length;
+        size_t _content_length;
+
+        void _readRequest(std::string const & request);
+        std::vector<std::string> _vectorSplit(std::string str, char sep);
+        void _setData(std::string head, std::string val);
+        std::string _strtrim(std::string & s);
 
     public:
         Request();
@@ -53,16 +57,8 @@ class Request {
         std::string getBody() const;
         bool getComplete() const;
         int getContentLenght() const;
-
         void catToBody(std::string & str);
-        std::vector<std::string> vectorSplit(std::string str, char sep);
-        void setData(std::string head, std::string val);
-        std::string ft_strtrim(std::string & s);
-
-		class	HeaderNotFoundException : public std::exception {
-            public:
-                const char *what() const throw();
-		};
+        
         class	ContentLengthException : public std::exception {
             public:
                 const char *what() const throw();
