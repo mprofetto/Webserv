@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 15:28:42 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 16:36:47 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,6 @@
 
 # include "Request.hpp"
 
-# include <map>
-# include <vector>
-# include <string>
-# include <cstring>
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <sys/wait.h>
@@ -51,9 +47,10 @@ class Cgi {
 
 		std::string	getFilePath() const;
 		std::string	getBinPath() const;
-		int		getStdout() const;
-		int		getStderr() const;
-		pid_t	getPid() const;
+		int			getStdout() const;
+		int			getStderr() const;
+		pid_t		getPid() const;
+		char**		getEnv() const;
 };
 
 std::ostream        &operator<<(std::ostream &o, Cgi const &obj);

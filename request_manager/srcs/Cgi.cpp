@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 15:29:29 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 16:36:14 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ int	Cgi::getStderr() const {
 	return _cgi_stderr;
 }
 
-pid_t	Cgi::getPid() const {
+pid_t Cgi::getPid() const {
 	return _cgi_pid;
 }
 
@@ -193,6 +193,10 @@ std::string	Cgi::getBinPath() const {
 
 std::string	Cgi::getFilePath() const {
 	return _file_path;
+}
+
+char**	Cgi::getEnv() const {
+	return _env;
 }
 /* ----- OPERATORS ----- */
 

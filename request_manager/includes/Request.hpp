@@ -6,14 +6,14 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 15:04:28 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 16:38:23 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# define SPACE 32
+# include "./RequestLine.hpp"
 
 # include <string>
 # include <cstring>
@@ -22,14 +22,11 @@
 # include <iostream>
 # include <map>
 
-# include "./RequestLine.hpp"
-# include "../../server/Server.hpp"
 # define CONTENT_LENGTH_MAX 2000000000
+# define SPACE 32
 
-class RequestLine;
-
-#define map_strstr std::map<std::string, std::string>
-#define vec_str std::vector<std::string>
+# define map_strstr std::map<std::string, std::string>
+# define vec_str std::vector<std::string>
 
 class Request {
     private:
