@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 15:06:54 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 18:29:42 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,17 @@ int Request::getContentLenght() const {
     return _content_length;
 }
 
+int Request::getMethod() const {
+    return _req.getMethod();
+}
+
+std::string Request::getHttpVersion() const {
+    return _req.getHTTPVersion();
+}
+
+std::string Request::getPath() const {
+    return _req.getPath();
+}
 /* ----- OPERATORS ----- */
 
 Request & Request::operator=(Request const &op) {
