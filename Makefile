@@ -6,7 +6,7 @@
 #    By: achansar <achansar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/12 14:48:07 by mprofett          #+#    #+#              #
-#    Updated: 2024/03/01 10:54:38 by achansar         ###   ########.fr        #
+#    Updated: 2024/03/08 17:33:14 by achansar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ SRC			= webserv.cpp \
 			request_manager/srcs/Request.cpp \
 			request_manager/srcs/RequestLine.cpp \
 			response_manager/Response.cpp \
+			response_manager/ErrorResponse.cpp \
 			server/TcpListener.cpp \
 			server/communications/run.cpp \
 			server/utils/utils.cpp \
@@ -32,7 +33,7 @@ CC			= c++
 
 RM			= rm -rf
 
-CPPFLAGS	= -g -Wall -Wextra -Werror -std=c++98
+CPPFLAGS	= -g -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 
 all: ${NAME}
 

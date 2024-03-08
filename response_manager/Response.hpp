@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/06 14:26:42 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/08 17:04:36 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,45 @@
 #include <iostream>
 #include <map>
 #include "../request_manager/includes/Request.hpp"
+#include "../server/Server.hpp"
 
+// enum {DELETE, GET, POST, UNVALID};
+
+class Server;
 class Response {
 
     public:
 
     // CONSTRUCTORS
-        Response(const int statusCode);
+        Response(Server* server, int statusCode);
         ~Response();
 
     // MEMBER FUNCTIONS
-        std::string     getBody();
+        std::string     getBody(int method);
         void            buildResponse(Request request);
         void            buildGetResponse(Request request);
         void            buildPostResponse(Request request);
+        void            buildErrorResponse();
+        std::string     getHeaders(const int s);
+        std::string     getReason(int sc);
 
     // GET & SET
         std::string     getResponse();
         std::string     getPath();
         void            setPath(std::string& str);
+        void            setErrorPath(std::string& str);
 
     private:
         // const int                           _clientSocket;
-        const int                           _statusCode;
+        int                                 _statusCode;
         std::string                         _path;
+        std::string                         _errorPath;
         std::string                         _responseLine;
         std::string                         _statusLine;
-        std::map<std::string, std::string>  _headers;//           utile ?
+        // std::map<std::string, std::string>  _headers;//           utile ?
+        std::string                         _headers;
         std::string                         _body;
+        Server*                             _server;
 };
 
 enum statusCode {
