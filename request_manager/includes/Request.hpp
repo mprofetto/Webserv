@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 18:27:21 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/10 10:46:15 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ class Request {
         map_strstr  getHeaders() const;
         std::string getBody() const;
         bool        getComplete() const;
-        int         getContentLenght() const;
+        int         getContentLength() const;
         int         getMethod() const;
         std::string getHttpVersion() const;
         std::string getPath() const;

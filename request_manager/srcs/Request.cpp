@@ -6,12 +6,12 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 18:29:42 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/10 10:48:22 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
-
+#include <cstdlib> //atoi
  /* ----- CONSTRUCTORS & DESTRUCTOR ----- */
  
 Request::Request() {
@@ -131,7 +131,7 @@ bool Request::getComplete() const {
     return _complete;
 }
 
-int Request::getContentLenght() const {
+int Request::getContentLength() const {
     return _content_length;
 }
 
