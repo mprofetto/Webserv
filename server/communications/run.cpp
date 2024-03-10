@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/08 17:31:16 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/10 18:46:13 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,16 +89,21 @@ void	TcpListener::readRequest(int client_socket)
 
 void	getFullPath(Route *route, Response& response) {
 
-	// may use std::filesystem::is_directory() when segfault is fixed
- 	std::string root = route->getRoot() + "/";
-	std::string index = route->getIndex().front();//         only gets first index. it's temporary
-	std::string p = root + index;
+//	/!!\ CHECK IF REPOSITORY !!!!!!!! /!\ //
 
-   // TO DO : CHECK IF PATH IS VALID
-   // If not, 
-   // p = status-code correspondant
+	// std::cout << "In getfullpath, status code is : " << response.getStatusCode() << std::endl;
+	if (response.getStatusCode() == 200) {
+		// may use std::filesystem::is_directory() when segfault is fixed
+		std::string root = route->getRoot() + "/";
+		std::string index = route->getIndex().front();//         only gets first index. it's temporary
+		std::string p = root + index;
 
-	response.setPath(p);
+	// TO DO : CHECK IF PATH IS VALID
+	// If not, 
+	// p = status-code correspondant
+	// sinon, 
+		response.setPath(p);
+	}
 	return;
 }
 
@@ -111,10 +116,20 @@ void	TcpListener::handleRequest(Request &request, Server *server, int client_soc
 	int status_code = 200;
 	Route *route = NULL;
 
+	int i = 1;
 	std::list<Route *> r = server->getRoute();
+	// std::cout << "List of routes is size : " << r.size() << std::endl;
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
+		// std::cout << "LOOP : " << i << " | pathroute : " << (*it)->getPath() << " | pathRequest : " << request.getRequestLine().getPath() << std::endl;
+		
+		i++;
+		// if (it == r.end()) { .  -> visiblement ne fonction pas, 4TH	 root is empty ?
+		if (i >= 4) {
+			status_code = 404;
+		}
 		if (!(*it)->getPath().compare(request.getRequestLine().getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
+			// std::cout << "CHECK ROUTE : " << route->getRoot() << std::endl;
 			break;
 		}
 	}
@@ -137,7 +152,7 @@ void	TcpListener::handleRequest(Request &request, Server *server, int client_soc
 	// }
 	////////////////////////
 
-	Response response(server, status_code);//                create response here
+	Response response(server, status_code, request.getRequestLine().getMethod());//                create response here
 	getFullPath(route, response);
 	
 	response.buildResponse(request);
