@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/11 15:27:01 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:32:52 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,11 @@ Request::Request(std::string & req): _raw(req){
     _content_length = 0;
 
     _parseRequest(req);
-    if (_req.getMethod() == POST && strlen(getHeader("Content-Length").c_str())) {
+    if (_req.getMethod() == POST && getHeader("Content-Length").size()) {
         _content_length = atoi(getHeader("Content-Length").c_str());
         if (_content_length > CONTENT_LENGTH_MAX)
             throw ContentLengthException();
-        if (_content_length < strlen(_body.c_str()))
+        if (_content_length < _body.size())
             _complete = false;
     }
 }
@@ -48,7 +48,7 @@ void Request::_parseRequest(std::string const & request) {
     int                 count = 0;
 
     while (std::getline(iss, line, '\n')) {
-            if (strlen(line.c_str()) == 0)
+            if (line.size() == 0)
                 continue ;
             if (count == 0) {
                 vec_str arr = _vectorSplit(line, SPACE);
@@ -70,7 +70,7 @@ void Request::_parseRequest(std::string const & request) {
                 continue ;
             }
             std::string headerName = line.substr(0, pos);
-            std::string headerVal = line.substr(pos + 1).c_str();
+            std::string headerVal = line.substr(pos + 1);
             this->_headers.insert(std::make_pair(headerName, headerVal));
         }
 }
@@ -168,7 +168,7 @@ std::ostream & operator<<(std::ostream &o, Request const &obj) {
         o << it->first << ": " << it->second << std::endl;
         it++;
     }
-    if (strlen(obj.getBody().c_str()))
+    if (obj.getBody().size())
         o << std::endl << obj.getBody();
     return o;
 }
