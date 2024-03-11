@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/28 13:09:08 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:43:56 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ class Server
 		Server();
 		~Server();
 
-		std::list<Route *>			getRoute(void) const;
+		// std::list<Route *>			getRoute(void) const;
 		std::list<std::string>		getServerNames(void) const;
 		std::map<int, std::string>	getErrorPages(void) const;
 		std::list<std::string>		getIndex(void) const;

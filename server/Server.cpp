@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/28 13:18:26 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/05 14:18:41 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,10 @@ Server::~Server()
 	return;
 }
 
-std::list<Route *>			Server::getRoute(void) const
-{
-	return (this->_routes);
-}
+// std::list<Route *>			Server::getRoute(void) const
+// {
+// 	return (this->_routes);
+// }
 
 std::list<std::string>		Server::getServerNames(void) const
 {
@@ -186,7 +186,7 @@ bool						Server::isServerName(std::string name) const
 			while (it_server_names != this->_server_names.end())
 			{
 				server_name = *it_server_names;
-				
+
 				if (name.compare(server_name) == 0)
 					return (true);
 				it_server_names++;
