@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/11 13:47:38 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:27:01 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ std::string Request::_strtrim(std::string &s) {
 
 void Request::catToBody(std::string & str) {
     _body += str;
+    if (_body.size() == _content_length)
+        _complete = true;
 }
 
 std::string Request::getRaw() const {
