@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:46:07 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/10 17:06:35 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:06:06 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
 
-Route::Route() : _autoindex(true), _cgi(false), _delete(true), _get(true), _post(true), _path("/")
+Route::Route() : _autoindex(true), _cgi(false), _delete(true), _get(true), _post(true), _extension(""), _path("/")
 {
 	return;
 }

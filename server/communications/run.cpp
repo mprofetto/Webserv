@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/10 18:46:13 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:49:53 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,17 @@ void	TcpListener::runTcpListener()
 			if (FD_ISSET(i, &ready_to_read_fds))
 			{
 				server = this->getServerBySocket(i);
-				if (server != NULL)
+				if (server)
 					handleNewConnection(server);
 				else
+				{
 					readRequest(i);
+					if (FD_ISSET(i, &_write_master_fd))
+						handleRequest(i);
+				}
 			}
 			else if (FD_ISSET(i, &ready_to_write_fds))
-				writeResponse(i, this->getResponse(i));
+				writeResponse(i);
 		}
 	}
 }
@@ -58,40 +62,45 @@ void	TcpListener::handleNewConnection(Server *server)
 void	TcpListener::readRequest(int client_socket)
 {
 	std::cout << "Reading new request\n";
-	std::string	raw_request;
-	Server		*server;
-	int			port;
+	std::string					raw_request;
+	char						buffer[this->_buffer_max];
+	int							bytesReceveid;
 
-	char	buf[this->_buffer_max];
-	int		bytesReceveid;
-
-	memset(&buf, 0, this->_buffer_max);
-	bytesReceveid = recv(client_socket, buf, this->_buffer_max, 0);
+	memset(&buffer, 0, this->_buffer_max);
+	bytesReceveid = recv(client_socket, buffer, this->_buffer_max, 0);
 	if (bytesReceveid <= 0)
 	{
 		close(client_socket);
 		FD_CLR(client_socket, &this->_read_master_fd);
 		return;
 	}
-	raw_request = buf;
-	port = getPortBySocket(&client_socket);
+	raw_request = buffer;
+	if (this->isIncompleteRequest(client_socket) == true)
+	{
+		// this->addToBody(raw_request);
+		if (this->isIncompleteRequest(client_socket) == false)
+		{
+			this->_pending_request = this->_incomplete_requests.find(client_socket)->second;
+			this->_incomplete_requests.erase(client_socket);
+		}
+		else
+			this->registerReponse(client_socket, "HTTP/1.1 100 CONTINUE");
+	}
+	else
+	{
+		Request	request(raw_request);
 
-	Request request(raw_request);
-	std::string host = request.getHeader("Host");
-	server = getServerByHost(port, host);
+		this->_pending_request = request;
+	}
 	FD_SET(client_socket, &this->_write_master_fd);
-	std::cout << "Host in request is " << host << std::endl;
-	std::cout << "Path in request is " << request.getRequestLine().getPath() << std::endl;
-	std::cout << "Server root: is " << server->getRoot() << std::endl;
 	// this->registerReponse(client_socket, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!");
-	handleRequest(request, server, client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
+	// handleRequest(client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
 }
 
 void	getFullPath(Route *route, Response& response) {
 
 //	/!!\ CHECK IF REPOSITORY !!!!!!!! /!\ //
 
-	// std::cout << "In getfullpath, status code is : " << response.getStatusCode() << std::endl;
 	if (response.getStatusCode() == 200) {
 		// may use std::filesystem::is_directory() when segfault is fixed
 		std::string root = route->getRoot() + "/";
@@ -99,9 +108,9 @@ void	getFullPath(Route *route, Response& response) {
 		std::string p = root + index;
 
 	// TO DO : CHECK IF PATH IS VALID
-	// If not, 
+	// If not,
 	// p = status-code correspondant
-	// sinon, 
+	// sinon,
 		response.setPath(p);
 	}
 	return;
@@ -111,25 +120,24 @@ int CGIfucntion() {
 	return 200;
 }
 
-void	TcpListener::handleRequest(Request &request, Server *server, int client_socket)
+void	TcpListener::handleRequest(int client_socket)
 {
 	int status_code = 200;
 	Route *route = NULL;
-
+	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
 	int i = 1;
+
 	std::list<Route *> r = server->getRoute();
-	// std::cout << "List of routes is size : " << r.size() << std::endl;
+
+	std::cout << "List of routes is size : " << r.size() << std::endl;
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		// std::cout << "LOOP : " << i << " | pathroute : " << (*it)->getPath() << " | pathRequest : " << request.getRequestLine().getPath() << std::endl;
-		
 		i++;
 		// if (it == r.end()) { .  -> visiblement ne fonction pas, 4TH	 root is empty ?
 		if (i >= 4) {
 			status_code = 404;
 		}
-		if (!(*it)->getPath().compare(request.getRequestLine().getPath())) {
+		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
-			// std::cout << "CHECK ROUTE : " << route->getRoot() << std::endl;
 			break;
 		}
 	}
@@ -142,20 +150,20 @@ void	TcpListener::handleRequest(Request &request, Server *server, int client_soc
 	// 	|| request.getRequestLine().getMethod() == POST
 	// 	/*|| (request.getRequestLine().getMethod() == GET && route->getPath().compare("/"))*/) {
 	// 		/////////////////
-			
+
 	// 		status_code = CGIfucntion();// temporary function for my tests
 	// 		// il faut donc renvoyer un int pour status_code
-	
+
 	// 		// Ici une fonction vers la partie/classe CGI
-			
+
 	// 		////////////////////
 	// }
 	////////////////////////
 
-	Response response(server, status_code, request.getRequestLine().getMethod());//                create response here
+	Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
 	getFullPath(route, response);
-	
-	response.buildResponse(request);
+
+	response.buildResponse(_pending_request);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());
 }
@@ -164,24 +172,18 @@ void	TcpListener::handleRequest(Request &request, Server *server, int client_soc
 void	TcpListener::registerReponse(int socket, std::string response)
 {
 	std::map<int, std::string>::iterator	it;
-	std::pair<int, std::string>				new_elem;
 
 	it = this->_responses.find(socket);
 	if (it == this->_responses.end())
-	{
-		new_elem.first = socket;
-		new_elem.second = response;
-		this->_responses.insert(new_elem);
-	}
+		this->_responses.insert(std::pair<int, std::string>(socket, response));
 	else
 		(*it).second = response;
 }
 
-
-void	TcpListener::writeResponse(int client_socket, std::string response)
+void	TcpListener::writeResponse(int client_socket)
 {
 	std::cout << "Sending response\n";
-	std::cout << response << std::endl;
+	std::string	response = this->getResponse(client_socket);
 	send(client_socket, response.c_str(), response.size(), 0);
 	FD_CLR(client_socket, &this->_write_master_fd);
 }

@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:20 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/02/29 12:24:25 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/07 15:21:28 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ enum {DELETE, GET, POST, UNVALID};
 
 class RequestLine {
 private:
-    int _method;
+    int         _method;
     std::string _path;
     std::string _http_version;
     std::string _not_valid;
@@ -32,15 +32,15 @@ public:
     RequestLine(RequestLine const &copy);
     ~RequestLine();
 
-    RequestLine& operator=(RequestLine const &op);
+    RequestLine &operator=(RequestLine const &op);
     
-    int getMethod() const;
+    int         getMethod() const;
     std::string getPath() const;
     std::string getHTTPVersion() const;
     std::string getNotValid() const;
 };
 
-std::ostream & operator<<(std::ostream &o, RequestLine const &obj);
+std::ostream    &operator<<(std::ostream &o, RequestLine const &obj);
 
 #endif
 
