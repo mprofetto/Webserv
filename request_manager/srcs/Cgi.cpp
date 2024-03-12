@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/12 21:46:53 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:48:22 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ char **Cgi::_createEnv() {
 			for (i; i >= 0; --i)
 				delete[] ret[i];
 			delete[] ret;
-			ret = NULL;
+			return NULL;
 		}
         strcpy(ret[i], tmp.c_str());
         i++;
