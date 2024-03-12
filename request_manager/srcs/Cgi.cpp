@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/12 21:42:47 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:46:53 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ char **Cgi::_createEnv() {
         std::string tmp = it->first + "=" + it->second;
         ret[i] = new char[tmp.size() + 1];
 		if (!ret[i]) {
-			for (i; i >= 0; i--)
+			for (i; i >= 0; --i)
 				delete[] ret[i];
 			delete[] ret;
 			ret = NULL;
