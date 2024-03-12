@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 16:36:14 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:42:47 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,192 +15,193 @@
 Cgi::Cgi() {
 }
 
-Cgi::Cgi(Request & request) : _env(NULL) {
-	_file_path = request.getRequestLine().getPath();
-	_bin_path = ""; // TODO => path to the CGI script being executed
-	_cgi_pid = -1;
-	_cgi_stdout = -1;
-	_cgi_stderr = -1;
-	_map.clear();
-	_fillEnvs(request);
-}
-
-Cgi::Cgi(Cgi const &copy) {
-	*this = copy;
+Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route) {
+	if (!_route.getCgi())
+		throw NotCgiException();
+	_filePath = _request.getPath(); // fichier a executer
+	_fileExe = _route.getPath(); // localisation de l'executable
 }
 
 Cgi::~Cgi() {
-	if (_env) {
-		for (size_t i = 0; i < _vec.size(); i++)
-			free (_env[i]);
-		delete _env;
+	if (_envp){
+		for (size_t i = 0; _envp[i]; i++)
+			delete[] _envp[i];
+	 	delete[] _envp;		
 	}
 }
 
- /*----- OPERATORS ----- */
- 
-Cgi &Cgi::operator=(Cgi const &op) {
-	if (this != &op)
-	{
-		_file_path = op._file_path;
-		_bin_path = op._bin_path;
-		_env = op._env;
-		_cgi_pid = op._cgi_pid;
-		_cgi_stdout = op._cgi_stdout;
-		_cgi_stderr = op._cgi_stderr;
-		_map = op._map;
-	}
-	return *this;
+Cgi::Cgi(Cgi const &copy) {
+    *this = copy;
 }
 
+/* ----- FUNCTIONS ----- */
 
-/*----- FUNCTIONS -----*/
-
-void Cgi::_fillEnvs(Request  &request) {
-/* Variables fondamentales pour majorite CGI */
-	const char **methods = NULL;
-	methods[0] = "DELETE";
-	methods[1] = "GET";
-	methods[2] = "POST";
-	methods[3] = 0;
-	this->_setMap("REQUEST_METHOD", methods[request.getRequestLine().getMethod()]);
-	this->_setMap("CONTENT_TYPE", request.getHeader("Content-Type").c_str());
-	std::stringstream ss;
-	ss << strlen(request.getBody().c_str());
-	this->_setMap("CONTENT_LENGTH", ss.str().c_str()); // length of the body in bytes
-	this->_setMap("QUERY_STRING", "");  // TODO => query string portion of the URL
-	this->_setMap("SCRIPT_NAME", _bin_path.c_str()); //TODO => path to the CGI script being executed
-	this->_setMap("REMOTE_ACCESS", ""); //TODO =>  IP address of the client making the request 
-	this->_setMap("HTTP_USER_AGENT", request.getHeader("User-Agent").c_str());
-
-	/* Autres variables */
-	this->_setMap("REQUEST_URI", request.getRequestLine().getPath().c_str());
-	this->_setMap("SERVER_NAME", request.getHeader("Host").c_str());
-	this->_setMap("SERVER_SOFTWARE", "Apache/2.4.41"); // NOT SURE (nom et version du serveur web qui execute le script)
-	this->_setMap("REDIRECT_STATUS", "200");
-	this->_setMap("HTTP_CONNECTION", request.getHeader("Connection").c_str());
-	this->_setMap("HTTP_HOST", request.getHeader("Host").c_str());
-	this->_setMap("HTTP_COOKIE", request.getHeader("Cookie").c_str()); // BONUS ?
-	this->_setMap("HTTP_ACCEPT", request.getHeader("Accept").c_str());
-	this->_setMap("HTTP_VERSION", request.getRequestLine().getHTTPVersion().c_str());
-	this->_setMap("SERVER_PROTOCOL", request.getRequestLine().getHTTPVersion().c_str());
-	this->_setMap("PATH_INFO", request.getRequestLine().getPath().c_str());
-
-	for (map_strstr::iterator it = _map.begin(); it != _map.end(); it++) {
-			_vec.push_back(it->first + "=" + it->second);
-		}
-		_env = new char*[_vec.size() + 1];
-		if (_env == NULL) {
-			std::cout << "failed to allocate memory for the cgi envirenement variables";
-			// throw une erreur
-		}
-		for (size_t i = 0; i < _vec.size(); i++) {
-			_env[i] = strdup(_vec[i].c_str());
-			if (_env[i] == NULL) {
-				for (i; i > 0; --i)
-					free(_env[i]);
-				delete _env;
-				_env = NULL;
-				std::cout << "failed to allocate memory for the cgi envirenement variables";
-				// throw erreur
-			}
-		}
-		_env[_vec.size()] = NULL;
-}
-
-void Cgi::_setMap(const char *head, const char *val) {
-    _map.insert(std::make_pair(head, val));
-}
-
-bool	Cgi::validateBinPath() {
-	struct stat		file_stat;
-
-	memset(&file_stat, 0, sizeof(file_stat));
-	int ret = stat(_bin_path.c_str(), &file_stat); 
-	if (ret == -1) {
-		std::cout << "No such file or directory\n"; // FILE NOT FOUND
-		return false;
-	}
-	if (S_ISDIR(file_stat.st_mode)) {
-		std::cout << "Is a directory\n"; // NOT A FILE
-		return false;
-	}
-	if (!(file_stat.st_mode & S_IXUSR))  {
-		std::cout << "Permission denied\n"; // FILE NOT EXECUTABLE
-		return false;
-	}
-	return true;
-}
-
-bool	Cgi::execute(Request &request) {
-	_cgi_pid = fork();
-	if (_cgi_pid == -1) {
-		std::cout << "failed to fork";
-		return false;
-	}
-	if (_cgi_pid == 0)
-	{
-		if (request.getRequestLine().getMethod() == POST)
-			write(STDIN_FILENO, request.getBody().c_str(), request.getContentLenght());
-		if (dup2(_cgi_stdout, STDOUT_FILENO) == -1)
-			exit(EXIT_FAILURE);
-		if (dup2(_cgi_stderr, STDERR_FILENO) == -1)
-			exit(EXIT_FAILURE);
+void Cgi::executeCgi() {
+    std::string extension = _getFileExtension(_filePath);
     
-        char const *args[3]; // obligatoire a declarer comme ca (ne veut pas compiler sinon)
-		args[0] = _bin_path.c_str();
-		args[1] = _file_path.c_str();
-		args[2] = NULL;
-		if (execve(args[0], (char* const*)args, _env) == -1)
-			exit(EXIT_FAILURE);
-	}
-	return true;
+    if (extension == ".php" || extension == ".py") {
+        int pipefd[2];
+        if (pipe(pipefd) == -1) {
+            throw PipeException();
+        }
+        pid_t pid = fork();
+        if (pid == -1) {
+            close(pipefd[0]);
+            close(pipefd[1]);
+            throw ForkException();
+        }
+        if (pid == 0) {
+            close(pipefd[0]);
+            dup2(pipefd[1], STDOUT_FILENO);
+            close(pipefd[1]);
+            
+            _envp = NULL;
+			if (_request.getHeaders().size())
+				_envp = _createEnv();
+				
+            // Pas tres souple atm (que deux extensions dispo atm)
+            if (extension == ".php") {
+				const char *arg[] = {"php-cgi", _filePath.c_str(), 0};
+                execve("/usr/bin/php-cgi", const_cast<char *const *>(arg), _envp);
+            } else if (extension == ".py") {
+                const char *arg[] = {"python3", _filePath.c_str(), 0};
+                execve("/usr/bin/python3", const_cast<char *const *>(arg), _envp);
+            }
+            
+            std::cerr << "Error executing CGI." << std::endl;
+            exit(EXIT_FAILURE);
+        } else {
+            close(pipefd[1]);
+            
+            char buffer[BUFSIZ];
+            ssize_t bytesRead;
+            while ((bytesRead = read(pipefd[0], buffer, BUFSIZ)) > 0) {
+                // CGI OUTPUT
+                std::cout.write(buffer, bytesRead);
+            }
+            
+            close(pipefd[0]);
+            
+            int status;
+            waitpid(pid, &status, 0);
+            
+            if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+                std::cerr << "Child process exited with an error." << std::endl;
+            }
+        }
+    } else {
+        throw UnsupportedExtensionException();
+    }
 }
 
-int	Cgi::wait() {
-	int		status;
-	
-	if (waitpid(_cgi_pid, &status, 0) == -1) {
-		std::cout << "failed to wait for the Cgi script";
-		return EXIT_FAILURE;
-	}
-	if (WIFEXITED(status)) {
-		if (WEXITSTATUS(status) == EXIT_SUCCESS)
-			return EXIT_SUCCESS; // 200
-	}
-    std::cout << "the Cgi script exited with an error";
-	return EXIT_FAILURE;
+char **Cgi::_createEnv() {
+	map_strstr mapEnv;
+	const char **methods = NULL;
+	const char *methods[] = {"DELETE", "GET", "POST", NULL};
+	mapEnv.insert(std::make_pair("REQUEST_METHOD", methods[_request.getMethod()]));
+	mapEnv.insert(std::make_pair("PWD", ""));// TODO
+	if (_request.getMethod() != POST)
+		mapEnv.insert(std::make_pair("QUERY_STRING", "")); // TODO
+	mapEnv.insert(std::make_pair("CONTENT_TYPE", _request.getHeader("Content-Type").c_str()));
+	std::stringstream content_length;
+	content_length << _request.getContentLength();
+	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str().c_str()));
+	mapEnv.insert(std::make_pair("SERVER_NAME", "")); // server.getName()
+	mapEnv.insert(std::make_pair("SERVER_PORT", ""));// port.getPort() en appliquant le meme procede que pour content length
+	mapEnv.insert(std::make_pair("SCRIPT_NAME", _request.getPath().c_str()));
+	mapEnv.insert(std::make_pair("PATH_INFO", _request.getPath().c_str()));
+	mapEnv.insert(std::make_pair("SERVER_PROTOCOL", _request.getHttpVersion().c_str()));
+
+    char **ret = new char *[mapEnv.size() + 1];
+    if (!ret)
+        return NULL;
+	int i = 0;
+    for (map_strstr::iterator it = mapEnv.begin(); it != mapEnv.end(); it++)
+    {
+        std::string tmp = it->first + "=" + it->second;
+        ret[i] = new char[tmp.size() + 1];
+		if (!ret[i]) {
+			for (i; i >= 0; i--)
+				delete[] ret[i];
+			delete[] ret;
+			ret = NULL;
+		}
+        strcpy(ret[i], tmp.c_str());
+        i++;
+    }
+    ret[i] = NULL;
+	return ret;
+}
+
+std::string Cgi::_getFileExtension(const std::string& _filePath) {
+    size_t dotPos = _filePath.find_last_of('.');
+    if (dotPos != std::string::npos) {
+        return _filePath.substr(dotPos);
+    }
+    return "";
+}
+
+/* ----- GETTERS ----- */
+
+Request Cgi::getRequest() const {
+	return _request;
+}
+
+Route Cgi::getRoute() const {
+	return _route;
+}
+
+std::string Cgi::getFilePath() const {
+	return _filePath;
+}
+
+std::string Cgi::getFileExe() const {
+	return _fileExe;
+}
+
+char** Cgi::getEnvp() const {
+	return _envp;
 }
 
 
- /*----- GETTERS -----*/
- 
-int	Cgi::getStdout() const {
-	return _cgi_stdout;
-}
-
-int	Cgi::getStderr() const {
-	return _cgi_stderr;
-}
-
-pid_t Cgi::getPid() const {
-	return _cgi_pid;
-}
-
-std::string	Cgi::getBinPath() const {
-	return _bin_path;
-}
-
-std::string	Cgi::getFilePath() const {
-	return _file_path;
-}
-
-char**	Cgi::getEnv() const {
-	return _env;
-}
 /* ----- OPERATORS ----- */
 
+Cgi & Cgi::operator=(Cgi const &op) {
+    _request = op._request;
+    _route = op._route;
+    _filePath = op._filePath;
+    _fileExe = op._fileExe;
+    _envp = op._envp;
+    return *this;
+}
+
 std::ostream & operator<<(std::ostream &o, Cgi const &obj) {
-	o << "bin: " << obj.getBinPath() << "\nfile:" << obj.getFilePath() << std::endl;
+	o << "Request:\n" << obj.getRequest() << "\n\n";
+	o << "Executable:\n|" << obj.getFileExe() << "|\n";
+	o << "File to execute:\n|" << obj.getFileExe() << "|\n\n";
+    if (obj.getEnvp())
+	{
+		char **tmp = obj.getEnvp();
+		for(size_t i = 0; tmp[i]; i++)
+			o << tmp[i] << "\n";
+	}
     return o;
+}
+
+/* ----- EXCEPTIONS ----- */
+
+const   char* Cgi::PipeException::what() const throw() {
+    return "CgiException: pipe() failed.";
+}
+
+const   char* Cgi::ForkException::what() const throw() {
+    return "CgiException: fork() failed.";
+}
+
+const   char* Cgi::NotCgiException::what() const throw() {
+    return "CgiException: not a CGI";
+}
+
+const   char* Cgi::UnsupportedExtensionException::what() const throw() {
+    return "CgiException: unsupported extention";
 }

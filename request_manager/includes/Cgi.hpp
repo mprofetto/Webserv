@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 16:36:47 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:31:13 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,43 +14,61 @@
 # define CGI_HPP
 
 # include "Request.hpp"
-
+# include "../../server/Route.hpp"
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <sys/wait.h>
+# include <unistd.h> // fork()
+# include <cstdlib> // exit()
+# include <iostream>
+# include <map>
+# include <string>
+# include <vector>
+# include <unistd.h>
+
 
 class Cgi {
-	private:
-		pid_t		_cgi_pid;
-		char**		_env;
-		std::string	_file_path;
-		std::string	_bin_path;
-		map_strstr	_map;
-		vec_str		_vec;
-		int			_cgi_stdout;
-		int			_cgi_stderr;
+private:
+    Request		_request;
+	Route		_route;
+	std::string	_filePath;
+	std::string _fileExe;
+	char**		_envp;
 
-		void	_fillEnvs(Request &request);
-		void 	_setMap(const char *head, const char *val);
+    std::string _getFileExtension(const std::string& filePath);
+	char**		_createEnv();
 
-	public:
-		Cgi();
-		Cgi(Request & request);
-		Cgi(Cgi const &copy);
-		~Cgi();
+public:
+    Cgi();
+	Cgi(Request const &request, Route const &route);
+	Cgi(Cgi const &copy);
+	~Cgi();
 
-		Cgi &operator=(const Cgi &op);
+	Cgi     	&operator=(Cgi const &op);
+	
+    void		executeCgi();
+	Request		getRequest() const;
+	Route		getRoute() const;
+	std::string getFilePath() const;
+	std::string getFileExe() const;
+	char**		getEnvp() const;
 
-		bool	validateBinPath();
-		bool	execute(Request &request);
-		int		wait();
-
-		std::string	getFilePath() const;
-		std::string	getBinPath() const;
-		int			getStdout() const;
-		int			getStderr() const;
-		pid_t		getPid() const;
-		char**		getEnv() const;
+    class	PipeException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
+    class	ForkException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
+    class	NotCgiException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
+    class	UnsupportedExtensionException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
 };
 
 std::ostream        &operator<<(std::ostream &o, Cgi const &obj);
