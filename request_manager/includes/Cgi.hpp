@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/13 12:08:59 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:29:18 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ public:
 
 	Cgi     	&operator=(Cgi const &op);
 	
-    void		executeCgi();
+    int			executeCgi();
 
 	Request		getRequest() const;
 	Route		getRoute() const;

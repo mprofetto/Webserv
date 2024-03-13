@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/13 12:01:51 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:02:29 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,10 @@ Cgi::Cgi(Cgi const &copy) {
 
 /* ----- FUNCTIONS ----- */
 
-void Cgi::executeCgi() {
+int Cgi::executeCgi() {
     std::string extension = _getFileExtension(_filePath);
     
-    if (extension == ".php" || extension == ".py") {
+    if (extension == ".php" || extension == ".py" || extension == ".pl") {
         int pipefd[2];
         if (pipe(pipefd) == -1) {
             throw PipeException();
@@ -61,13 +61,20 @@ void Cgi::executeCgi() {
             const char *exec;
             const char **args;
             if (extension == ".php") {
-                exec = "/usr/bin/php-cgi";
+                exec = "/usr/bin/php-cgi"; // php or php-cgi ???
                 args[0] = "php-cgi";
                 args[1] = _filePath.c_str();
                 args[2] = NULL;
-            } else {
+            } 
+            if (extension == ".py") {
                 exec = "/usr/bin/python3";
                 args[0] = "python3";
+                args[1] = _filePath.c_str();
+                args[2] = NULL;
+            }
+            if (extension == ".pl") {
+                exec = "/usr/bin/perl";
+                args[0] = "perl";
                 args[1] = _filePath.c_str();
                 args[2] = NULL;
             }
@@ -85,10 +92,12 @@ void Cgi::executeCgi() {
             waitpid(pid, &status, 0);
             if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
                 std::cerr << "Child process exited with an error." << std::endl;
+                return (500);
         }
     } else {
         throw UnsupportedExtensionException();
     }
+    return (200);
 }
 
 char **Cgi::_createEnv() {
