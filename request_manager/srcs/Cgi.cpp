@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/12 21:48:22 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:01:51 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Cgi::Cgi() {
 }
 
-Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route) {
+Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL) {
 	if (!_route.getCgi())
 		throw NotCgiException();
 	_filePath = _request.getPath(); // fichier a executer
@@ -23,7 +23,7 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
 }
 
 Cgi::~Cgi() {
-	if (_envp){
+	if (_envp) {
 		for (size_t i = 0; _envp[i]; i++)
 			delete[] _envp[i];
 	 	delete[] _envp;		
@@ -55,39 +55,36 @@ void Cgi::executeCgi() {
             dup2(pipefd[1], STDOUT_FILENO);
             close(pipefd[1]);
             
-            _envp = NULL;
 			if (_request.getHeaders().size())
 				_envp = _createEnv();
 				
-            // Pas tres souple atm (que deux extensions dispo atm)
+            const char *exec;
+            const char **args;
             if (extension == ".php") {
-				const char *arg[] = {"php-cgi", _filePath.c_str(), 0};
-                execve("/usr/bin/php-cgi", const_cast<char *const *>(arg), _envp);
-            } else if (extension == ".py") {
-                const char *arg[] = {"python3", _filePath.c_str(), 0};
-                execve("/usr/bin/python3", const_cast<char *const *>(arg), _envp);
+                exec = "/usr/bin/php-cgi";
+                args[0] = "php-cgi";
+                args[1] = _filePath.c_str();
+                args[2] = NULL;
+            } else {
+                exec = "/usr/bin/python3";
+                args[0] = "python3";
+                args[1] = _filePath.c_str();
+                args[2] = NULL;
             }
-            
+            execve(exec, const_cast<char *const *>(args), _envp);
             std::cerr << "Error executing CGI." << std::endl;
             exit(EXIT_FAILURE);
         } else {
             close(pipefd[1]);
-            
-            char buffer[BUFSIZ];
-            ssize_t bytesRead;
-            while ((bytesRead = read(pipefd[0], buffer, BUFSIZ)) > 0) {
-                // CGI OUTPUT
-                std::cout.write(buffer, bytesRead);
-            }
-            
-            close(pipefd[0]);
-            
+            char buffer[1024];
             int status;
+            ssize_t bytesRead;
+            while ((bytesRead = read(pipefd[0], buffer, 1024)) > 0)
+                std::cout.write(buffer, bytesRead);          
+            close(pipefd[0]);
             waitpid(pid, &status, 0);
-            
-            if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+            if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
                 std::cerr << "Child process exited with an error." << std::endl;
-            }
         }
     } else {
         throw UnsupportedExtensionException();

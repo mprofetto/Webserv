@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/12 21:31:13 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:08:59 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,17 @@
 
 # include "Request.hpp"
 # include "../../server/Route.hpp"
+
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <sys/wait.h>
-# include <unistd.h> // fork()
-# include <cstdlib> // exit()
+# include <unistd.h>
+# include <cstdlib>
+
 # include <iostream>
 # include <map>
 # include <string>
 # include <vector>
-# include <unistd.h>
-
 
 class Cgi {
 private:
@@ -35,7 +35,7 @@ private:
 	std::string _fileExe;
 	char**		_envp;
 
-    std::string _getFileExtension(const std::string& filePath);
+    std::string _getFileExtension(std::string const &filePath);
 	char**		_createEnv();
 
 public:
@@ -47,6 +47,7 @@ public:
 	Cgi     	&operator=(Cgi const &op);
 	
     void		executeCgi();
+
 	Request		getRequest() const;
 	Route		getRoute() const;
 	std::string getFilePath() const;
@@ -71,6 +72,6 @@ public:
 	};
 };
 
-std::ostream        &operator<<(std::ostream &o, Cgi const &obj);
+std::ostream	&operator<<(std::ostream &o, Cgi const &obj);
 
 #endif
