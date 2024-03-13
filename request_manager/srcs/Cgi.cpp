@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/13 13:02:29 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:25:15 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int Cgi::executeCgi() {
 				_envp = _createEnv();
 				
             const char *exec;
-            const char **args;
+            const char **args= NULL;
             if (extension == ".php") {
                 exec = "/usr/bin/php-cgi"; // php or php-cgi ???
                 args[0] = "php-cgi";
@@ -102,7 +102,6 @@ int Cgi::executeCgi() {
 
 char **Cgi::_createEnv() {
 	map_strstr mapEnv;
-	const char **methods = NULL;
 	const char *methods[] = {"DELETE", "GET", "POST", NULL};
 	mapEnv.insert(std::make_pair("REQUEST_METHOD", methods[_request.getMethod()]));
 	mapEnv.insert(std::make_pair("PWD", ""));// TODO
@@ -127,8 +126,8 @@ char **Cgi::_createEnv() {
         std::string tmp = it->first + "=" + it->second;
         ret[i] = new char[tmp.size() + 1];
 		if (!ret[i]) {
-			for (i; i >= 0; --i)
-				delete[] ret[i];
+			for (size_t j = i; j >= 0; --j)
+				delete[] ret[j];
 			delete[] ret;
 			return NULL;
 		}
