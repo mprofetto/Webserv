@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/11 14:04:18 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/14 11:52:13 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ const char	*Server::invalidSocket::what(void) const throw()
 
 Server::Server() : _host(LOCALHOST), _root(""), _port(80), _socket(-1)
 {
+	this->_index.push_back("index.html");
 	return;
 }
 
