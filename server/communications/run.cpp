@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/11 14:49:53 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:19:13 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	TcpListener::readRequest(int client_socket)
 	raw_request = buffer;
 	if (this->isIncompleteRequest(client_socket) == true)
 	{
-		// this->addToBody(raw_request);
+		this->_incomplete_requests.find(client_socket)->second.catToBody(raw_request);
 		if (this->isIncompleteRequest(client_socket) == false)
 		{
 			this->_pending_request = this->_incomplete_requests.find(client_socket)->second;
@@ -90,11 +90,12 @@ void	TcpListener::readRequest(int client_socket)
 	{
 		Request	request(raw_request);
 
-		this->_pending_request = request;
+		if (request.getComplete() == true)
+			this->_pending_request = request;
+		else
+			this->_incomplete_requests.insert(std::pair<int, Request>(client_socket, request));
 	}
 	FD_SET(client_socket, &this->_write_master_fd);
-	// this->registerReponse(client_socket, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!");
-	// handleRequest(client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
 }
 
 void	getFullPath(Route *route, Response& response) {

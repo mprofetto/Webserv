@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:39:42 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/11 14:47:51 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:17:28 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,8 @@ bool			TcpListener::isIncompleteRequest(int socket)
 	std::map<int, Request>::iterator	it;
 
 	it = this->_incomplete_requests.find(socket);
-	// if (it != this->_requests.end() && (*it).second.isComplete() == false)
-	// 	return (true);
-	return (false);
+	if (it == this->_incomplete_requests.end())
+		return (false);
+	return (true);
 }
 
