@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/11 15:32:52 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/18 21:16:11 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ std::string Request::_strtrim(std::string &s) {
     return s;
 }
 
-
 /* ----- PUBLIC FUNCTIONS ----- */
 
 void Request::catToBody(std::string & str) {
@@ -103,6 +102,9 @@ void Request::catToBody(std::string & str) {
     if (_body.size() == _content_length)
         _complete = true;
 }
+
+
+/* ----- GETTERS ----- */
 
 std::string Request::getRaw() const {
     return _raw;
@@ -148,6 +150,31 @@ std::string Request::getHttpVersion() const {
 std::string Request::getPath() const {
     return _req.getPath();
 }
+
+
+/* ----- SETTERS ----- */
+
+void        Request::setHeaders(map_strstr const &headers) {
+    if (!headers.empty())
+        this->_headers = headers;
+}
+
+void        Request::setHeader(std::string &header, std::string &value) {
+    map_strstr::iterator tmp = _headers.find(header);
+    if (tmp->first == header) {
+        _headers.erase(header);
+        header = _strtrim(header);
+        value = _strtrim(value);
+        this->_headers.insert(std::make_pair(header, value));
+    }
+}
+
+void        Request::setBody(std::string const &body) {
+    if (!_body.empty())
+        this->_body = body;
+}
+
+
 /* ----- OPERATORS ----- */
 
 Request & Request::operator=(Request const &op) {

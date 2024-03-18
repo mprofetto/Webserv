@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/13 12:29:18 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/18 20:54:41 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ private:
 	std::string	_filePath;
 	std::string _fileExe;
 	char**		_envp;
+	int			_exitCode;
 
     std::string _getFileExtension(std::string const &filePath);
 	char**		_createEnv();
@@ -48,6 +49,7 @@ public:
 	
     int			executeCgi();
 
+	int			getExitCode() const;
 	Request		getRequest() const;
 	Route		getRoute() const;
 	std::string getFilePath() const;

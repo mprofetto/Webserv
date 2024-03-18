@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/13 13:25:15 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/18 20:54:26 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Cgi::Cgi() {
 }
 
-Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL) {
+Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL), _exitCode(500) {
 	if (!_route.getCgi())
 		throw NotCgiException();
 	_filePath = _request.getPath(); // fichier a executer
@@ -92,12 +92,12 @@ int Cgi::executeCgi() {
             waitpid(pid, &status, 0);
             if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
                 std::cerr << "Child process exited with an error." << std::endl;
-                return (500);
+                return ;
         }
     } else {
         throw UnsupportedExtensionException();
     }
-    return (200);
+    _exitCode = 200;;
 }
 
 char **Cgi::_createEnv() {
@@ -147,6 +147,10 @@ std::string Cgi::_getFileExtension(const std::string& _filePath) {
 }
 
 /* ----- GETTERS ----- */
+
+int Cgi::getExitCode() const {
+	return _exitCode;
+}
 
 Request Cgi::getRequest() const {
 	return _request;
