@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/18 20:54:26 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/19 15:07:54 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ Cgi::Cgi(Cgi const &copy) {
 int Cgi::executeCgi() {
     std::string extension = _getFileExtension(_filePath);
     
-    if (extension == ".php" || extension == ".py" || extension == ".pl") {
+    if (extension == ".py" || extension == ".pl") {
         int pipefd[2];
         if (pipe(pipefd) == -1) {
             throw PipeException();
@@ -60,12 +60,6 @@ int Cgi::executeCgi() {
 				
             const char *exec;
             const char **args= NULL;
-            if (extension == ".php") {
-                exec = "/usr/bin/php-cgi"; // php or php-cgi ???
-                args[0] = "php-cgi";
-                args[1] = _filePath.c_str();
-                args[2] = NULL;
-            } 
             if (extension == ".py") {
                 exec = "/usr/bin/python3";
                 args[0] = "python3";
@@ -97,7 +91,7 @@ int Cgi::executeCgi() {
     } else {
         throw UnsupportedExtensionException();
     }
-    _exitCode = 200;;
+    _exitCode = 200;
 }
 
 char **Cgi::_createEnv() {
