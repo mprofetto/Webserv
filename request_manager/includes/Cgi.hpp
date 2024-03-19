@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/18 20:54:41 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/19 15:12:55 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ public:
 
 	Cgi     	&operator=(Cgi const &op);
 	
-    int			executeCgi();
+    void		executeCgi();
 
 	int			getExitCode() const;
 	Request		getRequest() const;

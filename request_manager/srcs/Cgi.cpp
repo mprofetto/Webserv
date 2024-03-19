@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/19 15:07:54 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/19 15:13:39 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ Cgi::Cgi(Cgi const &copy) {
 
 /* ----- FUNCTIONS ----- */
 
-int Cgi::executeCgi() {
+void Cgi::executeCgi() {
     std::string extension = _getFileExtension(_filePath);
     
     if (extension == ".py" || extension == ".pl") {

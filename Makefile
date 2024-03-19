@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: achansar <achansar@student.42.fr>          +#+  +:+       +#+         #
+#    By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/12 14:48:07 by mprofett          #+#    #+#              #
-#    Updated: 2024/03/08 17:33:14 by achansar         ###   ########.fr        #
+#    Updated: 2024/03/19 15:12:27 by nesdebie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,6 +15,7 @@ NAME		= ./webserv
 SRC			= webserv.cpp \
 			request_manager/srcs/Request.cpp \
 			request_manager/srcs/RequestLine.cpp \
+			request_manager/srcs/Cgi.cpp \
 			response_manager/Response.cpp \
 			response_manager/ErrorResponse.cpp \
 			server/TcpListener.cpp \
