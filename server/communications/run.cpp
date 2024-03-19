@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/19 14:32:50 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/19 15:15:33 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../TcpListener.hpp"
-
+# include "../../request_manager/includes/Cgi.hpp"
 
 void	TcpListener::runTcpListener()
 {
@@ -158,13 +158,17 @@ void	TcpListener::handleRequest(int client_socket)
 	// 		////////////////////
 	}
 	////////////////////////
+	if (route) {
+		Cgi cgi(_pending_request, *route);
+		cgi.executeCgi();
+		status_code = cgi.getExitCode();
+		Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
+		getFullPath(route, response);
 
-	Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
-	getFullPath(route, response);
-
-	response.buildResponse(_pending_request);
-	FD_SET(client_socket, &this->_write_master_fd);
-	this->registerReponse(client_socket, response.getResponse());
+		response.buildResponse(_pending_request);
+		FD_SET(client_socket, &this->_write_master_fd);
+		this->registerReponse(client_socket, response.getResponse());
+	}
 }
 
 
