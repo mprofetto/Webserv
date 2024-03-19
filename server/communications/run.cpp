@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/11 14:49:53 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:06:35 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,6 @@ void	TcpListener::readRequest(int client_socket)
 
 void	getFullPath(Route *route, Response& response) {
 
-//	/!!\ CHECK IF REPOSITORY !!!!!!!! /!\ //
-
 	if (response.getStatusCode() == 200) {
 		// may use std::filesystem::is_directory() when segfault is fixed
 		std::string root = route->getRoot() + "/";
@@ -146,18 +144,18 @@ void	TcpListener::handleRequest(int client_socket)
 
 	// std::cout << "EXTENSION : " << route->getExtension() << std::endl;
 
-	// if (!route->getExtension().empty()
-	// 	|| request.getRequestLine().getMethod() == POST
-	// 	/*|| (request.getRequestLine().getMethod() == GET && route->getPath().compare("/"))*/) {
+	if (!route->getExtension().empty()
+		|| _pending_request.getRequestLine().getMethod() == POST
+		|| (_pending_request.getRequestLine().getMethod() == GET && _pending_request.getPath().compare("/"))) {
 	// 		/////////////////
-
+		std::cout << "Yes ??" << std::endl;
 	// 		status_code = CGIfucntion();// temporary function for my tests
 	// 		// il faut donc renvoyer un int pour status_code
 
 	// 		// Ici une fonction vers la partie/classe CGI
 
 	// 		////////////////////
-	// }
+	}
 	////////////////////////
 
 	Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
