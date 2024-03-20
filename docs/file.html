@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example HTML Response</title>
+</head>
+<body>
+    <h1>File exchange</h1>
+    
+    <h2>Upload a File</h2>
+    <form action="cgi_bin/upload.py" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <input type="submit" value="Upload"/>
+    </form>
+
+    <h2>Download File</h2>
+    <form action="/path/to/your/file.ext" method="get">
+        <button type="submit">Download File</button>
+    </form>
+
+    <button onclick="location.href='index.html'">Go back</button>
+</body>
+</html>
