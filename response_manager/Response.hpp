@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/19 14:44:14 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/20 15:01:20 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Response {
         std::string     getHeaders(const int s);
         std::string     getReason(int sc);
         std::string     getMimeType();
+        void	        getFullPath(Route *route, std::string uri);
 
     // GET & SET
         std::string     getResponse();

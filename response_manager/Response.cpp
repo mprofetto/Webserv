@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/19 14:44:46 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/20 15:08:09 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,8 @@ std::string Response::getBody() {
 
 void      Response::buildResponse(Request request) {
 
+    std::cout << "\nREQUEST ::\n" << request.getRaw() << std::endl;
+
     std::stringstream   ss;
     (void)request;
     // int yes = 5;
@@ -170,6 +172,7 @@ void      Response::buildResponse(Request request) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
     return;
 }
 
@@ -195,4 +198,27 @@ void            Response::setPath(std::string& str) {
 void            Response::setErrorPath(std::string& str) {
     _errorPath = str;
     return;
+}
+
+// ============================================================================== UTILS
+
+void	Response::getFullPath(Route *route, std::string uri) {
+
+	if (route) {
+		std::string root = route->getRoot() + "/";
+		std::string index = route->getIndex().front();//         only gets first index. it's temporary
+		_path = root + index;
+	} else {
+		std::ifstream			myfile;
+
+		_path = "docs" + uri;
+		myfile.open(_path);
+		if (myfile.fail()) {
+			_statusCode = 404;
+			_path = "/";
+		} else {
+			myfile.close();
+		}
+	}
+	return;
 }

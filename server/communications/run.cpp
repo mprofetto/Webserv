@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/19 15:15:33 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/20 15:09:03 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,77 +98,40 @@ void	TcpListener::readRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
-void	getFullPath(Route *route, Response& response) {
-
-	if (response.getStatusCode() == 200) {
-		// may use std::filesystem::is_directory() when segfault is fixed
-		std::string root = route->getRoot() + "/";
-		std::string index = route->getIndex().front();//         only gets first index. it's temporary
-		std::string p = root + index;
-
-	// TO DO : CHECK IF PATH IS VALID
-	// If not,
-	// p = status-code correspondant
-	// sinon,
-		response.setPath(p);
-	}
-	return;
-}
-
-int CGIfucntion() {
-	return 200;
-}
-
 void	TcpListener::handleRequest(int client_socket)
 {
 	int status_code = 200;
 	Route *route = NULL;
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
-	int i = 1;
 
 	std::list<Route *> r = server->getRoute();
 
 	std::cout << "List of routes is size : " << r.size() << std::endl;
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		i++;
-		// if (it == r.end()) { .  -> visiblement ne fonction pas, 4TH	 root is empty ?
-		if (i >= 4) {
-			status_code = 404;
-		}
+
+		std::cout << "\nRequired Path is : " << _pending_request.getPath() << " and we're looking for : " << (*it)->getPath() << std::endl;
 		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
 			break;
 		}
 	}
 
-	/////////////////////// TO CGI ?
+	// if (route) {
+	// 	if (!route->getExtension().empty()
+	// 		|| _pending_request.getRequestLine().getMethod() == POST
+	// 		|| (_pending_request.getRequestLine().getMethod() == GET && _pending_request.getPath().compare("/"))) {
+	// 			Cgi cgi(_pending_request, *route);
+	// 			cgi.executeCgi();
+	// 			status_code = cgi.getExitCode();
+	// 	}
+	// }
+	
+	Response response(server, status_code, _pending_request.getMethod());//                create response here
+	response.getFullPath(route, _pending_request.getPath());
 
-	// std::cout << "EXTENSION : " << route->getExtension() << std::endl;
-
-	if (!route->getExtension().empty()
-		|| _pending_request.getRequestLine().getMethod() == POST
-		|| (_pending_request.getRequestLine().getMethod() == GET && _pending_request.getPath().compare("/"))) {
-	// 		/////////////////
-		std::cout << "Yes ??" << std::endl;
-	// 		status_code = CGIfucntion();// temporary function for my tests
-	// 		// il faut donc renvoyer un int pour status_code
-
-	// 		// Ici une fonction vers la partie/classe CGI
-
-	// 		////////////////////
-	}
-	////////////////////////
-	if (route) {
-		Cgi cgi(_pending_request, *route);
-		cgi.executeCgi();
-		status_code = cgi.getExitCode();
-		Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
-		getFullPath(route, response);
-
-		response.buildResponse(_pending_request);
-		FD_SET(client_socket, &this->_write_master_fd);
-		this->registerReponse(client_socket, response.getResponse());
-	}
+	response.buildResponse(_pending_request);
+	FD_SET(client_socket, &this->_write_master_fd);
+	this->registerReponse(client_socket, response.getResponse());
 }
 
 
