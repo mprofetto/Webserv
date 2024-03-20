@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/20 15:08:09 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/20 16:27:18 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ std::string     Response::getMimeType() {
 std::string Response::getHeaders(const int s) {//          which header is important ?
     std::string h;
 
-    // h += "Content-Type: text/html\r\n";//             get MIME type
     if (_method == GET) {
         h += "Content-Type: " + getMimeType() + "\r\n";
     }
@@ -123,23 +122,6 @@ std::string Response::getBody() {
 // finish get response + redirections 3XX (cf "Should I include a slash (/) at the end of my URLs?")
 // start delete response
 
-// void Response::buildGetResponse(Request request) {
-
-//     (void)request;
-//     std::stringstream   ss;
-//     std::string         headers;
-//     std::string         body;
-
-//     ss << _statusCode;
-
-//     _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason(_statusCode) + "\n";
-//     body = getBody(request.getRequestLine().getMethod());
-//     headers = getHeaders(body.length()) + "\n";
-
-//     _responseLine = _statusLine + headers + body;
-//     return;
-// }
-
 // ==================================================================== SWITCH
 
 
@@ -149,7 +131,6 @@ void      Response::buildResponse(Request request) {
 
     std::stringstream   ss;
     (void)request;
-    // int yes = 5;
     if (_statusCode == 200) {        
         // switch (request.getRequestLine().getMethod()) {
         //     case 1:
@@ -172,7 +153,7 @@ void      Response::buildResponse(Request request) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
+    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
     return;
 }
 

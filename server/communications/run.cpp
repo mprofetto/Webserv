@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/20 15:09:03 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/20 16:30:37 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,26 +106,28 @@ void	TcpListener::handleRequest(int client_socket)
 
 	std::list<Route *> r = server->getRoute();
 
-	std::cout << "List of routes is size : " << r.size() << std::endl;
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
 
-		std::cout << "\nRequired Path is : " << _pending_request.getPath() << " and we're looking for : " << (*it)->getPath() << std::endl;
+		std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
 		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
 			break;
 		}
 	}
 
-	// if (route) {
-	// 	if (!route->getExtension().empty()
-	// 		|| _pending_request.getRequestLine().getMethod() == POST
-	// 		|| (_pending_request.getRequestLine().getMethod() == GET && _pending_request.getPath().compare("/"))) {
-	// 			Cgi cgi(_pending_request, *route);
-	// 			cgi.executeCgi();
-	// 			status_code = cgi.getExitCode();
-	// 	}
-	// }
-	
+	if (route /*&& route->getCgi()*/) {
+		std::cout << "YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
+		if (!route->getExtension().empty()
+			|| _pending_request.getMethod() == POST
+			|| (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+				std::cout << "DEBUT of CGI ??\n";
+				Cgi cgi(_pending_request, *route);
+				cgi.executeCgi();
+				status_code = cgi.getExitCode();
+				std::cout << "End of CGI ??\n";
+		}
+	}
+
 	Response response(server, status_code, _pending_request.getMethod());//                create response here
 	response.getFullPath(route, _pending_request.getPath());
 

@@ -4,7 +4,7 @@ import cgi
 import os
 
 # Set the directory where uploaded files will be stored
-UPLOAD_DIR = "/path/to/upload/directory/"
+UPLOAD_DIR = "/upload"
 
 # HTML template for the upload form
 UPLOAD_FORM = """
