@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/10 18:45:19 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/19 14:44:46 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,11 +85,11 @@ std::string     Response::getMimeType() {
 std::string Response::getHeaders(const int s) {//          which header is important ?
     std::string h;
 
-    h += "Content-Type: text/html\r\n";//             get MIME type
-    h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
+    // h += "Content-Type: text/html\r\n";//             get MIME type
     if (_method == GET) {
         h += "Content-Type: " + getMimeType() + "\r\n";
     }
+    h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
     return h;
 }
 

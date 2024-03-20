@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/10 18:40:39 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/19 14:44:14 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 #include <map>
 #include "../request_manager/includes/Request.hpp"
 #include "../server/Server.hpp"
-
-// enum {DELETE, GET, POST, UNVALID};
 
 class Server;
 class Response {
