@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/21 13:33:27 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/21 15:58:33 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,38 @@ void	TcpListener::readRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
+// int sendFile(int socket, std::string uri) {
+	
+// 	std::ifstream	infile(uri, std::ios::binary | std::ios::in);
+// 	char buffer[1024];
+// 	int bytesRead = 0;
+
+// 	while ((bytesRead = infile.readsome(buffer, 1024)) > 0) {
+// 		int bytesSent = send(socket, buffer, strlen(buffer), 0);
+// 		if (bytesSent == -1) {
+// 			std::cout << "Error sending the file" << std::endl;
+// 			return 500;
+// 		}
+// 	}
+// 	return 200;
+// }
+
+// int receiveFile(int socket, )
+
+
+// int fileTransfer() {
+
+// 	if (method == POST) {
+// 		return;
+// 	} else if (method == GET) {
+// 		sendFile(socket, uri);
+// 	} else {
+// 		return;
+// 	}
+
+// }
+
+
 void	TcpListener::handleRequest(int client_socket)
 {
 	int status_code = 200;
@@ -108,7 +140,8 @@ void	TcpListener::handleRequest(int client_socket)
 
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
 
-		std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
+		// std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
+		std::cout << "Extension : " << (*it)->getExtension() << std::endl;
 		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
 			break;
@@ -130,7 +163,7 @@ void	TcpListener::handleRequest(int client_socket)
 
 	Response response(server, status_code, _pending_request.getMethod());//                create response here
 	response.getFullPath(route, _pending_request.getPath());
-
+	
 	response.buildResponse(_pending_request);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());

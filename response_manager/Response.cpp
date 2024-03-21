@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/20 16:27:18 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/21 14:26:59 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ std::string Response::getBody() {
 void      Response::buildResponse(Request request) {
 
     std::cout << "\nREQUEST ::\n" << request.getRaw() << std::endl;
+    std::cout << "Request line parsed : " << request.getRequestLine().getPath() << std::endl; 
 
     std::stringstream   ss;
     (void)request;
