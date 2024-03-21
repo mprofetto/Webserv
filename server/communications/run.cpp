@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/20 16:30:37 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/21 13:33:27 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void	TcpListener::handleRequest(int client_socket)
 				Cgi cgi(_pending_request, *route);
 				cgi.executeCgi();
 				status_code = cgi.getExitCode();
-				std::cout << "End of CGI ??\n";
+				std::cout << "End of CGI !\n [SATUS CODE =" << status_code << "]\n";
 		}
 	}
 

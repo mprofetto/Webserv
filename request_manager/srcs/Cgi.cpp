@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/21 10:54:53 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/21 13:57:28 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Cgi::Cgi() {
 Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL), _exitCode(500) {
 	if (!_route.getCgi())
 		throw NotCgiException();
-	_filePath = _request.getPath(); // fichier a executer
+	_filePath =  "." + _request.getPath(); // fichier a executer
 	_fileExe = _route.getPath(); // localisation de l'executable
 }
 
@@ -55,7 +55,7 @@ void Cgi::executeCgi() {
             dup2(pipefd[1], STDOUT_FILENO);
             close(pipefd[1]);
             
-			if (_request.getHeaders().size())
+			if (!_request.getHeaders().empty())
 				_envp = _createEnv();
 			
             if (extension == ".py") {
@@ -66,7 +66,7 @@ void Cgi::executeCgi() {
 
             if (extension == ".pl") {
                 const char *exec = "/usr/bin/perl";
-                char const *args[3] = {"perl", _filePath.c_str(), NULL};
+                char const *args[3] = {"perl",  _filePath.c_str(), NULL};
                 execve(exec, const_cast<char *const *>(args), _envp);
             }
             std::cerr << "Error executing CGI." << std::endl;
@@ -76,18 +76,19 @@ void Cgi::executeCgi() {
             char buffer[1024];
             int status;
             ssize_t bytesRead;
-            while ((bytesRead = read(pipefd[0], buffer, 1024)) > 0)
-                std::cout.write(buffer, bytesRead);          
+            while ((bytesRead = read(pipefd[0], buffer, 1024)) > 0) {
+                std::cout.write(buffer, bytesRead);
+            }
             close(pipefd[0]);
             waitpid(pid, &status, 0);
             if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
                 std::cerr << "Child process exited with an error." << std::endl;
-                return ;
+            else
+                _exitCode = 200;
         }
     } else {
        throw UnsupportedExtensionException();
     }
-    _exitCode = 200;
 }
 
 char **Cgi::_createEnv() {
