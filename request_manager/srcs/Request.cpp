@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/18 21:16:11 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/21 15:56:02 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,9 @@ std::string Request::getPath() const {
     return _req.getPath();
 }
 
+std::string Request::getQuery() const {
+    return _req.getQuery();
+}
 
 /* ----- SETTERS ----- */
 
