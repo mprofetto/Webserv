@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/19 15:13:39 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/21 10:54:53 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,24 +57,20 @@ void Cgi::executeCgi() {
             
 			if (_request.getHeaders().size())
 				_envp = _createEnv();
-				
-            const char *exec;
-            const char **args= NULL;
+			
             if (extension == ".py") {
-                exec = "/usr/bin/python3";
-                args[0] = "python3";
-                args[1] = _filePath.c_str();
-                args[2] = NULL;
+                const char *exec = "/usr/bin/python3";
+                char const *args[3] = {"python3", _filePath.c_str(), NULL};
+                execve(exec, const_cast<char *const *>(args), _envp);            
             }
+
             if (extension == ".pl") {
-                exec = "/usr/bin/perl";
-                args[0] = "perl";
-                args[1] = _filePath.c_str();
-                args[2] = NULL;
+                const char *exec = "/usr/bin/perl";
+                char const *args[3] = {"perl", _filePath.c_str(), NULL};
+                execve(exec, const_cast<char *const *>(args), _envp);
             }
-            execve(exec, const_cast<char *const *>(args), _envp);
             std::cerr << "Error executing CGI." << std::endl;
-            exit(EXIT_FAILURE);
+                exit(EXIT_FAILURE);
         } else {
             close(pipefd[1]);
             char buffer[1024];
@@ -89,7 +85,7 @@ void Cgi::executeCgi() {
                 return ;
         }
     } else {
-        throw UnsupportedExtensionException();
+       throw UnsupportedExtensionException();
     }
     _exitCode = 200;
 }
