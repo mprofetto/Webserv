@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/21 15:58:33 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/21 16:41:01 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,6 @@ void	TcpListener::readRequest(int client_socket)
 
 // }
 
-
 void	TcpListener::handleRequest(int client_socket)
 {
 	int status_code = 200;
@@ -140,8 +139,7 @@ void	TcpListener::handleRequest(int client_socket)
 
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
 
-		// std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
-		std::cout << "Extension : " << (*it)->getExtension() << std::endl;
+		std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
 		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
 			break;
@@ -163,7 +161,9 @@ void	TcpListener::handleRequest(int client_socket)
 
 	Response response(server, status_code, _pending_request.getMethod());//                create response here
 	response.getFullPath(route, _pending_request.getPath());
-	
+	if (request.getPath().compare("/download/hello.txt")) {
+		
+	}
 	response.buildResponse(_pending_request);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());

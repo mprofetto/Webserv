@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLine.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/21 15:54:58 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/21 16:07:42 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ RequestLine::RequestLine(int const &method, std::string const &path, std::string
         _path = path;
     else {
         _path = path.substr(0, pos);
-        _query = path.substr(pos + 1);
+        if (pos + 1)
+            _query = path.substr(pos + 1);
     }
 }
 
