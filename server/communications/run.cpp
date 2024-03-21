@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/21 16:41:01 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/21 16:56:01 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,36 +98,36 @@ void	TcpListener::readRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
-// int sendFile(int socket, std::string uri) {
+int sendFile(int socket, std::string uri) {
 	
-// 	std::ifstream	infile(uri, std::ios::binary | std::ios::in);
-// 	char buffer[1024];
-// 	int bytesRead = 0;
+	std::ifstream	infile(uri, std::ios::binary | std::ios::in);
+	char buffer[1024];
+	int bytesRead = 0;
 
-// 	while ((bytesRead = infile.readsome(buffer, 1024)) > 0) {
-// 		int bytesSent = send(socket, buffer, strlen(buffer), 0);
-// 		if (bytesSent == -1) {
-// 			std::cout << "Error sending the file" << std::endl;
-// 			return 500;
-// 		}
-// 	}
-// 	return 200;
-// }
+	while ((bytesRead = infile.readsome(buffer, 1024)) > 0) {
+		int bytesSent = send(socket, buffer, strlen(buffer), 0);
+		if (bytesSent == -1) {
+			std::cout << "\n\nError sending the file\n\n" << std::endl;
+			return 500;
+		}
+	}
+	return 200;
+}
 
 // int receiveFile(int socket, )
 
 
-// int fileTransfer() {
+int TcpListener::fileTransfer(int socket, std::string uri, int method) {
 
-// 	if (method == POST) {
-// 		return;
-// 	} else if (method == GET) {
-// 		sendFile(socket, uri);
-// 	} else {
-// 		return;
-// 	}
-
-// }
+	if (method == POST) {
+		return 200;
+	} else if (method == GET) {
+		std::cout << "\n\nCATCHING GET METHOD\n\n";
+		return sendFile(socket, uri);
+	} else {
+		return 200;
+	}
+}
 
 void	TcpListener::handleRequest(int client_socket)
 {
@@ -161,8 +161,10 @@ void	TcpListener::handleRequest(int client_socket)
 
 	Response response(server, status_code, _pending_request.getMethod());//                create response here
 	response.getFullPath(route, _pending_request.getPath());
-	if (request.getPath().compare("/download/hello.txt")) {
-		
+	if (_pending_request.getPath().compare("/download/hello.txt") == 0) {
+		fileTransfer(client_socket, _pending_request.getPath(), _pending_request.getMethod());
+	} else {
+		std::cout << "\n\nPAS DU TOUT\n\n";
 	}
 	response.buildResponse(_pending_request);
 	FD_SET(client_socket, &this->_write_master_fd);

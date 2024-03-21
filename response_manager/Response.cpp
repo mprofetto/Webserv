@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/21 14:26:59 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/21 16:53:51 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ void      Response::buildResponse(Request request) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
     return;
 }
 
