@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/21 16:53:51 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/24 16:56:47 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,94 @@ Response::~Response() {
 }
 
 // ============================================================================== MEMBER FUNCTIONS
+
+// ==================================================================== FILE TRANSFER
+
+int sendFile(int socket, std::string uri) {
+	
+	/*
+	write a response with headers and all 
+	then write in socket 
+	*/
+	
+	std::cout << "\nIN SENDFILE :\n" << "\nuri : " << uri << std::endl;
+
+
+	std::string newuri = "." + uri;
+	std::ifstream	infile(newuri, std::ios::binary | std::ios::in);
+	if (!infile) {
+		std::cout << "Le fichier s'ouvre pas." << std::endl;
+		return 500;
+	} else {
+		// infile.seekg(0, std::ios::end);
+		// std::streampos fileSize = infile.tellg();
+		// infile.seekg(0, std::ios::beg);
+
+		// std::ostringstream responseHeaders;
+		// 	responseHeaders << "HTTP/1.1 200 OK\r\n";
+		// 	responseHeaders << "Content-Type: " << getMimeType(uri) << "\r\n";
+		// 	responseHeaders << "Content-Disposition: attachment; filename=\"" << /*decodedFilename*/ "hello.txt" << "\"\r\n";
+
+		// responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
+			
+		// 	write(socket, responseHeaders.str().c_str(), responseHeaders.str().length());
+		// const std::streamsize bufferSize = 8192; // Adjust the buffer size as needed
+		// 	char buffer[bufferSize];
+
+		// 	while (!infile.eof()) 
+		// 		{
+		// 			infile.read(buffer, sizeof(buffer));
+		// 			ssize_t result = write(socket, buffer, infile.gcount());
+		// 			if (result == -1) 
+		// 			{
+		// 				std::cerr << "Error writing to socket." << std::endl;
+		// 				break;
+		// 			}
+		// 		}
+
+		// 	infile.close();
+		char buffer[1024];//                     SEEMS TO WORK BETTER WITH WRITE ON SOCKET
+
+		std::string body = "";
+		while (!infile.eof()) {
+			infile.getline(buffer, 1024);
+			body += buffer;
+		}
+
+		std::string response = "HTTP/1.0 200 OK\nContent-Type: text/html\nContent-Disposition: attachment; filename=\""/*decodedFilename*/"hello.txt\n"/* + body*/;
+		int bytesSent = send(socket, response.c_str(), response.length(), 0);
+		if (bytesSent == -1) {
+			std::cerr << "\n\nError sending the file\n\n" << std::endl;
+			return 500;
+		}
+		bytesSent = send(socket, body.c_str(), body.length(), 0);
+				if (bytesSent == -1) {
+			std::cerr << "\n\nError sending the file\n\n" << std::endl;
+			return 500;
+		} else {
+			std::cout << "Body sent" << std::endl;
+		}
+		infile.close();
+	}
+	return 200;
+}
+
+// int receiveFile(int socket, ) {
+
+// 	return 200;
+// }
+
+int Response::fileTransfer(int socket, std::string uri, int method) {
+
+	if (method == POST) {
+		return 200;
+	} else if (method == GET) {
+		std::cout << "\n\nCATCHING GET METHOD\n\n";
+		return sendFile(socket, uri);
+	} else {
+		return 200;
+	}
+}
 
 // ==================================================================== POST METHOD
 
@@ -132,6 +220,10 @@ void      Response::buildResponse(Request request) {
 
     std::stringstream   ss;
     (void)request;
+
+
+// int Response::fileTransfer(int socket, std::string uri, int method)
+
     if (_statusCode == 200) {        
         // switch (request.getRequestLine().getMethod()) {
         //     case 1:

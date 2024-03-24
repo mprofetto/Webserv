@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/20 15:01:20 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/24 16:54:23 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Response {
         std::string     getReason(int sc);
         std::string     getMimeType();
         void	        getFullPath(Route *route, std::string uri);
+        int             fileTransfer(int socket, std::string uri, int method);
 
     // GET & SET
         std::string     getResponse();

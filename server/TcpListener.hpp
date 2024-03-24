@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/21 16:51:17 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/24 16:55:44 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,6 @@ class TcpListener
 		void					registerReponse(int socket, std::string response);
 		void					writeResponse(int socket);
 		void					handleRequest(int client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
-		int 					fileTransfer(int socket, std::string uri, int method);
 
 		//Utils
 		Server					*getServerByHost(int port, std::string host);

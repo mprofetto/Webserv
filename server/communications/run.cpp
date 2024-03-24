@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/21 16:56:01 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/24 17:06:16 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,36 +98,42 @@ void	TcpListener::readRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
-int sendFile(int socket, std::string uri) {
-	
-	std::ifstream	infile(uri, std::ios::binary | std::ios::in);
-	char buffer[1024];
-	int bytesRead = 0;
+// std::string     getMimeType(std::string _path) {
 
-	while ((bytesRead = infile.readsome(buffer, 1024)) > 0) {
-		int bytesSent = send(socket, buffer, strlen(buffer), 0);
-		if (bytesSent == -1) {
-			std::cout << "\n\nError sending the file\n\n" << std::endl;
-			return 500;
-		}
-	}
-	return 200;
-}
+//     std::map<std::string, std::string> MIMEtypes;
+//     MIMEtypes.insert(std::make_pair(".html", "text/html"));
+//     MIMEtypes.insert(std::make_pair(".txt", "text/plain"));
+//     MIMEtypes.insert(std::make_pair(".jpg", "image/jpeg"));
+//     MIMEtypes.insert(std::make_pair(".jpeg", "image/jpeg"));
+//     MIMEtypes.insert(std::make_pair(".png", "image/png"));
+//     MIMEtypes.insert(std::make_pair(".pdf", "application/pdf"));
+//     MIMEtypes.insert(std::make_pair("default", "text/html"));
 
-// int receiveFile(int socket, )
+//     size_t extPos = _path.find_last_of(".");
+//     if (extPos != std::string::npos) {
+//         std::string extension = _path.substr(extPos, std::string::npos);
 
+//         std::map<std::string, std::string>:: iterator it = MIMEtypes.find(extension);
+//         if (it != MIMEtypes.end()) {
+//             return it->second;
+//         }
+//     }
+//     return MIMEtypes["default"];
+// }
 
-int TcpListener::fileTransfer(int socket, std::string uri, int method) {
+/*
 
-	if (method == POST) {
-		return 200;
-	} else if (method == GET) {
-		std::cout << "\n\nCATCHING GET METHOD\n\n";
-		return sendFile(socket, uri);
-	} else {
-		return 200;
-	}
-}
+	ASK NESTOR for a boundary parsing in request if meth=POST
+	and look for the expect: 100-continue
+
+TO DO
+	put all file transfer methods in RESPONSE::
+	rebuild properly send(), using wite()
+	build receive() using read() from client socket, by chunks
+	work on 300 reidrections
+	do autoindexes
+*/
+
 
 void	TcpListener::handleRequest(int client_socket)
 {
@@ -146,26 +152,22 @@ void	TcpListener::handleRequest(int client_socket)
 		}
 	}
 
-	if (route /*&& route->getCgi()*/) {
-		std::cout << "YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
-		if (!route->getExtension().empty()
-			|| _pending_request.getMethod() == POST
-			|| (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-				std::cout << "DEBUT of CGI ??\n";
-				Cgi cgi(_pending_request, *route);
-				cgi.executeCgi();
-				status_code = cgi.getExitCode();
-				std::cout << "End of CGI !\n [SATUS CODE =" << status_code << "]\n";
-		}
-	}
+	// if (route /*&& route->getCgi()*/) {
+	// 	std::cout << "YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
+	// 	if (!route->getExtension().empty()
+	// 		|| _pending_request.getMethod() == POST
+	// 		|| (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+	// 			std::cout << "DEBUT of CGI ??\n";
+	// 			Cgi cgi(_pending_request, *route);
+	// 			cgi.executeCgi();
+	// 			status_code = cgi.getExitCode();
+	// 			std::cout << "End of CGI !\n [SATUS CODE =" << status_code << "]\n";
+	// 	}
+	// }
 
 	Response response(server, status_code, _pending_request.getMethod());//                create response here
 	response.getFullPath(route, _pending_request.getPath());
-	if (_pending_request.getPath().compare("/download/hello.txt") == 0) {
-		fileTransfer(client_socket, _pending_request.getPath(), _pending_request.getMethod());
-	} else {
-		std::cout << "\n\nPAS DU TOUT\n\n";
-	}
+
 	response.buildResponse(_pending_request);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());
