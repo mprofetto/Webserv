@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 09:59:55 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 10:05:10 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 Request::Request() {
 }
 
-Request::Request(std::string & req): _raw(req), _body(""), _complete(true), _content_length(0), _expect(false), _boundary_string("") {
+Request::Request(std::string & req): _raw(req), _body(""), _complete(true),  _expect(false), _content_length(0), _boundary_string("") {
     _parseRequest(req);
     if (_req.getMethod() == POST && getHeader("Content-Length").size()) {
         _content_length = atoi(getHeader("Content-Length").c_str());
@@ -70,7 +70,7 @@ void Request::_parseRequest(std::string const & request) {
             }
             size_t pos = line.find(':');
             if (pos == std::string::npos && _req.getMethod() != GET) {
-                if (line.size() >= 2 && line[0] == line[1] == '-')
+                if (line.size() >= 2 && line[0] == '-' && line[1] == '-')
                 _boundary_string = line;
                 else
                     _body = line;
@@ -86,12 +86,10 @@ vec_str Request::_vectorSplit(std::string str, char sep) {
     vec_str arr;
     char*   cstr = const_cast<char*>(str.c_str());
     char*   token = std::strtok(cstr, &sep);
-    int     count = 0;
 
     while (token != 0) {
         arr.push_back(token);
         token = std::strtok(0, &sep);
-        count++;
     }
     return arr;
 }
