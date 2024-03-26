@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 07:40:39 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 08:33:35 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Request {
         bool        _complete;
         bool        _expect;
         size_t      _content_length;
+        std::string _boundary_string;
 
         void        _parseRequest(std::string const &request);
         vec_str     _vectorSplit(std::string str, char sep);
@@ -63,6 +64,7 @@ class Request {
         std::string getHttpVersion() const;
         std::string getPath() const;
         bool        getExpect() const;
+        std::string getBoundaryString() const;
 
         void        setHeaders(map_strstr const &headers);
         void        setHeader(std::string &header, std::string &value);

@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 07:41:44 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 08:33:29 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,7 @@
 Request::Request() {
 }
 
-Request::Request(std::string & req): _raw(req), _expect(false) {
-    _body = "";
-    _complete = true;
-    _content_length = 0;
-
+Request::Request(std::string & req): _raw(req), _body(""), _complete(true), _content_length(0), _expect(false), _boundary_string("") {
     _parseRequest(req);
     if (_req.getMethod() == POST && getHeader("Content-Length").size()) {
         _content_length = atoi(getHeader("Content-Length").c_str());
@@ -68,12 +64,16 @@ void Request::_parseRequest(std::string const & request) {
                 continue ;
             }
             if (_body != "") {
-                _body += line;
+                if (line != _boundary_string)
+                    _body += line;
                 continue ;
             }
             size_t pos = line.find(':');
             if (pos == std::string::npos && _req.getMethod() != GET) {
-                _body = line;
+                if (line.size() >= 2 && line[0] == line[1] == '-')
+                _boundary_string = line;
+                else
+                    _body = line;
                 continue ;
             }
             std::string headerName = line.substr(0, pos);
@@ -162,6 +162,9 @@ bool Request::getExpect() const {
     return _expect;
 }
 
+std::string Request::getBoundaryString() const {
+    return _boundary_string;
+}
 
 /* ----- SETTERS ----- */
 
