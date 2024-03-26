@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/26 09:50:53 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/26 11:29:24 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,8 +126,8 @@ void	TcpListener::handleRequest(int client_socket)
 	// 	}
 	// }
 
-	Response response(server, status_code, _pending_request.getMethod(), client_socket);//                create response here
-	response.buildResponse(route, _pending_request, client_socket);
+	Response response(server, status_code, &_pending_request, client_socket);//                create response here
+	response.buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());
 }

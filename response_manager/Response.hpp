@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/25 18:10:58 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/26 11:42:49 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ class Response {
     public:
 
     // CONSTRUCTORS
-        Response(Server* server, int statusCode, const int method, const int socket);
+        Response(Server* server, int statusCode, Request* request, const int socket);
         ~Response();
 
     // MEMBER FUNCTIONS
         std::string     getBody();
-        void            buildResponse(Route* route, Request request, int socket);
+        void            buildResponse(Route* route);
         // void            buildGetResponse(Request request);
         void            buildPostResponse(Request request);
         void            buildErrorResponse();
@@ -37,10 +37,11 @@ class Response {
         std::string     getReason(int sc);
         std::string     getMimeType();
         void	        getFullPath(Route *route, std::string uri);
-        int             fileTransfer(int socket, std::string uri, int method, /*temp*/ std::string raw);
+        int             fileTransfer();
         std::string     extractExtension(std::string uri);
         std::string     extractFileName();
-        int             sendFile(int socket);
+        int             sendFile();
+        int             receiveFile(); 
 
     // GET & SET
         std::string     getResponse();
@@ -62,6 +63,7 @@ class Response {
         std::string                         _headers;
         std::string                         _body;
         Server*                             _server;
+        Request*                            _request;
 };
 
 enum statusCode {
