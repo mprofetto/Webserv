@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/26 09:51:03 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/26 10:17:16 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,13 @@ int Response::sendFile(int socket) {
 		std::streampos fileSize = infile.tellg();
 		infile.seekg(0, std::ios::beg);
 
+        std::string fileName = extractFileName();
+        std::cout << "right before, filename is : " << fileName << std::endl;
+
 		std::stringstream responseHeaders;
 			responseHeaders << "HTTP/1.1 200 OK\r\n";
 			responseHeaders << "Content-Type: " << getMimeType() << "\r\n";
-			responseHeaders << "Content-Disposition: attachment; filename=\"" << extractFileName() << "\"\r\n";
+			responseHeaders << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n";
             responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
 			
 		write(socket, responseHeaders.str().c_str(), responseHeaders.str().length());
@@ -174,7 +177,7 @@ std::string Response::getBody() {
 
 void      Response::buildResponse(Route *route, Request request, int socket) {
 
-    std::cout << "\nREQUEST ::\n" << request.getRaw() << std::endl;
+    // std::cout << "\nREQUEST ::\n" << request.getRaw() << std::endl;
     _extension = extractExtension(request.getPath());
     getFullPath(route, request.getPath());
     
@@ -192,7 +195,7 @@ void      Response::buildResponse(Route *route, Request request, int socket) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
+    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
     return;
 }
 
@@ -240,8 +243,9 @@ std::string Response::extractFileName() {
     
     size_t extPos = _path.find_last_of("/");
     if (extPos != std::string::npos) {
-        std::string extension = _path.substr(extPos, std::string::npos);
-        return extension;    
+        std::string fileName = _path.substr(extPos + 1, std::string::npos);
+        std::cout << "Filename is : " << fileName << " from a path of : " << _path << std::endl;
+        return fileName;    
     } else {
         std::cerr << "Couldn't extract file name.\n";
         return NULL;
