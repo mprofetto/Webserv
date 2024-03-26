@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/24 16:54:23 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/25 18:10:58 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ class Response {
     public:
 
     // CONSTRUCTORS
-        Response(Server* server, int statusCode, const int method);
+        Response(Server* server, int statusCode, const int method, const int socket);
         ~Response();
 
     // MEMBER FUNCTIONS
         std::string     getBody();
-        void            buildResponse(Request request);
+        void            buildResponse(Route* route, Request request, int socket);
         // void            buildGetResponse(Request request);
         void            buildPostResponse(Request request);
         void            buildErrorResponse();
@@ -37,24 +37,28 @@ class Response {
         std::string     getReason(int sc);
         std::string     getMimeType();
         void	        getFullPath(Route *route, std::string uri);
-        int             fileTransfer(int socket, std::string uri, int method);
+        int             fileTransfer(int socket, std::string uri, int method, /*temp*/ std::string raw);
+        std::string     extractExtension(std::string uri);
+        std::string     extractFileName();
+        int             sendFile(int socket);
 
     // GET & SET
         std::string     getResponse();
         std::string     getPath();
         int             getStatusCode();
+        
         void            setPath(std::string& str);
         void            setErrorPath(std::string& str);
 
     private:
-        // const int                           _clientSocket;
+        const int                           _clientSocket;
         const int                           _method;
         int                                 _statusCode;
         std::string                         _path;
         std::string                         _errorPath;
         std::string                         _responseLine;
         std::string                         _statusLine;
-        // std::map<std::string, std::string>  _headers;//           utile ?
+        std::string                         _extension;
         std::string                         _headers;
         std::string                         _body;
         Server*                             _server;

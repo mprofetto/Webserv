@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/24 17:06:16 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/26 09:50:53 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,43 +98,6 @@ void	TcpListener::readRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
-// std::string     getMimeType(std::string _path) {
-
-//     std::map<std::string, std::string> MIMEtypes;
-//     MIMEtypes.insert(std::make_pair(".html", "text/html"));
-//     MIMEtypes.insert(std::make_pair(".txt", "text/plain"));
-//     MIMEtypes.insert(std::make_pair(".jpg", "image/jpeg"));
-//     MIMEtypes.insert(std::make_pair(".jpeg", "image/jpeg"));
-//     MIMEtypes.insert(std::make_pair(".png", "image/png"));
-//     MIMEtypes.insert(std::make_pair(".pdf", "application/pdf"));
-//     MIMEtypes.insert(std::make_pair("default", "text/html"));
-
-//     size_t extPos = _path.find_last_of(".");
-//     if (extPos != std::string::npos) {
-//         std::string extension = _path.substr(extPos, std::string::npos);
-
-//         std::map<std::string, std::string>:: iterator it = MIMEtypes.find(extension);
-//         if (it != MIMEtypes.end()) {
-//             return it->second;
-//         }
-//     }
-//     return MIMEtypes["default"];
-// }
-
-/*
-
-	ASK NESTOR for a boundary parsing in request if meth=POST
-	and look for the expect: 100-continue
-
-TO DO
-	put all file transfer methods in RESPONSE::
-	rebuild properly send(), using wite()
-	build receive() using read() from client socket, by chunks
-	work on 300 reidrections
-	do autoindexes
-*/
-
-
 void	TcpListener::handleRequest(int client_socket)
 {
 	int status_code = 200;
@@ -142,9 +105,7 @@ void	TcpListener::handleRequest(int client_socket)
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
 
 	std::list<Route *> r = server->getRoute();
-
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-
 		std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
 		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
@@ -165,10 +126,8 @@ void	TcpListener::handleRequest(int client_socket)
 	// 	}
 	// }
 
-	Response response(server, status_code, _pending_request.getMethod());//                create response here
-	response.getFullPath(route, _pending_request.getPath());
-
-	response.buildResponse(_pending_request);
+	Response response(server, status_code, _pending_request.getMethod(), client_socket);//                create response here
+	response.buildResponse(route, _pending_request, client_socket);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());
 }

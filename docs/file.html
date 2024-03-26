@@ -15,8 +15,11 @@
     </form>
 
     <h2>Download File</h2>
-    <form action="./download/hello.txt" method="get">
-        <button type="submit">Download A .txt File</button>
+    <form action="/hello.txt" method="get">
+        <button type="submit">Download a .txt File</button>
+    </form>
+    <form action="/leak.png" method="get">
+        <button type="submit">Download a .png File</button>
     </form>
 
     <button onclick="location.href='index.html'">Go back</button>
@@ -30,10 +33,10 @@
             if (file) {
                 const formData = new FormData();
                 formData.append('file', file);
-
+                const boundary = 'this-is-a-html-boundary';
                 const headers = new Headers({
-                    'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
-                    'Excpect': '100-continue'
+                    'Content-Type': `multipart/form-data`,
+                    'Expect': '100-continue'
                 });
 
                 fetch('/upload', {

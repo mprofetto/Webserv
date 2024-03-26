@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/14 11:52:13 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/25 15:02:19 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,23 @@ const char	*Server::invalidSocket::what(void) const throw()
 	return ("Socket given is not valid or server has already open too many sockets");
 }
 
+std::map<std::string, std::string>	Server::buildMimeTypes() {
+	
+	std::map<std::string, std::string> MIMEtypes;
+    MIMEtypes.insert(std::make_pair(".html", "text/html"));
+    MIMEtypes.insert(std::make_pair(".txt", "text/plain"));
+    MIMEtypes.insert(std::make_pair(".jpg", "image/jpeg"));
+    MIMEtypes.insert(std::make_pair(".jpeg", "image/jpeg"));
+    MIMEtypes.insert(std::make_pair(".png", "image/png"));
+    MIMEtypes.insert(std::make_pair(".pdf", "application/pdf"));
+    MIMEtypes.insert(std::make_pair("default", "text/html"));
+	return MIMEtypes;
+}
+
 Server::Server() : _host(LOCALHOST), _root(""), _port(80), _socket(-1)
 {
 	this->_index.push_back("index.html");
+	this->_mime_types = buildMimeTypes();
 	return;
 }
 
@@ -47,6 +61,16 @@ Server::~Server()
 {
 	clearList(this->_routes);
 	return;
+}
+
+std::string					Server::getMimeType(std::string ext) const
+{
+	std::map<std::string, std::string>::const_iterator it = _mime_types.find(ext);
+	if (it != _mime_types.end()) {
+		return it->second;
+	} else {
+		return "application/octet-stream";
+	}
 }
 
 std::list<Route *>			Server::getRoute(void) const
