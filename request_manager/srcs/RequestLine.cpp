@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 08:46:40 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 10:00:14 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ std::string RequestLine::getNotValid() const {
 std::string RequestLine::getQuery() const {
     return _query;
 }
-
 
 /* ----- OPERATORS ----- */
 

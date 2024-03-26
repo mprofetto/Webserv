@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/11 14:19:50 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/25 14:56:31 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ class Server
 		int							getPort(void) const;
 		std::string					getRoot(void) const;
 		int							getSocket(void) const;
+		std::string					getMimeType(std::string ext) const;
 
 		void						addRoute(Route *route);
 		void						addServerName(std::string name);
@@ -84,19 +85,21 @@ class Server
 
 		// Route 						*getRoute(std::string path);
 
-		bool						isServerName(std::string name) const;
-		std::string					convertIpAddress(std::vector<std::string> address);
-		void						printDatas(void) const;
-		std::list<Route *>			_routes;
+		std::map<std::string, std::string>	buildMimeTypes();
+		bool								isServerName(std::string name) const;
+		std::string							convertIpAddress(std::vector<std::string> address);
+		void								printDatas(void) const;
+		std::list<Route *>					_routes;
 
 	private:
-		std::list<std::string>		_server_names;
-		std::list<std::string>		_index;
-		std::map<int, std::string>	_error_pages;
-		std::string					_host;
-		std::string					_root;
-		int							_port;
-		int							_socket;
+		std::list<std::string>				_server_names;
+		std::list<std::string>				_index;
+		std::map<int, std::string>			_error_pages;
+		std::map<std::string, std::string>	_mime_types;
+		std::string							_host;
+		std::string							_root;
+		int									_port;
+		int									_socket;
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 16:09:15 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/10 17:50:27 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/21 11:25:46 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void    Response::buildErrorResponse() {
         
     std::map<int, std::string> errorMap = _server->getErrorPages();
     std::map<int, std::string>::iterator it = errorMap.find(_statusCode);
-    if (it != _server->getErrorPages().end()) {
+    if (it != _server->getErrorPages().end() && it != errorMap.end()) {
         myfile.open(it->second);
     } else if (it != _server->getErrorPages().end() || myfile.fail()) {
         _statusCode = 500;//           should also return a 500.html

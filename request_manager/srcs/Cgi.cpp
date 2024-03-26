@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/19 15:07:54 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/21 13:57:28 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Cgi::Cgi() {
 Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL), _exitCode(500) {
 	if (!_route.getCgi())
 		throw NotCgiException();
-	_filePath = _request.getPath(); // fichier a executer
+	_filePath =  "." + _request.getPath(); // fichier a executer
 	_fileExe = _route.getPath(); // localisation de l'executable
 }
 
@@ -36,7 +36,7 @@ Cgi::Cgi(Cgi const &copy) {
 
 /* ----- FUNCTIONS ----- */
 
-int Cgi::executeCgi() {
+void Cgi::executeCgi() {
     std::string extension = _getFileExtension(_filePath);
     
     if (extension == ".py" || extension == ".pl") {
@@ -55,43 +55,40 @@ int Cgi::executeCgi() {
             dup2(pipefd[1], STDOUT_FILENO);
             close(pipefd[1]);
             
-			if (_request.getHeaders().size())
+			if (!_request.getHeaders().empty())
 				_envp = _createEnv();
-				
-            const char *exec;
-            const char **args= NULL;
+			
             if (extension == ".py") {
-                exec = "/usr/bin/python3";
-                args[0] = "python3";
-                args[1] = _filePath.c_str();
-                args[2] = NULL;
+                const char *exec = "/usr/bin/python3";
+                char const *args[3] = {"python3", _filePath.c_str(), NULL};
+                execve(exec, const_cast<char *const *>(args), _envp);            
             }
+
             if (extension == ".pl") {
-                exec = "/usr/bin/perl";
-                args[0] = "perl";
-                args[1] = _filePath.c_str();
-                args[2] = NULL;
+                const char *exec = "/usr/bin/perl";
+                char const *args[3] = {"perl",  _filePath.c_str(), NULL};
+                execve(exec, const_cast<char *const *>(args), _envp);
             }
-            execve(exec, const_cast<char *const *>(args), _envp);
             std::cerr << "Error executing CGI." << std::endl;
-            exit(EXIT_FAILURE);
+                exit(EXIT_FAILURE);
         } else {
             close(pipefd[1]);
             char buffer[1024];
             int status;
             ssize_t bytesRead;
-            while ((bytesRead = read(pipefd[0], buffer, 1024)) > 0)
-                std::cout.write(buffer, bytesRead);          
+            while ((bytesRead = read(pipefd[0], buffer, 1024)) > 0) {
+                std::cout.write(buffer, bytesRead);
+            }
             close(pipefd[0]);
             waitpid(pid, &status, 0);
             if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
                 std::cerr << "Child process exited with an error." << std::endl;
-                return ;
+            else
+                _exitCode = 200;
         }
     } else {
-        throw UnsupportedExtensionException();
+       throw UnsupportedExtensionException();
     }
-    _exitCode = 200;
 }
 
 char **Cgi::_createEnv() {
