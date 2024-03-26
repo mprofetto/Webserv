@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/26 15:29:04 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/26 17:47:38 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,25 +87,32 @@ TO DO (Arno)
 	do autoindexes
 */
 
-void send100Continue(int socket) {
-    const char* response = "HTTP/1.1 100 Continue\r\n\r\n";
-    int bytesSent = send(socket, response, strlen(response), 0);
-    if (bytesSent == -1) {
-        std::cerr << "Error sending 100 Continue response: " << strerror(errno) << std::endl;
-    } else {
-        std::cout << "Sent 100 Continue response" << std::endl;
-    }
-}
+// void send100Continue(int socket) {
+//     const char* response = "HTTP/1.1 100 Continue\r\n\r\n";
+//     int bytesSent = send(socket, response, strlen(response), 0);
+//     if (bytesSent == -1) {
+//         std::cerr << "Error sending 100 Continue response: " << strerror(errno) << std::endl;
+//     } else {
+//         std::cout << "Sent 100 Continue response" << std::endl;
+//     }
+// }
 
-int Response::receiveFile() {
-
-    
     // std::cout << "\n\nLet's print POST request elements !:\n"
     //             << "Raw :\n" << _request->getRaw() << std::endl
     //             << "Uri : " << _request->getPath() << std::endl
     //             << "Body :\n" << _request->getBody() << std::endl
     //             << "Boundary : " << _request->getBoundaryString() << std::endl;
+
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+// #include <unistd.h>
+// #include <fcntl.h>
+// #include <sstream>
+// #include <iostream>
+// #include <vector>
     
+int Response::receiveFile() {
 
     std::stringstream rawRequest(_request->getRaw());
     std::string line;
@@ -113,6 +120,12 @@ int Response::receiveFile() {
     std::string contentType;
     std::string boundaryString;
     size_t  lengthRequest = 0;
+
+    int kq = kqueue();
+    if (kq == -1) {
+        // Error handling
+        return -1;
+    }
 
     while (std::getline(rawRequest, line) && !line.empty()) {
         size_t Pos = 0;
@@ -140,11 +153,22 @@ int Response::receiveFile() {
         }
     }
 
+    struct kevent ev;
+    EV_SET(&ev, _clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+    kevent(kq, &ev, 1, NULL, 0, NULL);
+
     std::vector<char> fileRequestBody(lengthRequest, 0);
     size_t totalRead = 0;
     int i = 0;
-    send100Continue(_clientSocket);
     while (totalRead < lengthRequest) {
+        struct kevent events[1];
+        std::cout << "BEFORE\n";
+        int nevents = kevent(kq, NULL, 0, events, 1, NULL);
+        std::cout << "AFTER\n";
+        if (nevents == -1) {
+            close(kq);
+            return -1;
+        }
         int bytesRead = read(_clientSocket, fileRequestBody.data() + totalRead, lengthRequest - totalRead);
         if (bytesRead > 0) {
             std::cerr << "Au moins 1...\n";
@@ -159,16 +183,18 @@ int Response::receiveFile() {
         if (i > 10) {break;}
     }
 
-    std::cout << "\n\nHere's what we got from our parsing :\n"
-                << "Boundary stirng : " << boundaryString << std::endl
-                << "Length : " << lengthRequest << std::endl
-                << "Content type : " << contentType << std::endl
-                << "File name : " << fileName << std::endl
-                << "Our Vector : \n";
-    for (size_t i = 0; i < fileRequestBody.size(); i++) {
-        std::cout << fileRequestBody[i];
-    } std::cout << std::endl;
+	return 200;
+}
 
+    // std::cout << "\n\nHere's what we got from our parsing :\n"
+    //             << "Boundary stirng : " << boundaryString << std::endl
+    //             << "Length : " << lengthRequest << std::endl
+    //             << "Content type : " << contentType << std::endl
+    //             << "File name : " << fileName << std::endl
+    //             << "Our Vector : \n";
+    // for (size_t i = 0; i < fileRequestBody.size(); i++) {
+    //     std::cout << fileRequestBody[i];
+    // } std::cout << std::endl;
     /*
     use a std::getline() on headers first, to get content-type and content-length
     use the boundary string to get a size_t boundary_pos and place at begining of body
@@ -177,8 +203,98 @@ int Response::receiveFile() {
     sans oublier de checker si le retour est de 0 ET de 1
     */
 
-	return 200;
-}
+// #include <sys/types.h>
+// #include <sys/event.h>
+// #include <sys/time.h>
+// #include <unistd.h>
+// #include <fcntl.h>
+// #include <sstream>
+// #include <iostream>
+// #include <vector>
+
+// #define BUFSIZE 4096
+
+// int Response::receiveFile() {
+
+//     std::cout << "\n\nIn receive\n";
+    
+//     int kq = kqueue();
+//     if (kq == -1) {
+//         // Error handling
+//         return -1;
+//     }
+
+//     std::stringstream rawRequest(_request->getRaw());
+//     std::string line;
+//     std::string boundaryString;
+//     size_t lengthRequest = 0;
+
+//     while (std::getline(rawRequest, line) && !line.empty()) {
+//         // Extract boundary string
+//         int i = 0;
+//         i++;
+//         if (line.find("------WebKitFormBoundary") != std::string::npos) {
+//             boundaryString = line;
+//         }
+//         // Extract content length
+//         else if (line.find("Content-Length") != std::string::npos) {
+//             size_t Pos = line.find_last_of(" ");
+//             if (Pos != std::string::npos) {
+//                 lengthRequest = stoi(line.substr(Pos + 1));
+//             }
+//         }
+//         std::cout << "LINE : " << line << std::endl;
+//         if (i > 5) {return -1;}
+//     }
+
+//     // Register socket descriptor for read events
+//     struct kevent ev;
+//     EV_SET(&ev, _clientSocket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+//     kevent(kq, &ev, 1, NULL, 0, NULL);
+
+//     // Read file data using kqueue
+//     std::vector<char> fileRequestBody(lengthRequest, 0);
+//     size_t totalRead = 0;
+//     while (totalRead < lengthRequest) {
+//         struct kevent events[1];
+//         int nevents = kevent(kq, NULL, 0, events, 1, NULL);
+//         if (nevents == -1) {
+//             // Error handling
+//             close(kq);
+//             return -1;
+//         }
+//         int bytesRead = read(_clientSocket, fileRequestBody.data() + totalRead, lengthRequest - totalRead);
+//         if (bytesRead == -1) {
+//             // Error handling
+//             close(kq);
+//             std::cout << "C'est le 1\n";
+//             return -1;
+//         } else if (bytesRead == 0) {
+//             std::cout << "C'est le 0\n";
+//             return 0;
+//         }
+//         totalRead += bytesRead;
+        
+//     }
+
+//     close(kq);
+
+//     // Process the file data
+//     // ...
+
+//     std::cout << "\n\nHere's what we got from our parsing :\n"
+//                 << "Boundary stirng : " << boundaryString << std::endl
+//                 << "Length : " << lengthRequest << std::endl
+//                 // << "Content type : " << contentType << std::endl
+//                 // << "File name : " << fileName << std::endl
+//                 << "Our Vector : \n";
+//     for (size_t i = 0; i < fileRequestBody.size(); i++) {
+//         std::cout << fileRequestBody[i];
+//     } std::cout << std::endl;
+
+//     return 200;
+// }
+
 
 int Response::fileTransfer() {
 
@@ -259,6 +375,7 @@ void      Response::buildResponse(Route *route) {
     
     std::stringstream   ss;
 
+    std::cout << "\nREQUEST IN BUILD:\n" << _request->getRaw() << std::endl;
     // std::cout << "Before sending file, extension is : " << _extension << std::endl;
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
@@ -272,7 +389,7 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
     return;
 }
 
