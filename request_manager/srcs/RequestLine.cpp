@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLine.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/11 13:53:42 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/26 08:46:40 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,18 @@
 
 RequestLine::RequestLine() {}
 
-RequestLine::RequestLine(int const &method, std::string const &path, std::string const &http_version, std::string const &methodName) : _method(method), _path(path), _http_version(http_version) {
+RequestLine::RequestLine(int const &method, std::string const &path, std::string const &http_version, std::string const &methodName) : _method(method), _path(path), _http_version(http_version), _query("") {
     if (_method == UNVALID)
         _not_valid = methodName;
     else
         _not_valid = "";
+    size_t pos = path.find('?');
+    if (pos == std::string::npos)
+        _path = path;
+    else {
+        _path = path.substr(0, pos);
+        _query = path.substr(pos + 1);
+    }
 }
 
 RequestLine::RequestLine(const RequestLine & copy) {
@@ -45,6 +52,10 @@ std::string RequestLine::getHTTPVersion() const {
 
 std::string RequestLine::getNotValid() const {
     return _not_valid;
+}
+
+std::string RequestLine::getQuery() const {
+    return _query;
 }
 
 

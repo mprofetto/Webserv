@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 08:33:35 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 08:47:00 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ class Request {
         int         getMethod() const;
         std::string getHttpVersion() const;
         std::string getPath() const;
+        std::string getQuery() const;
         bool        getExpect() const;
         std::string getBoundaryString() const;
 

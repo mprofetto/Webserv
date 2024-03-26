@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 08:33:29 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 08:47:39 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,10 @@ std::string Request::getHttpVersion() const {
 
 std::string Request::getPath() const {
     return _req.getPath();
+}
+
+std::string Request::getQuery() const {
+    return _req.getQuery();
 }
 
 bool Request::getExpect() const {
