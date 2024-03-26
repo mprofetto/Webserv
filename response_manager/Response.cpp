@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/26 10:17:16 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/26 10:19:16 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,7 +244,6 @@ std::string Response::extractFileName() {
     size_t extPos = _path.find_last_of("/");
     if (extPos != std::string::npos) {
         std::string fileName = _path.substr(extPos + 1, std::string::npos);
-        std::cout << "Filename is : " << fileName << " from a path of : " << _path << std::endl;
         return fileName;    
     } else {
         std::cerr << "Couldn't extract file name.\n";
