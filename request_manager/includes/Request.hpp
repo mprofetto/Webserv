@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/18 21:15:59 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 07:40:39 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class Request {
         map_strstr  _headers;
         std::string _body;
         bool        _complete;
+        bool        _expect;
         size_t      _content_length;
 
         void        _parseRequest(std::string const &request);
@@ -61,6 +62,7 @@ class Request {
         int         getMethod() const;
         std::string getHttpVersion() const;
         std::string getPath() const;
+        bool        getExpect() const;
 
         void        setHeaders(map_strstr const &headers);
         void        setHeader(std::string &header, std::string &value);

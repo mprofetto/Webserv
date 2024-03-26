@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/18 21:16:11 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 07:41:44 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 Request::Request() {
 }
 
-Request::Request(std::string & req): _raw(req){
+Request::Request(std::string & req): _raw(req), _expect(false) {
     _body = "";
     _complete = true;
     _content_length = 0;
@@ -29,6 +29,13 @@ Request::Request(std::string & req): _raw(req){
             throw ContentLengthException();
         if (_content_length < _body.size())
             _complete = false;
+    }
+    if (_req.getMethod() == POST && !_headers.empty()) {
+        map_strstr::iterator it = _headers.find("Expect");
+        if (it->first == "Expect") {
+            if (it->second == "100-continue")
+                _expect = true;
+        }
     }
 }
 
@@ -149,6 +156,10 @@ std::string Request::getHttpVersion() const {
 
 std::string Request::getPath() const {
     return _req.getPath();
+}
+
+bool Request::getExpect() const {
+    return _expect;
 }
 
 
