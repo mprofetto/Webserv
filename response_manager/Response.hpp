@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/26 11:42:49 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/28 15:56:47 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ class Response {
     // MEMBER FUNCTIONS
         std::string     getBody();
         void            buildResponse(Route* route);
-        // void            buildGetResponse(Request request);
         void            buildPostResponse(Request request);
         void            buildErrorResponse();
         std::string     getHeaders(const int s);
@@ -41,7 +40,8 @@ class Response {
         std::string     extractExtension(std::string uri);
         std::string     extractFileName();
         int             sendFile();
-        int             receiveFile(); 
+        int             receiveFile();
+        std::string     extractFileBody(std::string request);
 
     // GET & SET
         std::string     getResponse();

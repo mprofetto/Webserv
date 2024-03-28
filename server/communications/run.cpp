@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 13:15:16 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/28 13:46:26 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,6 @@ void	TcpListener::handleRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());
 }
-
 
 void	TcpListener::registerReponse(int socket, std::string response)
 {
