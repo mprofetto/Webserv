@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/11 15:19:13 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/15 15:16:47 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ void	TcpListener::readRequest(int client_socket)
 		}
 		else
 			this->registerReponse(client_socket, "HTTP/1.1 100 CONTINUE");
+
 	}
 	else
 	{
@@ -129,7 +130,6 @@ void	TcpListener::handleRequest(int client_socket)
 	int i = 1;
 
 	std::list<Route *> r = server->getRoute();
-
 	std::cout << "List of routes is size : " << r.size() << std::endl;
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
 		i++;
@@ -160,13 +160,15 @@ void	TcpListener::handleRequest(int client_socket)
 	// 		////////////////////
 	// }
 	////////////////////////
+	if (route)
+	{
+		Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
+		getFullPath(route, response);
 
-	Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
-	getFullPath(route, response);
-
-	response.buildResponse(_pending_request);
-	FD_SET(client_socket, &this->_write_master_fd);
-	this->registerReponse(client_socket, response.getResponse());
+		response.buildResponse(_pending_request);
+		FD_SET(client_socket, &this->_write_master_fd);
+		this->registerReponse(client_socket, response.getResponse());
+	}
 }
 
 
