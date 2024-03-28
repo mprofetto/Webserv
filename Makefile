@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+         #
+#    By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/12 14:48:07 by mprofett          #+#    #+#              #
-#    Updated: 2024/03/19 15:12:27 by nesdebie         ###   ########.fr        #
+#    Updated: 2024/03/28 14:50:41 by mprofett         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,7 @@ SRC			= webserv.cpp \
 			response_manager/ErrorResponse.cpp \
 			server/TcpListener.cpp \
 			server/communications/run.cpp \
+			server/communications/read_request.cpp \
 			server/utils/utils.cpp \
 			server/configuration_file_parsing/directives.cpp \
 			server/configuration_file_parsing/parser.cpp \

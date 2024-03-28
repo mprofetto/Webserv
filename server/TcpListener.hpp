@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TcpListener.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/24 16:55:44 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/28 15:07:16 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,15 +114,16 @@ class TcpListener
 
 	private:
 
-		long long int				_buffer_max;
-		int							_socket_nbr;
-		int							_socket;
-		fd_set						_read_master_fd;
-		fd_set						_write_master_fd;
-		std::list<Server *>			_servers;
-		Request						_pending_request;
-		std::map<int, Request>		_incomplete_requests;
-		std::map<int, std::string>	_responses;
+		long long int						_buffer_max;
+		int									_socket_nbr;
+		int									_socket;
+		fd_set								_read_master_fd;
+		fd_set								_write_master_fd;
+		std::list<Server *>					_servers;
+		Request								_pending_request;
+		// std::map<int, Request>		_incomplete_requests;
+		std::map<int, std::string>			_incomplete_requests;
+		std::map<int, std::string>			_responses;
 
 		//Init Methods
 		void					bindSocket(Server *server);
@@ -131,6 +132,9 @@ class TcpListener
 		//Communication Methods
 		void					handleNewConnection(Server *server);
 		void					readRequest(int socket);
+		void					create_new_incoming_request(int client_socket, int size, char *buffer);
+		void					update_incoming_request(int client_socket, int size, char *buffer);
+		void					register_new_pending_request(int client_socket, char *buffer);
 		bool					isIncompleteRequest(int socket);
 		void					registerReponse(int socket, std::string response);
 		void					writeResponse(int socket);
