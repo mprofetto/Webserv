@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/28 15:56:47 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/28 17:25:36 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Response {
         std::string     extractFileName();
         int             sendFile();
         int             receiveFile();
+        int             deleteFile();
         std::string     extractFileBody(std::string request);
 
     // GET & SET

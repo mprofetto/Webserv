@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/28 16:04:29 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/28 17:25:45 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,13 +79,15 @@ int Response::sendFile() {
 /*
 
 TO DO (Arno)
-	build receive() using read() from client socket, by chunks
 	work on 300 reidrections
+    build deleteFiles
 	do autoindexes
 */
 
 int Response::receiveFile() {
 
+    std::cout << "IN RECEIVE FILE\n";
+    
     std::stringstream rawRequest(_request->getRaw());
     std::string line;
     std::string fileName;
@@ -102,24 +104,38 @@ int Response::receiveFile() {
     }
 
     std::string fileBody = extractFileBody(_request->getRaw());
-    if (fileBody.empty()) {
-        return 400;
-    }
+    // if (fileBody.empty()) {
+    //     return 400;
+    // }
     std::string destination = "." + _request->getPath() + "/" + fileName;
-    std::cout << "dest : " << destination << std::endl;
-    std::ofstream outputFile(destination);
-    if (!outputFile) {
-        std::cerr << "Error creating file" << std::endl;
-        return 500;
-    }
-    outputFile << fileBody;
-    outputFile.close();
+    // std::cout << "dest : " << destination << std::endl;
+    // std::ofstream outputFile(destination);
+    // if (!outputFile) {
+    //     std::cerr << "Error creating file" << std::endl;
+    //     return 500;
+    // }
+    // outputFile << fileBody;
+    // outputFile.close();
                 
+    std::ofstream targetFile(destination, std::ios::binary);
+    if (!targetFile) {
+        std::cerr << "Error creating the file.\n";
+    }
+    targetFile.write(fileBody.c_str(), fileBody.size());
+    targetFile.close();
 	return 200;
 }
 
-int Response::fileTransfer() {
+int Response::deleteFile() {
+    
+    
+    
+    return 200;
+}
 
+int Response::fileTransfer() {//           FAUT-IL UTILISER SELECT/POLL ?
+
+    std::cout << "In file transfer, method is " << _method << std::endl;
     switch (_method) {
         case GET:       return sendFile();
         case POST:      return receiveFile();
@@ -194,7 +210,9 @@ void      Response::buildResponse(Route *route) {
     
     std::stringstream   ss;
 
-    std::cout << "\nREQUEST IN BUILD:\n" << _request->getRaw() << std::endl;
+    std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
+                << _request->getRaw()
+                << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
     // std::cout << "Before sending file, extension is : " << _extension << std::endl;
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
