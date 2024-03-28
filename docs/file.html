@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example HTML Response</title>
+</head>
+<body>
+    <h1>File exchange</h1>
+
+    <h1>File Upload</h1>
+
+
+    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
+        <input type="file" name="fileInput" id="fileInput">
+        <button type="button" onclick="uploadFile()">Upload</button>
+    </form>
+
+    <h2>Download File</h2>
+    <form action="/hello.txt" method="get">
+        <button type="submit">Download a .txt File</button>
+    </form>
+    <form action="/leak.png" method="get">
+        <button type="submit">Download a .png File</button>
+    </form>
+
+    <button onclick="location.href='index.html'">Go back</button>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                const boundary = 'this-is-a-html-boundary';
+                const headers = new Headers({
+                    'Content-Type': `multipart/form-data`,
+                    'Expect': '100-continue'
+                });
+
+                fetch('/upload', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('File uploaded successfully:', data);
+                })
+                .catch(error => {
+                    console.error('Error uploading file:', error);
+                });
+            } else {
+                console.warn('No file selected for upload.');
+            }
+        }
+    </script>
+</body>
+</html>

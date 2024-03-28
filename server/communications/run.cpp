@@ -6,12 +6,12 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/15 15:16:47 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/28 13:26:16 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../TcpListener.hpp"
-
+# include "../../request_manager/includes/Cgi.hpp"
 
 void	TcpListener::runTcpListener()
 {
@@ -99,65 +99,32 @@ void	TcpListener::readRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
-void	getFullPath(Route *route, Response& response) {
-
-//	/!!\ CHECK IF REPOSITORY !!!!!!!! /!\ //
-
-	if (response.getStatusCode() == 200) {
-		// may use std::filesystem::is_directory() when segfault is fixed
-		std::string root = route->getRoot() + "/";
-		std::string index = route->getIndex().front();//         only gets first index. it's temporary
-		std::string p = root + index;
-
-	// TO DO : CHECK IF PATH IS VALID
-	// If not,
-	// p = status-code correspondant
-	// sinon,
-		response.setPath(p);
-	}
-	return;
-}
-
-int CGIfucntion() {
-	return 200;
-}
-
 void	TcpListener::handleRequest(int client_socket)
 {
 	int status_code = 200;
 	Route *route = NULL;
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
-	int i = 1;
 
 	std::list<Route *> r = server->getRoute();
-	std::cout << "List of routes is size : " << r.size() << std::endl;
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		i++;
-		// if (it == r.end()) { .  -> visiblement ne fonction pas, 4TH	 root is empty ?
-		if (i >= 4) {
-			status_code = 404;
-		}
+		std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
 		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
 			break;
 		}
 	}
 
-	/////////////////////// TO CGI ?
-
-	// std::cout << "EXTENSION : " << route->getExtension() << std::endl;
-
-	// if (!route->getExtension().empty()
-	// 	|| request.getRequestLine().getMethod() == POST
-	// 	/*|| (request.getRequestLine().getMethod() == GET && route->getPath().compare("/"))*/) {
-	// 		/////////////////
-
-	// 		status_code = CGIfucntion();// temporary function for my tests
-	// 		// il faut donc renvoyer un int pour status_code
-
-	// 		// Ici une fonction vers la partie/classe CGI
-
-	// 		////////////////////
+	// if (route /*&& route->getCgi()*/) {
+	// 	std::cout << "YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
+	// 	if (!route->getExtension().empty()
+	// 		|| _pending_request.getMethod() == POST
+	// 		|| (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+	// 			std::cout << "DEBUT of CGI ??\n";
+	// 			Cgi cgi(_pending_request, *route);
+	// 			cgi.executeCgi();
+	// 			status_code = cgi.getExitCode();
+	// 			std::cout << "End of CGI !\n [SATUS CODE =" << status_code << "]\n";
+	// 	}
 	// }
 	////////////////////////
 	if (route)
@@ -169,6 +136,11 @@ void	TcpListener::handleRequest(int client_socket)
 		FD_SET(client_socket, &this->_write_master_fd);
 		this->registerReponse(client_socket, response.getResponse());
 	}
+
+	Response response(server, status_code, _pending_request.getMethod(), client_socket);//                create response here
+	response.buildResponse(route, _pending_request, client_socket);
+	FD_SET(client_socket, &this->_write_master_fd);
+	this->registerReponse(client_socket, response.getResponse());
 }
 
 

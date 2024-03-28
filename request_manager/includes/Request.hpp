@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/11 13:53:35 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/26 09:59:28 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,9 @@ class Request {
         map_strstr  _headers;
         std::string _body;
         bool        _complete;
+        bool        _expect;
         size_t      _content_length;
+        std::string _boundary_string;
 
         void        _parseRequest(std::string const &request);
         vec_str     _vectorSplit(std::string str, char sep);
@@ -61,6 +63,13 @@ class Request {
         int         getMethod() const;
         std::string getHttpVersion() const;
         std::string getPath() const;
+        std::string getQuery() const;
+        bool        getExpect() const;
+        std::string getBoundaryString() const;
+
+        void        setHeaders(map_strstr const &headers);
+        void        setHeader(std::string &header, std::string &value);
+        void        setBody(std::string const &body);
 
         class	ContentLengthException : public std::exception {
             public:

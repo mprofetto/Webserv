@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:20 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/07 15:21:28 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/03/26 09:59:38 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ private:
     std::string _path;
     std::string _http_version;
     std::string _not_valid;
+    std::string _query;
 
 public:
     RequestLine();
@@ -38,6 +39,7 @@ public:
     std::string getPath() const;
     std::string getHTTPVersion() const;
     std::string getNotValid() const;
+    std::string getQuery() const;
 };
 
 std::ostream    &operator<<(std::ostream &o, RequestLine const &obj);
