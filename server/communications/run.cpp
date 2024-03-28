@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 13:30:03 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/28 13:38:13 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,21 +63,30 @@ void	TcpListener::readRequest(int client_socket)
 {
 	std::cout << "Reading new request\n";
 	std::string					raw_request;
-	char						buffer[this->_buffer_max];
+	char						buffer[this->_buffer_max + 1];
 	int							bytesReceveid;
 
 	memset(&buffer, 0, this->_buffer_max);
 	bytesReceveid = recv(client_socket, buffer, this->_buffer_max, 0);
+	std::cout << "bytes recevied: " << bytesReceveid << "\n";
 	if (bytesReceveid <= 0)
 	{
 		close(client_socket);
 		FD_CLR(client_socket, &this->_read_master_fd);
 		return;
 	}
+	int i = 0;
+	while (buffer[i])
+	{
+		write(1, buffer, 1);
+		i++;
+	}
 	raw_request = buffer;
+	std::cout << "testin request\n";
 	if (this->isIncompleteRequest(client_socket) == true)
 	{
 		this->_incomplete_requests.find(client_socket)->second.catToBody(raw_request);
+		std::cout << "In incomplete\n";
 		if (this->isIncompleteRequest(client_socket) == false)
 		{
 			this->_pending_request = this->_incomplete_requests.find(client_socket)->second;
@@ -91,6 +100,7 @@ void	TcpListener::readRequest(int client_socket)
 	{
 		Request	request(raw_request);
 
+		std::cout << "In complete\n";
 		if (request.getComplete() == true)
 			this->_pending_request = request;
 		else
