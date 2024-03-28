@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 13:15:16 by achansar         ###   ########.fr       */
+/*   Updated: 2024/03/28 13:33:53 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ void	TcpListener::readRequest(int client_socket)
 		}
 		else
 			this->registerReponse(client_socket, "HTTP/1.1 100 CONTINUE");
+
 	}
 	else
 	{
@@ -135,6 +136,16 @@ void	TcpListener::handleRequest(int client_socket)
 	// 			std::cout << "End of CGI !\n [SATUS CODE =" << status_code << "]\n";
 	// 	}
 	// }
+	////////////////////////
+	if (route)
+	{
+		Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
+		getFullPath(route, response);
+
+		response.buildResponse(_pending_request);
+		FD_SET(client_socket, &this->_write_master_fd);
+		this->registerReponse(client_socket, response.getResponse());
+	}
 
 	Response response(server, status_code, &_pending_request, client_socket);//                create response here
 	response.buildResponse(route);
