@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 13:26:16 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/28 13:30:03 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void	TcpListener::handleRequest(int client_socket)
 
 	std::list<Route *> r = server->getRoute();
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
+		// std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
 		if (!(*it)->getPath().compare(_pending_request.getPath())) {
 			route = *it; // while until every path sent ? like index + img ?
 			break;
@@ -126,19 +126,9 @@ void	TcpListener::handleRequest(int client_socket)
 	// 			std::cout << "End of CGI !\n [SATUS CODE =" << status_code << "]\n";
 	// 	}
 	// }
-	////////////////////////
-	if (route)
-	{
-		Response response(server, status_code, _pending_request.getRequestLine().getMethod());//                create response here
-		getFullPath(route, response);
 
-		response.buildResponse(_pending_request);
-		FD_SET(client_socket, &this->_write_master_fd);
-		this->registerReponse(client_socket, response.getResponse());
-	}
-
-	Response response(server, status_code, _pending_request.getMethod(), client_socket);//                create response here
-	response.buildResponse(route, _pending_request, client_socket);
+	Response response(server, status_code, &_pending_request, client_socket);//                create response here
+	response.buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());
 }
