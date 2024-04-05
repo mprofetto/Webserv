@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/21 13:57:28 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/05 12:28:15 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,18 +95,29 @@ char **Cgi::_createEnv() {
 	map_strstr mapEnv;
 	const char *methods[] = {"DELETE", "GET", "POST", NULL};
 	mapEnv.insert(std::make_pair("REQUEST_METHOD", methods[_request.getMethod()]));
-	mapEnv.insert(std::make_pair("PWD", ""));// TODO
+
+    std::string pwd(_fileExe);
+    pwd.erase(pwd.find_last_of('/'), pwd.size());
+	mapEnv.insert(std::make_pair("PWD", pwd));
+
 	if (_request.getMethod() != POST)
-		mapEnv.insert(std::make_pair("QUERY_STRING", "")); // TODO
-	mapEnv.insert(std::make_pair("CONTENT_TYPE", _request.getHeader("Content-Type").c_str()));
+		mapEnv.insert(std::make_pair("QUERY_STRING", _request.getQuery()));
+
+	mapEnv.insert(std::make_pair("CONTENT_TYPE", _request.getHeader("Content-Type")));
+
 	std::stringstream content_length;
 	content_length << _request.getContentLength();
-	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str().c_str()));
+	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str()));
+
 	mapEnv.insert(std::make_pair("SERVER_NAME", "")); // server.getName()
+
 	mapEnv.insert(std::make_pair("SERVER_PORT", ""));// port.getPort() en appliquant le meme procede que pour content length
-	mapEnv.insert(std::make_pair("SCRIPT_NAME", _request.getPath().c_str()));
-	mapEnv.insert(std::make_pair("PATH_INFO", _request.getPath().c_str()));
-	mapEnv.insert(std::make_pair("SERVER_PROTOCOL", _request.getHttpVersion().c_str()));
+
+	mapEnv.insert(std::make_pair("SCRIPT_NAME", _request.getPath()));
+
+	mapEnv.insert(std::make_pair("PATH_INFO", _request.getPath()));
+
+	mapEnv.insert(std::make_pair("SERVER_PROTOCOL", _request.getHttpVersion()));
 
     char **ret = new char *[mapEnv.size() + 1];
     if (!ret)

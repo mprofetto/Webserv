@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 11:52:18 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/05 14:51:42 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,9 @@ void Request::_parseRequest(std::string const & request) {
             size_t pos = line.find(':');
             if (pos == std::string::npos && _req.getMethod() != GET) {
                 if (line.size() >= 2 && line[0] == '-' && line[1] == '-') {
-                _boundary_string = line;
-                    std::cout << "Do we ever enter this condition ?" << std::endl;
-                    std::cout << "If yes, boundary is : " << _boundary_string << std::endl;
+                    _boundary_string = line;
+                    // std::cout << "Do we ever enter this condition ?" << std::endl; // todel
+                    // std::cout << "If yes, boundary is : " << _boundary_string << std::endl; // todel
                 }
                 else
                     _body = line;
