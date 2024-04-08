@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/28 17:25:36 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/08 13:53:53 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,13 @@
 #include <map>
 #include "../request_manager/includes/Request.hpp"
 #include "../server/Server.hpp"
+#include "../server/TcpListener.hpp"
+#include <sstream>
+#include <fstream>
+#include <sys/socket.h>
+#include <filesystem>
+#include <sys/stat.h>
+#include <dirent.h>
 
 class Server;
 class Response {
@@ -28,21 +35,24 @@ class Response {
         ~Response();
 
     // MEMBER FUNCTIONS
-        std::string     getBody();
+        void            getBody(bool autodindex);
         void            buildResponse(Route* route);
-        void            buildPostResponse(Request request);
         void            buildErrorResponse();
         std::string     getHeaders(const int s);
         std::string     getReason(int sc);
-        std::string     getMimeType();
-        void	        getFullPath(Route *route, std::string uri);
         int             fileTransfer();
-        std::string     extractExtension(std::string uri);
-        std::string     extractFileName();
         int             sendFile();
         int             receiveFile();
         int             deleteFile();
         std::string     extractFileBody(std::string request);
+        int             generateAutoindex();
+
+    // UTILS
+        void	        getFullPath(Route *route, std::string uri);
+        std::string     extractExtension(std::string uri);
+        std::string     extractFileName();
+        std::string     getMimeType();
+        bool            isDirectory(std::string path);
 
     // GET & SET
         std::string     getResponse();

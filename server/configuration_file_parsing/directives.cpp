@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   directives.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:25:19 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/14 11:50:34 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 11:52:49 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,8 +145,13 @@ std::list<std::string>	TcpListener::getLocationDirective(std::list<std::string> 
 	arg = token_list.front();
 	if (*(arg.c_str()) == '.')
 		new_route->setExtension(arg);
-	else if (*(arg.c_str()) == '/')
-		new_route->setPath(arg);
+	else if (*(arg.c_str()) == '/') {
+		if (arg.back() != '/')
+			new_route->setPath(arg + '/');
+		else
+			new_route->setPath(arg);
+		std::cout << "\n\nPATH ARG : " << new_route->getPath() << std::endl;
+	}
 	else
 		throw confFileMisconfiguration();
 	token_list = popFrontToken(token_list);

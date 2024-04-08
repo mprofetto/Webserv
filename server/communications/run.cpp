@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 16:05:39 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/08 14:35:44 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,15 +124,26 @@ void	TcpListener::handleRequest(int client_socket)
 	Route *route = NULL;
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
 
+	std::string checkRoute = _pending_request.getPath();
+	if (!checkRoute.empty() && checkRoute[checkRoute.size() - 1] != '/')
+		checkRoute += "/";
+
 	std::list<Route *> r = server->getRoute();
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
 		// std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
-		if (!(*it)->getPath().compare(_pending_request.getPath())) {
+		if (!(*it)->getPath().compare(checkRoute)) {
+			std::cout << "PATH to check : " << checkRoute << " | with : " << (*it)->getPath() << std::endl;
 			route = *it; // while until every path sent ? like index + img ?
 			break;
 		}
 	}
 
+	if (!route) {
+		std::cout << "No ROUTE found.\n";
+	} else {
+		std::cout << "ROUTE found.\n";
+	}
+	
 	// if (route /*&& route->getCgi()*/) {
 	// 	std::cout << "YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
 	// 	if (!route->getExtension().empty()
