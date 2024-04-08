@@ -73,11 +73,9 @@
             if (!response.ok) {
             throw new Error('Failed to delete resource');
             }
-            // Handle successful response
             console.log('Resource deleted successfully');
         })
         .catch(error => {
-            // Handle errors
             console.error('Error:', error);
         });
         }
