@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/08 16:33:14 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:12:06 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,8 +76,7 @@ int Response::sendFile() {
 
 TO DO (Arno)
 	work on 300 reidrections
-    build deleteFiles
-	do autoindexes
+    build 403 page
 */
 
 int Response::receiveFile() {
@@ -124,10 +123,10 @@ int Response::receiveFile() {
 
 int Response::deleteFile() {
     
-    // if (std::remove(_path) != 0) {
-    //     std::cerr << "Error deleting file" << std::endl;
-    //     return 500;
-    // }
+    if (std::remove(_path.c_str()) != 0) {
+        std::cerr << "Error deleting file !!!!" << std::endl;
+        return 500;
+    }
     return 204;
 }
 
@@ -220,32 +219,24 @@ void Response::getBody(bool autoindex) {
 
     if (_method == GET) {
         if (isDirectory(_path)) {
-            std::cout << "IS A DIRECTORY : " << _path << std::endl;
             if (autoindex) {
-                std::cout << "AUTOINDEX ON\n\n";
                 _statusCode = generateAutoindex();
             } else {
-                std::cout << "AUTOINDEX OFF\n\n";
                 _statusCode = 403;
             }
         } else {
-            std::cout << "IS A FILE : " << _path << std::endl;
             myfile.open(_path);
             if (myfile.fail()) {
                 _statusCode = 500;
             }
-
-            while (std::getline(myfile, line)) {
-                _body += line;
+            else {
+                while (std::getline(myfile, line)) {
+                    _body += line;
+                }
             }
-
             myfile.close();
         }
-    } else if (_method == POST) {
-        _body = "";
-        // might be infos :
-        // resource creation & confirmation message
-    } else if (_method == DELETE) {
+    } else if (_method == POST || _method == DELETE) {
         _body = "";
     }
 }
@@ -267,13 +258,14 @@ void      Response::buildResponse(Route *route) {
 
     std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
                 << _request->getRaw()
+                << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
                 << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
     
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
     }
     
-    if (_statusCode == 200) {
+    if (_statusCode == 200 || _statusCode == 204) {
         getBody(autodindex);
         _headers = getHeaders(_body.length()) + "\n";
         ss << _statusCode;
@@ -374,8 +366,12 @@ void	Response::getFullPath(Route *route, std::string uri) {
 	} else {
         if (isDirectory("." + uri)) {
             _path = "." + uri;
+        } else if (_method == DELETE) {
+            std::string parsedUri = uri.substr(uri.find_last_of('/'));
+            _path = "./upload" + parsedUri;
         } else {
-            _path = (_extension != ".html") ? "./download" + uri : "./docs" + uri;
+            _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
+            std::cout << "Right after condition, _path is : " << _path << std::endl;
             std::ifstream myfile(_path.c_str());
             if (myfile.fail()) {
                 _statusCode = 404;
@@ -383,6 +379,6 @@ void	Response::getFullPath(Route *route, std::string uri) {
             }
         }
 	}
-    // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]\n";
+    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]\n";
 	return;
 }
