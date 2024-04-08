@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 14:50:46 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/03/28 16:05:39 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,6 @@ void	TcpListener::handleRequest(int client_socket)
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerReponse(client_socket, response.getResponse());
 }
-
 
 void	TcpListener::registerReponse(int socket, std::string response)
 {
