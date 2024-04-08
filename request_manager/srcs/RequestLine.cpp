@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/08 13:16:55 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/08 14:51:45 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,6 @@ RequestLine::RequestLine(int const &method, std::string const &path, std::string
     else {
         _path = path.substr(0, pos);
         _query = path.substr(pos + 1);
-    }
-    if (_path.find_last_of("/") != std::string::npos - 1) {
-        struct stat s;
-        if( stat(_path.c_str(),&s) == 0 ) {
-            if(s.st_mode & S_IFDIR )
-               _path += "/";
-        }
     }
 }
 

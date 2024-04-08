@@ -6,12 +6,12 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/05 14:51:42 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/08 14:09:27 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
-#include <cstdlib> //atoi
+
  /* ----- CONSTRUCTORS & DESTRUCTOR ----- */
 
 Request::Request() {
@@ -23,7 +23,7 @@ Request::Request(std::string & req): _raw(req), _body(""), _complete(true),  _ex
         _content_length = atoi(getHeader("Content-Length").c_str());
         if (_content_length > CONTENT_LENGTH_MAX)
             throw ContentLengthException();
-        if (_content_length < _body.size())
+        if (_body.size() < _content_length)
             _complete = false;
     }
     if (_req.getMethod() == POST && !_headers.empty()) {

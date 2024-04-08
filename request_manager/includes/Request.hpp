@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 09:59:28 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/08 14:07:21 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <vector>
 # include <iostream>
 # include <map>
+# include <cstdlib>
 
 # define CONTENT_LENGTH_MAX 2000000000
 # define SPACE 32
