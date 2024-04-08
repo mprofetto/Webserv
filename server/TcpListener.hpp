@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 15:07:16 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 11:12:04 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,6 @@ class TcpListener
 		fd_set								_write_master_fd;
 		std::list<Server *>					_servers;
 		Request								_pending_request;
-		// std::map<int, Request>		_incomplete_requests;
 		std::map<int, std::string>			_incomplete_requests;
 		std::map<int, std::string>			_responses;
 

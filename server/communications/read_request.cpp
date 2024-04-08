@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 14:22:20 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 15:34:36 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 11:13:15 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ void	TcpListener::register_new_pending_request(int client_socket, char *buffer)
 		this->_pending_request = request;
 		this->_incomplete_requests.erase(client_socket);
 	}
+	std::cout << "Request Body: " << this->_pending_request.getRaw() << std::endl;
 	FD_SET(client_socket, &this->_write_master_fd);
 }
 
@@ -81,11 +82,33 @@ void	TcpListener::readRequest(int client_socket)
 	}
 	else if ((bytesReceveid != this->_buffer_max && buffer[bytesReceveid] == '\0')
 		|| (bytesReceveid == this->_buffer_max && buffer[bytesReceveid - 1] == '\0'))
-		register_new_pending_request(client_socket, buffer);
+		{
+			register_new_pending_request(client_socket, buffer);
+			return;
+		}
 	else
 	{
 		if (this->isIncompleteRequest(client_socket) == true)
+		{
 			update_incoming_request(client_socket, bytesReceveid, buffer);
+			if (this->_incomplete_requests.find(client_socket)->second.find("\r\n\r\n") != std::string::npos)
+			{
+				Request	request(this->_incomplete_requests.find(client_socket)->second);
+
+				if (request.getContentLength() == 0)
+				{
+					this->_pending_request = request;
+					this->_incomplete_requests.erase(client_socket);
+					FD_SET(client_socket, &this->_write_master_fd);
+					return;
+				}
+				else
+				{
+					//
+					;
+				}
+			}
+		}
 		else
 			create_new_incoming_request(client_socket, bytesReceveid, buffer);
 		this->registerReponse(client_socket, "HTTP/1.1 100 CONTINUE");

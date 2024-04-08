@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:34:39 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/14 11:48:52 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 08:51:36 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,13 @@
 # include "unistd.h"
 # include "Server.hpp"
 
+class Server;
+
 class Route
 {
 	public:
 		Route();
+		Route(Server *server);
 		~Route();
 
 		bool					getAutoindex(void) const;
@@ -59,6 +62,7 @@ class Route
 		std::string				_path;
 		std::string				_redirection;
 		std::string				_root;
+		Server					*_server;
 };
 
 #endif

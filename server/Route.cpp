@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:46:07 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/14 11:54:00 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 08:49:56 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,12 @@
 
 Route::Route() : _autoindex(true), _cgi(false), _delete(true), _get(true), _post(true), _extension(""), _path("/"), _redirection("")
 {
+	return;
+}
+
+Route::Route(Server *server) : _autoindex(true), _cgi(false), _delete(true), _get(true), _post(true), _extension(""), _path("/"), _redirection("")
+{
+	this->_server = server;
 	return;
 }
 

@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:25:19 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/14 11:50:34 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 08:50:59 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ std::list<std::string>	TcpListener::getErrorPageDirective(std::list<std::string>
 
 std::list<std::string>	TcpListener::getLocationDirective(std::list<std::string> token_list, Server *new_server)
 {
-	Route		*new_route = new Route();
+	Route		*new_route = new Route(new_server);
 	std::string	arg;
 
 	token_list = popFrontToken(token_list);
