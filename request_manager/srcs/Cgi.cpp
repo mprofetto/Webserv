@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/05 12:28:15 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/08 12:09:55 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,9 +109,11 @@ char **Cgi::_createEnv() {
 	content_length << _request.getContentLength();
 	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str()));
 
-	mapEnv.insert(std::make_pair("SERVER_NAME", "")); // server.getName()
+	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front())); // to check !!
 
-	mapEnv.insert(std::make_pair("SERVER_PORT", ""));// port.getPort() en appliquant le meme procede que pour content length
+    std::stringstream port;
+	port << _route.getServer()->getPort();
+	mapEnv.insert(std::make_pair("SERVER_PORT", port.str()));// to check !!!
 
 	mapEnv.insert(std::make_pair("SCRIPT_NAME", _request.getPath()));
 

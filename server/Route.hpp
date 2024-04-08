@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:34:39 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 08:51:36 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 12:05:00 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class Route
 		std::string				getPath(void) const;
 		std::string				getRedirection(void) const;
 		std::string				getRoot(void) const;
-
+		Server*					getServer(void) const;
 		void					addIndex(std::string filename);
 		void					setAutoindex(bool value);
 		void					setCgi(bool value);
