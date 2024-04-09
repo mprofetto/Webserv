@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 14:35:44 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/09 14:50:51 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ void	TcpListener::handleRequest(int client_socket)
 	} else {
 		std::cout << "ROUTE found.\n";
 	}
-	
+
 	// if (route /*&& route->getCgi()*/) {
 	// 	std::cout << "YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
 	// 	if (!route->getExtension().empty()
