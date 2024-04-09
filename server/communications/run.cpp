@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:56:28 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/09 14:50:51 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/09 15:37:08 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ void	TcpListener::handleRequest(int client_socket)
 			std::cout << "PATH to check : " << checkRoute << " | with : " << (*it)->getPath() << std::endl;
 			route = *it; // while until every path sent ? like index + img ?
 			break;
-		}
+		} //else if (_pending_request.getPath() == (*it)->getCgiPath())
 	}
 
 	if (!route) {
@@ -144,18 +144,23 @@ void	TcpListener::handleRequest(int client_socket)
 		std::cout << "ROUTE found.\n";
 	}
 
-	// if (route /*&& route->getCgi()*/) {
-	// 	std::cout << "YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
-	// 	if (!route->getExtension().empty()
-	// 		|| _pending_request.getMethod() == POST
-	// 		|| (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-	// 			std::cout << "DEBUT of CGI ??\n";
-	// 			Cgi cgi(_pending_request, *route);
-	// 			cgi.executeCgi();
-	// 			status_code = cgi.getExitCode();
-	// 			std::cout << "End of CGI !\n [SATUS CODE =" << status_code << "]\n";
-	// 	}
-	// }
+	std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
+	if (route) {
+		std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
+		if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+				std::cout << "[CGI] Start\n";
+				try {
+					Cgi cgi(_pending_request, *route);
+					cgi.executeCgi();
+					status_code = cgi.getExitCode();
+				}
+				catch(std::exception &e) {
+					std::cout << e.what() << std::endl;
+				}
+				std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
+		}
+		std::cout << "------------CGI-------------" << std::endl;
+	}
 
 	Response response(server, status_code, &_pending_request, client_socket);//                create response here
 	response.buildResponse(route);
