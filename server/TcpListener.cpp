@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TcpListener.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:37:47 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/05 11:23:03 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 13:50:18 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,3 +103,4 @@ void	TcpListener::bindSocket(Server *server)
 	if (bind(server->getSocket(), (sockaddr *)&server_socket_addr, sizeof(sockaddr)) < 0)
 		throw socketBindingFailure();
 }
+

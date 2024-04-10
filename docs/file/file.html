@@ -23,9 +23,10 @@
     </form>
 
     <h2>Delete Resource</h2>
-    <button onclick="deleteResource()">Delete Resource</button>
+    <input type="text" id="fileName" name="fileName" placeholder="Enter file name...">
+    <button onclick="deleteFile()">Delete</button>
 
-    <button onclick="location.href='index.html'">Go back</button>
+    <button onclick="location.href='/index.html'">Go back</button>
 
     <script>
         function uploadFile() {
@@ -65,21 +66,34 @@
     </script>
 
     <script>
-        function deleteResource() {
-        fetch('https://example.com/resource', {
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (!response.ok) {
-            throw new Error('Failed to delete resource');
+        function deleteFile() {
+            const fileName = document.getElementById('fileName').value;
+            
+            if (fileName.trim() === '') {
+                alert('Please enter a file name.');
+                return;
             }
-            // Handle successful response
-            console.log('Resource deleted successfully');
-        })
-        .catch(error => {
-            // Handle errors
-            console.error('Error:', error);
-        });
+            
+            const confirmation = confirm(`Are you sure you want to delete "${fileName}"?`);
+            if (!confirmation) {
+                return;
+            }
+            
+            console.log(fileName);
+            fetch(fileName, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('File deleted successfully.');
+                } else {
+                    alert('Failed to delete file. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting file:', error);
+                alert('An error occurred while deleting the file.');
+            });
         }
     </script>
 </body>
