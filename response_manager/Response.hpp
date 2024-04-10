@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/10 13:29:48 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/10 18:21:51 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ class Response {
 
     // CONSTRUCTORS
         Response(Server* server, int statusCode, Request* request, const int socket);
+        Response(const Response& src);
+        Response& operator=(const Response& src);
         ~Response();
 
     // MEMBER FUNCTIONS
@@ -59,13 +61,14 @@ class Response {
         std::string     getResponse();
         std::string     getPath();
         int             getStatusCode();
+        int             getClientSocket();
 
         void            addToBytesSend(unsigned long bytes_to_add);
         void            setPath(std::string& str);
         void            setErrorPath(std::string& str);
 
-        int                                 _clientSocket;
     private:
+        int                                 _clientSocket;
         unsigned long                       _bytesSend;
         int                                 _method;
         int                                 _statusCode;

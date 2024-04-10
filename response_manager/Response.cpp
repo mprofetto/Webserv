@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/10 14:12:59 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/10 18:32:54 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,28 @@ Response::Response(Server* server, int statusCode, Request* request, const int s
         _request(request) {
 
     return;
+}
+
+Response::Response(const Response& src) {
+    *this = src;
+    return;
+}
+
+Response& Response::operator=(const Response& src) {
+        _clientSocket = src._clientSocket;
+        _bytesSend = src._bytesSend;
+        _method = src._method;
+        _statusCode = src._statusCode;
+        _path = src._path;
+        _errorPath = src._errorPath;
+        _responseLine = src._responseLine;
+        _statusLine = src._statusLine;
+        _extension = src._extension;
+        _headers = src._headers;
+        _body = src._body;
+        _server = src._server;
+        _request = src._request;
+        return *this;
 }
 
 Response::~Response() {
@@ -45,46 +67,6 @@ int Response::deleteFile() {
 
 // ==================================================================== POST
 
-// int Response::sendFile() {
-
-//     std::cout << "\n\nIN SENDFILE !!\n\n";
-// 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
-// 	if (!infile) {
-// 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
-// 		return 500;
-// 	} else {
-// 		infile.seekg(0, std::ios::end);
-// 		std::streampos fileSize = infile.tellg();
-// 		infile.seekg(0, std::ios::beg);
-
-//         std::string fileName = extractFileName();
-
-// 		std::stringstream responseHeaders;
-// 			responseHeaders << "HTTP/1.1 200 OK\r\n";
-// 			responseHeaders << "Content-Type: " << getMimeType() << "\r\n";
-// 			responseHeaders << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n";
-//             responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
-			
-// 		write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
-// 		const std::streamsize bufferSize = 8192;
-// 		char buffer[bufferSize];
-
-//         while (!infile.eof()) 
-//             {
-//                 infile.read(buffer, sizeof(buffer));
-//                 ssize_t result = write(_clientSocket, buffer, infile.gcount());
-//                 if (result == -1) 
-//                 {
-//                     std::cerr << "Error writing to socket." << std::endl;
-//                     break;
-//                 }
-//             }
-
-//         infile.close();
-// 	}
-// 	return 200;
-// }
-
 int Response::sendFile() {
 
 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
@@ -92,37 +74,19 @@ int Response::sendFile() {
 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
 		return 500;
 	} else {
-		// infile.seekg(0, std::ios::end);
-		// std::streampos fileSize = infile.tellg();
-		// infile.seekg(0, std::ios::beg);
-
-        // std::string fileName = extractFileName();
 
 		std::stringstream responseBody;
-			// responseBody << "HTTP/1.1 200 OK\r\n";
-			// responseBody << "Content-Type: " << getMimeType() << "\r\n";
-			// responseBody << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n\r\n";
-            // responseBody << "Content-Length: " << fileSize << "\r\n\r\n";
-			
-		// write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
-		const std::streamsize bufferSize = 8192;
-		char buffer[bufferSize];
+		char buffer[8192];
 
         while (!infile.eof())
             {
                 infile.read(buffer, sizeof(buffer));
                 responseBody << buffer;
-                // ssize_t result = write(_clientSocket, buffer, infile.gcount());
-                // if (result == -1) 
-                // {
-                //     std::cerr << "Error writing to socket." << std::endl;
-                //     break;
-                // }
             }
         infile.close();
-        _body = responseBody.str().c_str()/* + "end_of_file"*/;
+        _body = responseBody.str().c_str();
 	}
-	return 200;
+	return 201;
 }
 
 int Response::receiveFile() {
@@ -210,6 +174,9 @@ std::string Response::getHeaders(const int s) {
         std::string fileName = extractFileName();
 	    h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
     }
+    if (_statusCode >= 300 && _statusCode <= 310) {
+        h += 
+    }
     return h;
 }
 
@@ -218,10 +185,8 @@ void Response::getBody(bool autoindex) {
 	std::ifstream			myfile;
     std::string             line;
 
-    std::cout << "Trying to get the body!\n";
     if (_method == GET) {
         if (!_extension.empty() && _extension.compare(".html")) {
-            std::cout << "But access to sendfile2\n";
             sendFile();
         }
         else if (isDirectory(_path)) {
@@ -252,6 +217,7 @@ void Response::getBody(bool autoindex) {
 
 void      Response::buildResponse(Route *route) {
 
+    std::cout << "In buildResponse !\n";
     bool autodindex = false;
     if (route) {
         autodindex = route->getAutoindex();
@@ -303,6 +269,10 @@ std::string     Response::getPath() {
 
 int             Response::getStatusCode() {
     return _statusCode;
+}
+
+int Response::getClientSocket() {
+    return _clientSocket;
 }
 
 void            Response::addToBytesSend(unsigned long bytes_to_add)
