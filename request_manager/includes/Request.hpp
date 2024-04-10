@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 11:54:38 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/10 11:58:59 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,14 @@ class Request {
         size_t      _content_length;
         std::string _boundary_string;
 
-        void        _parseRequest(std::string const &request);
+        //void        _parseRequest(std::string const &request);
+        void        _parseRequest(std::string const &head);
         vec_str     _vectorSplit(std::string str, char sep);
         std::string _strtrim(std::string & s);
 
     public:
         Request();
-        Request(std::string &request);
+        //Request(std::string &request);
         Request(std::string &head, std::string &body);
         Request(Request const &copy);
         ~Request();

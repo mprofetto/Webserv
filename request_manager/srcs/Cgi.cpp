@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/08 12:09:55 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/10 12:09:53 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,16 +121,19 @@ char **Cgi::_createEnv() {
 
 	mapEnv.insert(std::make_pair("SERVER_PROTOCOL", _request.getHttpVersion()));
 
-    char **ret = new char *[mapEnv.size() + 1];
-    if (!ret)
+    char **ret;
+    try {
+        ret = new char *[mapEnv.size() + 1];
+    } catch (std::bad_alloc& ba) {
         return NULL;
+    }
 	int i = 0;
     for (map_strstr::iterator it = mapEnv.begin(); it != mapEnv.end(); it++)
     {
         std::string tmp = it->first + "=" + it->second;
         ret[i] = new char[tmp.size() + 1];
 		if (!ret[i]) {
-			for (size_t j = i; j >= 0; --j)
+			for (int j = i; j >= 0; --j)
 				delete[] ret[j];
 			delete[] ret;
 			return NULL;
