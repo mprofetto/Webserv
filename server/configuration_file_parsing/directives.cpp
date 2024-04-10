@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:25:19 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 08:50:59 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/10 09:44:37 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ std::list<std::string>	TcpListener::getMaxBodySizeDirective(std::list<std::strin
 	result = atoi(bodySize.c_str());
 	if (result > MAXBUFFERSIZE)
 		std::cout << "Due to performance limitations, ClientMaxBodySize shouldnt be greater than 2Mo\n. ClientMaxBufferSize set to 2Mo\n";
+	else if (result <= 0)
+		std::cout << "Buffer cannot be set at 0 or less size. ClientMaxBufferSize set to 2Mo\n";
 	else
 		this->_buffer_max = result;
 	token_list = popFrontToken(token_list);

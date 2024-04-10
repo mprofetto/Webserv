@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/05 14:51:42 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/10 09:31:10 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ Request::Request(std::string & req): _raw(req), _body(""), _complete(true),  _ex
         _content_length = atoi(getHeader("Content-Length").c_str());
         if (_content_length > CONTENT_LENGTH_MAX)
             throw ContentLengthException();
-        if (_content_length < _body.size())
+        std::cout << "Content lenght in request manager: " << _content_length << " Body lenght in request manager: " << _body.size() << std::endl;
+        if (_body.size() < _content_length)
             _complete = false;
     }
     if (_req.getMethod() == POST && !_headers.empty()) {
