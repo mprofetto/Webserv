@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:39:42 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/28 14:49:25 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 14:00:11 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,16 +86,5 @@ std::string		TcpListener::getResponse(int socket)
 		return ("");
 	else
 		return ((*it).second);
-}
-
-bool			TcpListener::isIncompleteRequest(int socket)
-{
-	// std::map<int, Request>::iterator	it;
-	std::map<int, std::string>::iterator	it;
-
-	it = this->_incomplete_requests.find(socket);
-	if (it == this->_incomplete_requests.end())
-		return (false);
-	return (true);
 }
 

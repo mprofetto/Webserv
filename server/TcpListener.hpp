@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 11:12:04 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/10 09:53:57 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@
 # include "../request_manager/includes/Request.hpp"
 # include "../utils.hpp"
 # include "../response_manager/Response.hpp"
+# include "communications/IncompleteRequest.hpp"
+
 
 
 # define MAXBUFFERSIZE 2097152
@@ -121,7 +123,7 @@ class TcpListener
 		fd_set								_write_master_fd;
 		std::list<Server *>					_servers;
 		Request								_pending_request;
-		std::map<int, std::string>			_incomplete_requests;
+		std::map<int, IncompleteRequest>	_incomplete_requests;
 		std::map<int, std::string>			_responses;
 
 		//Init Methods
@@ -129,12 +131,11 @@ class TcpListener
 		void					initServer(Server *server);
 
 		//Communication Methods
+
 		void					handleNewConnection(Server *server);
 		void					readRequest(int socket);
-		void					create_new_incoming_request(int client_socket, int size, char *buffer);
-		void					update_incoming_request(int client_socket, int size, char *buffer);
-		void					register_new_pending_request(int client_socket, char *buffer);
-		bool					isIncompleteRequest(int socket);
+		bool					incompleteRequestIsAlreadyStored(int socket);
+		void					registerRequestAsPending(int client_socket);
 		void					registerReponse(int socket, std::string response);
 		void					writeResponse(int socket);
 		void					handleRequest(int client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/

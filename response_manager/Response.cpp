@@ -6,15 +6,11 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/03/28 17:25:45 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:12:06 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
-#include <sstream>
-#include <fstream>
-#include <sys/socket.h>
-#include <filesystem>
 
 // ============================================================================== CONSTRUCTORS
 
@@ -80,8 +76,7 @@ int Response::sendFile() {
 
 TO DO (Arno)
 	work on 300 reidrections
-    build deleteFiles
-	do autoindexes
+    build 403 page
 */
 
 int Response::receiveFile() {
@@ -128,9 +123,11 @@ int Response::receiveFile() {
 
 int Response::deleteFile() {
     
-    
-    
-    return 200;
+    if (std::remove(_path.c_str()) != 0) {
+        std::cerr << "Error deleting file !!!!" << std::endl;
+        return 500;
+    }
+    return 204;
 }
 
 int Response::fileTransfer() {//           FAUT-IL UTILISER SELECT/POLL ?
@@ -139,8 +136,8 @@ int Response::fileTransfer() {//           FAUT-IL UTILISER SELECT/POLL ?
     switch (_method) {
         case GET:       return sendFile();
         case POST:      return receiveFile();
-        case DELETE:    return 200;
-        default:        return 200;
+        case DELETE:    return deleteFile();
+        default:        return 200;//                METHOD UNKNOWN, what statusocde ?
     }
 }
 
@@ -151,6 +148,7 @@ std::string Response::getReason(int sc) {
     std::map<int, std::string> reasons;
     reasons.insert(std::make_pair(200, "OK"));
     reasons.insert(std::make_pair(201, "Created"));
+    reasons.insert(std::make_pair(204, "No Content"));
     reasons.insert(std::make_pair(400, "Bad Request"));
     reasons.insert(std::make_pair(403, "Forbidden"));
     reasons.insert(std::make_pair(404, "Not Found"));
@@ -163,7 +161,7 @@ std::string Response::getReason(int sc) {
     return it->second;
 }
 
-std::string Response::getHeaders(const int s) {//          which header is important ?
+std::string Response::getHeaders(const int s) {
     std::string h;
 
     if (_method == GET) {
@@ -173,31 +171,74 @@ std::string Response::getHeaders(const int s) {//          which header is impor
     return h;
 }
 
-std::string Response::getBody() {
+bool Response::isDirectory(std::string path) {
+    struct stat fileStat;
+    if (path[_path.size() - 1] != '/')
+                path += "/";
+    if (stat(path.c_str(), &fileStat) == 0) {
+        return S_ISDIR(fileStat.st_mode);
+    }
+    return false;
+}
+
+int Response::generateAutoindex() {
+
+    std::stringstream response;
+    
+    if (_path[_path.size() - 1] != '/')
+        _path += "/";
+
+    DIR* dir = opendir(_path.c_str());
+    if (!dir) {
+        std::cerr << "Error opening directory.\n"; 
+        return 500;
+    }
+
+    response << "<html><head><title>Autoindex</title></head><body>";
+    response << "<h1>Autoindex</h1>";
+    response << "<ul>";
+
+    struct dirent* entry;
+    while ((entry = readdir(dir))) {
+        std::string name = entry->d_name;
+        if (name != "." && name != "..") {
+            response << "<li>" << name << "</li>";
+        }
+    }
+
+    closedir(dir);
+    response << "</ul></body></html>";
+    _body = response.str();
+    return 200;
+}
+
+void Response::getBody(bool autoindex) {
 
 	std::ifstream			myfile;
     std::string             line;
-    std::string             body;
 
     if (_method == GET) {
-        myfile.open(_path);
-        if (myfile.fail()) {
-            _statusCode = 500;
+        if (isDirectory(_path)) {
+            if (autoindex) {
+                _statusCode = generateAutoindex();
+            } else {
+                _statusCode = 403;
+            }
+        } else {
+            myfile.open(_path);
+            if (myfile.fail()) {
+                _statusCode = 500;
+            }
+            else {
+                while (std::getline(myfile, line)) {
+                    _body += line;
+                }
+            }
+            myfile.close();
         }
-
-        while (std::getline(myfile, line)) {
-            body += line;
-        }
-
-        myfile.close();
-    } else if (_method == POST) {
-        body = "";
-        // might be infos :
-        // resource creation & confirmation message
-    } else if (_method == DELETE) {
-        body = "";
+    } else if (_method == POST || _method == DELETE) {
+        _body = "";
     }
-    return body;
 }
 
 // ==================================================================== SWITCH
@@ -205,6 +246,11 @@ std::string Response::getBody() {
 
 void      Response::buildResponse(Route *route) {
 
+    bool autodindex = false;
+    if (route) {
+        autodindex = route->getAutoindex();
+        
+    }
     _extension = extractExtension(_request->getPath());
     getFullPath(route, _request->getPath());
     
@@ -212,13 +258,15 @@ void      Response::buildResponse(Route *route) {
 
     std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
                 << _request->getRaw()
+                << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
                 << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
-    // std::cout << "Before sending file, extension is : " << _extension << std::endl;
+    
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
     }
-    if (_statusCode == 200) {  
-        _body = getBody();
+    
+    if (_statusCode == 200 || _statusCode == 204) {
+        getBody(autodindex);
         _headers = getHeaders(_body.length()) + "\n";
         ss << _statusCode;
         _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason(_statusCode) + "\n";
@@ -311,24 +359,26 @@ std::string     Response::getMimeType() {
 void	Response::getFullPath(Route *route, std::string uri) {
 
 	if (route) {
-		std::string root = route->getRoot() + "/";
-		std::string index = route->getIndex().front();//         only gets first index. it's temporary
-		_path = root + index;
-	} else {
-		std::ifstream			myfile;
-
-        if (_extension.compare(".html")) {
-            _path = "./download" + uri;
-        } else {
-            _path = "./docs" + uri;
+        _path = route->getRoot();
+        if (!route->getAutoindex()) {
+            _path += "/" + route->getIndex().front();
         }
-		myfile.open(_path);
-		if (myfile.fail()) {
-			_statusCode = 404;
-			_path = "/";
-		} else {
-			myfile.close();
-		}
+	} else {
+        if (isDirectory("." + uri)) {
+            _path = "." + uri;
+        } else if (_method == DELETE) {
+            std::string parsedUri = uri.substr(uri.find_last_of('/'));
+            _path = "./upload" + parsedUri;
+        } else {
+            _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
+            std::cout << "Right after condition, _path is : " << _path << std::endl;
+            std::ifstream myfile(_path.c_str());
+            if (myfile.fail()) {
+                _statusCode = 404;
+                _path = "/";
+            }
+        }
 	}
+    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]\n";
 	return;
 }
