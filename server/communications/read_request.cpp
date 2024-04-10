@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   read_request.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 14:22:20 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/10 09:36:17 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/10 10:44:00 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,9 @@ void	TcpListener::registerRequestAsPending(int client_socket)
 	std::cout << "Content lenght in Listener is " << this->_incomplete_requests.find(client_socket)->second._content_lenght << " ";
 	std::cout << "Body size in Listener is " << body.size() << std::endl;
 
-	Request	request(raw_request);
-
+	//Request	request(raw_request);
+	Request request(header, body);
+	
 	this->_pending_request = request;
 	this->_incomplete_requests.erase(client_socket);
 	FD_SET(client_socket, &this->_write_master_fd);

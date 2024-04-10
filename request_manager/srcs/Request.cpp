@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 09:31:10 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/10 10:43:32 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,38 @@ Request::Request(std::string & req): _raw(req), _body(""), _complete(true),  _ex
         }
     }
 }
+
+Request::Request(std::string &head, std::string &body): _body(body), _complete(true),  _expect(false), _content_length(0), _boundary_string(""){
+    std::istringstream  iss(head);
+    std::string         line;
+    int                 count = 0;
+    _raw = head + body;
+    while (std::getline(iss, line, '\n')) {
+            if (line.size() == 0)
+                continue ;
+            if (count == 0) {
+                vec_str arr = _vectorSplit(line, SPACE);
+                std::string httpMethods[3] = {"DELETE", "GET", "POST"};
+                int method;
+
+                for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
+                _req =  RequestLine(method, arr[1], arr[2], arr[0]);
+                count++;
+                continue ;
+            }
+            size_t pos = line.find(':');
+            if (pos == std::string::npos && _req.getMethod() != GET) {
+                if (line.size() >= 2 && line[0] == '-' && line[1] == '-') {
+                    _boundary_string = line;
+                }
+                continue ;
+            }
+            std::string headerName = line.substr(0, pos);
+            std::string headerVal = line.substr(pos + 1);
+            this->_headers.insert(std::make_pair(headerName, headerVal));
+        }    
+}
+
 
 Request::Request(Request const &copy) {
     *this = copy;

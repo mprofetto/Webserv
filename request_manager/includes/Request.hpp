@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/26 09:59:28 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/10 10:42:57 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Request {
     public:
         Request();
         Request(std::string &request);
+        Request(std::string &head, std::string &body);
         Request(Request const &copy);
         ~Request();
 
