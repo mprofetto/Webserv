@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 10:43:32 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/10 10:47:57 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,22 @@ Request::Request(std::string &head, std::string &body): _body(body), _complete(t
             std::string headerName = line.substr(0, pos);
             std::string headerVal = line.substr(pos + 1);
             this->_headers.insert(std::make_pair(headerName, headerVal));
-        }    
+        } 
+    if (_req.getMethod() == POST && getHeader("Content-Length").size()) {
+        _content_length = atoi(getHeader("Content-Length").c_str());
+        if (_content_length > CONTENT_LENGTH_MAX)
+            throw ContentLengthException();
+        std::cout << "Content lenght in request manager: " << _content_length << " Body lenght in request manager: " << _body.size() << std::endl;
+        if (_body.size() < _content_length)
+            _complete = false;
+    }
+    if (_req.getMethod() == POST && !_headers.empty()) {
+        map_strstr::iterator it = _headers.find("Expect");
+        if (it->first == "Expect") {
+            if (it->second == "100-continue")
+                _expect = true;
+        }
+    } 
 }
 
 
