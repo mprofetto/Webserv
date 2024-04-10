@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/08 19:12:06 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/10 13:10:07 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 Response::Response(Server* server, int statusCode, Request* request, const int socket) :
         _clientSocket(socket),
+        _bytesSend(0),
         _method(request->getMethod()),
         _statusCode(statusCode),
         _path("/"),
@@ -51,16 +52,16 @@ int Response::sendFile() {
 			responseHeaders << "Content-Type: " << getMimeType() << "\r\n";
 			responseHeaders << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n";
             responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
-			
+
 		write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
 		const std::streamsize bufferSize = 8192;
 		char buffer[bufferSize];
 
-        while (!infile.eof()) 
+        while (!infile.eof())
             {
                 infile.read(buffer, sizeof(buffer));
                 ssize_t result = write(_clientSocket, buffer, infile.gcount());
-                if (result == -1) 
+                if (result == -1)
                 {
                     std::cerr << "Error writing to socket." << std::endl;
                     break;
@@ -82,7 +83,7 @@ TO DO (Arno)
 int Response::receiveFile() {
 
     std::cout << "IN RECEIVE FILE\n";
-    
+
     std::stringstream rawRequest(_request->getRaw());
     std::string line;
     std::string fileName;
@@ -111,7 +112,7 @@ int Response::receiveFile() {
     // }
     // outputFile << fileBody;
     // outputFile.close();
-                
+
     std::ofstream targetFile(destination, std::ios::binary);
     if (!targetFile) {
         std::cerr << "Error creating the file.\n";
@@ -122,7 +123,7 @@ int Response::receiveFile() {
 }
 
 int Response::deleteFile() {
-    
+
     if (std::remove(_path.c_str()) != 0) {
         std::cerr << "Error deleting file !!!!" << std::endl;
         return 500;
@@ -184,13 +185,13 @@ bool Response::isDirectory(std::string path) {
 int Response::generateAutoindex() {
 
     std::stringstream response;
-    
+
     if (_path[_path.size() - 1] != '/')
         _path += "/";
 
     DIR* dir = opendir(_path.c_str());
     if (!dir) {
-        std::cerr << "Error opening directory.\n"; 
+        std::cerr << "Error opening directory.\n";
         return 500;
     }
 
@@ -249,22 +250,22 @@ void      Response::buildResponse(Route *route) {
     bool autodindex = false;
     if (route) {
         autodindex = route->getAutoindex();
-        
+
     }
     _extension = extractExtension(_request->getPath());
     getFullPath(route, _request->getPath());
-    
+
     std::stringstream   ss;
 
     std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
                 << _request->getRaw()
                 << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
                 << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
-    
+
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
     }
-    
+
     if (_statusCode == 200 || _statusCode == 204) {
         getBody(autodindex);
         _headers = getHeaders(_body.length()) + "\n";
@@ -274,11 +275,16 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket;
     return;
 }
 
 // ============================================================================== GETTER & SETTER
+
+unsigned long   Response::getBytesSend() const{
+    return _bytesSend;
+}
+
 
 std::string     Response::getResponse() {
     return _responseLine;
@@ -291,6 +297,12 @@ std::string     Response::getPath() {
 int             Response::getStatusCode() {
     return _statusCode;
 }
+
+void            Response::addToBytesSend(unsigned long bytes_to_add)
+{
+    _bytesSend += bytes_to_add;
+}
+
 
 void            Response::setPath(std::string& str) {
     _path = str;
@@ -305,13 +317,13 @@ void            Response::setErrorPath(std::string& str) {
 // ============================================================================== UTILS
 
 std::string Response::extractExtension(std::string uri) {
-    
+
     std::cout << "In extract extension, path : " << uri << std::endl;
     size_t extPos = uri.find_last_of(".");
     if (extPos != std::string::npos) {
         std::string extension = uri.substr(extPos, std::string::npos);
         return extension;
-        std::cout << "EXTENSION IS : " << extension << std::endl;    
+        std::cout << "EXTENSION IS : " << extension << std::endl;
     } else {
         std::cerr << "Couldn't extract extension.\n";
         return "";
@@ -319,11 +331,11 @@ std::string Response::extractExtension(std::string uri) {
 }
 
 std::string Response::extractFileName() {
-    
+
     size_t extPos = _path.find_last_of("/");
     if (extPos != std::string::npos) {
         std::string fileName = _path.substr(extPos + 1, std::string::npos);
-        return fileName;    
+        return fileName;
     } else {
         std::cerr << "Couldn't extract file name.\n";
         return NULL;
@@ -331,7 +343,7 @@ std::string Response::extractFileName() {
 }
 
 std::string Response::extractFileBody(std::string request) {
-    
+
     size_t boundaryPos = request.find("Content-Type");
     if (boundaryPos == std::string::npos) {
         return "";

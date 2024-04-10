@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   read_request.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 14:22:20 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/10 10:44:00 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/10 11:22:41 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,6 @@ void	TcpListener::readRequest(int client_socket)
 	char		buffer[this->_buffer_max + 1];
 	int			bytesReceveid = recv(client_socket, buffer, this->_buffer_max, 0);
 	std::string	raw_request(buffer, bytesReceveid);
-
-	int	i = 0;
-	while (i < bytesReceveid)
-	{
-		std::cout << "i: " << (int)buffer[i] << std::endl;
-		i++;
-	}
-
 	if (bytesReceveid <= 0)
 	{
 		close(client_socket);
@@ -36,10 +28,7 @@ void	TcpListener::readRequest(int client_socket)
 	else
 	{
 		if (this->incompleteRequestIsAlreadyStored(client_socket) == true)
-		{
 			this->_incomplete_requests.find(client_socket)->second.appendContent(raw_request);
-			std::cout << "Header is: " << this->_incomplete_requests.find(client_socket)->second._header << std::endl;
-		}
 		else
 		{
 			IncompleteRequest	new_request(raw_request);
@@ -63,16 +52,8 @@ bool	TcpListener::incompleteRequestIsAlreadyStored(int socket)
 
 void	TcpListener::registerRequestAsPending(int client_socket)
 {
-	std::string	header = this->_incomplete_requests.find(client_socket)->second._header;
-	std::string	body = this->_incomplete_requests.find(client_socket)->second._body;
-	std::string	raw_request = header + body;
+	Request request(this->_incomplete_requests.find(client_socket)->second._header, this->_incomplete_requests.find(client_socket)->second._body);
 
-	std::cout << "Content lenght in Listener is " << this->_incomplete_requests.find(client_socket)->second._content_lenght << " ";
-	std::cout << "Body size in Listener is " << body.size() << std::endl;
-
-	//Request	request(raw_request);
-	Request request(header, body);
-	
 	this->_pending_request = request;
 	this->_incomplete_requests.erase(client_socket);
 	FD_SET(client_socket, &this->_write_master_fd);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/08 13:53:53 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/10 13:29:48 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,16 +55,19 @@ class Response {
         bool            isDirectory(std::string path);
 
     // GET & SET
+        unsigned long   getBytesSend() const;
         std::string     getResponse();
         std::string     getPath();
         int             getStatusCode();
-        
+
+        void            addToBytesSend(unsigned long bytes_to_add);
         void            setPath(std::string& str);
         void            setErrorPath(std::string& str);
 
+        int                                 _clientSocket;
     private:
-        const int                           _clientSocket;
-        const int                           _method;
+        unsigned long                       _bytesSend;
+        int                                 _method;
         int                                 _statusCode;
         std::string                         _path;
         std::string                         _errorPath;

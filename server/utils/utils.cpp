@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:39:42 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 14:00:11 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/10 13:30:09 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,14 +77,21 @@ void	TcpListener::printServers(void) const
 	}
 }
 
-std::string		TcpListener::getResponse(int socket)
+// std::string		TcpListener::getResponse(int socket)
+// {
+// 	std::map<int, std::string>::iterator	it;
+
+// 	it = this->_responses.find(socket);
+// 	if (it == this->_responses.end())
+// 		return ("");
+// 	else
+// 		return ((*it).second);
+// }
+
+Response		TcpListener::getResponseToSend(int socket)
 {
-	std::map<int, std::string>::iterator	it;
+	std::map<int, Response>::iterator	it;
 
 	it = this->_responses.find(socket);
-	if (it == this->_responses.end())
-		return ("");
-	else
-		return ((*it).second);
+	return (it->second);
 }
-

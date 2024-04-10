@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/10 09:54:13 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/10 13:31:22 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,17 +112,19 @@ void	TcpListener::handleRequest(int client_socket)
 
 	Response response(server, status_code, &_pending_request, client_socket);//                create response here
 	response.buildResponse(route);
+	std::cout << "L'adresse de response: " << &response << "\n";
 	FD_SET(client_socket, &this->_write_master_fd);
-	this->registerReponse(client_socket, response.getResponse());
+	// this->registerReponse(client_socket, response.getResponse());
+	this->registerResponse(client_socket, response);
 }
 
-void	TcpListener::registerReponse(int socket, std::string response)
+void	TcpListener::registerResponse(int socket, Response &response)
 {
-	std::map<int, std::string>::iterator	it;
+	std::map<int, Response>::iterator	it;
 
 	it = this->_responses.find(socket);
 	if (it == this->_responses.end())
-		this->_responses.insert(std::pair<int, std::string>(socket, response));
+		this->_responses.insert(std::pair<int, Response>(socket, response));
 	else
 		(*it).second = response;
 }
@@ -130,7 +132,15 @@ void	TcpListener::registerReponse(int socket, std::string response)
 void	TcpListener::writeResponse(int client_socket)
 {
 	std::cout << "Sending response\n";
-	std::string	response = this->getResponse(client_socket);
-	send(client_socket, response.c_str(), response.size(), 0);
-	FD_CLR(client_socket, &this->_write_master_fd);
+	unsigned long	buffer_size;
+	Response		response = this->getResponseToSend(client_socket);
+
+	if (response.getBytesSend() + _buffer_max <= response.getResponse().size())
+		buffer_size = this->_buffer_max;
+	else
+		buffer_size = response.getResponse().size() - response.getBytesSend();
+	send(client_socket, response.getResponse().c_str(), buffer_size, 0);
+	response.addToBytesSend(buffer_size);
+	if (response.getResponse().size() == response.getBytesSend())
+		FD_CLR(client_socket, &this->_write_master_fd);
 }
