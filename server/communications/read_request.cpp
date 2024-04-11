@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 14:22:20 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/10 11:22:41 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/11 09:40:57 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,27 +17,26 @@ void	TcpListener::readRequest(int client_socket)
 {
 	std::cout << "Reading new request\n";
 
-	char		buffer[this->_buffer_max + 1];
+	char		buffer[this->_buffer_max];
 	int			bytesReceveid = recv(client_socket, buffer, this->_buffer_max, 0);
-	std::string	raw_request(buffer, bytesReceveid);
+
 	if (bytesReceveid <= 0)
 	{
-		close(client_socket);
 		FD_CLR(client_socket, &this->_read_master_fd);
+		close(client_socket);
+		return;
 	}
+	std::string	raw_request(buffer, bytesReceveid);
+	if (this->incompleteRequestIsAlreadyStored(client_socket) == true)
+		this->_incomplete_requests.find(client_socket)->second.appendContent(raw_request);
 	else
 	{
-		if (this->incompleteRequestIsAlreadyStored(client_socket) == true)
-			this->_incomplete_requests.find(client_socket)->second.appendContent(raw_request);
-		else
-		{
-			IncompleteRequest	new_request(raw_request);
+		IncompleteRequest	new_request(raw_request);
 
-			this->_incomplete_requests.insert(std::pair<int, IncompleteRequest>(client_socket, new_request));
-		}
-		if (this->_incomplete_requests.find(client_socket)->second.requestIsCompleted() == true)
-			registerRequestAsPending(client_socket);
+		this->_incomplete_requests.insert(std::pair<int, IncompleteRequest>(client_socket, new_request));
 	}
+	if (this->_incomplete_requests.find(client_socket)->second.requestIsCompleted() == true)
+		registerRequestAsPending(client_socket);
 }
 
 bool	TcpListener::incompleteRequestIsAlreadyStored(int socket)

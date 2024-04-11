@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/10 13:10:07 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/11 09:44:15 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 
 Response::Response(Server* server, int statusCode, Request* request, const int socket) :
         _clientSocket(socket),
-        _bytesSend(0),
         _method(request->getMethod()),
         _statusCode(statusCode),
         _path("/"),
@@ -275,16 +274,11 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket;
+    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket;
     return;
 }
 
 // ============================================================================== GETTER & SETTER
-
-unsigned long   Response::getBytesSend() const{
-    return _bytesSend;
-}
-
 
 std::string     Response::getResponse() {
     return _responseLine;
@@ -297,12 +291,6 @@ std::string     Response::getPath() {
 int             Response::getStatusCode() {
     return _statusCode;
 }
-
-void            Response::addToBytesSend(unsigned long bytes_to_add)
-{
-    _bytesSend += bytes_to_add;
-}
-
 
 void            Response::setPath(std::string& str) {
     _path = str;
