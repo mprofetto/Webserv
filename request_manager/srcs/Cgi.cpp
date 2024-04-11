@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 12:09:53 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/11 20:42:23 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ Cgi::Cgi() {
 Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL), _exitCode(500) {
 	if (!_route.getCgi())
 		throw NotCgiException();
-	_filePath =  "." + _request.getPath(); // fichier a executer
-	_fileExe = _route.getPath(); // localisation de l'executable
+	_fileToExec =  "." + _request.getPath(); // fichier a executer
+	_executablePath = _route.getPath(); // localisation de l'executable
 }
 
 Cgi::~Cgi() {
@@ -37,7 +37,7 @@ Cgi::Cgi(Cgi const &copy) {
 /* ----- FUNCTIONS ----- */
 
 void Cgi::executeCgi() {
-    std::string extension = _getFileExtension(_filePath);
+    std::string extension = _getFileExtension(_fileToExec);
     
     if (extension == ".py" || extension == ".pl") {
         int pipefd[2];
@@ -60,13 +60,13 @@ void Cgi::executeCgi() {
 			
             if (extension == ".py") {
                 const char *exec = "/usr/bin/python3";
-                char const *args[3] = {"python3", _filePath.c_str(), NULL};
+                char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
                 execve(exec, const_cast<char *const *>(args), _envp);            
             }
 
             if (extension == ".pl") {
                 const char *exec = "/usr/bin/perl";
-                char const *args[3] = {"perl",  _filePath.c_str(), NULL};
+                char const *args[3] = {"perl",  _fileToExec.c_str(), NULL};
                 execve(exec, const_cast<char *const *>(args), _envp);
             }
             std::cerr << "Error executing CGI." << std::endl;
@@ -95,36 +95,27 @@ char **Cgi::_createEnv() {
 	map_strstr mapEnv;
 	const char *methods[] = {"DELETE", "GET", "POST", NULL};
 	mapEnv.insert(std::make_pair("REQUEST_METHOD", methods[_request.getMethod()]));
-
-    std::string pwd(_fileExe);
+    std::string pwd(_executablePath);
     pwd.erase(pwd.find_last_of('/'), pwd.size());
 	mapEnv.insert(std::make_pair("PWD", pwd));
-
 	if (_request.getMethod() != POST)
 		mapEnv.insert(std::make_pair("QUERY_STRING", _request.getQuery()));
-
 	mapEnv.insert(std::make_pair("CONTENT_TYPE", _request.getHeader("Content-Type")));
-
 	std::stringstream content_length;
 	content_length << _request.getContentLength();
 	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str()));
-
 	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front())); // to check !!
-
     std::stringstream port;
 	port << _route.getServer()->getPort();
 	mapEnv.insert(std::make_pair("SERVER_PORT", port.str()));// to check !!!
-
 	mapEnv.insert(std::make_pair("SCRIPT_NAME", _request.getPath()));
-
 	mapEnv.insert(std::make_pair("PATH_INFO", _request.getPath()));
-
 	mapEnv.insert(std::make_pair("SERVER_PROTOCOL", _request.getHttpVersion()));
 
     char **ret;
     try {
         ret = new char *[mapEnv.size() + 1];
-    } catch (std::bad_alloc& ba) {
+    } catch (std::bad_alloc &ba) {
         return NULL;
     }
 	int i = 0;
@@ -145,10 +136,10 @@ char **Cgi::_createEnv() {
 	return ret;
 }
 
-std::string Cgi::_getFileExtension(const std::string& _filePath) {
-    size_t dotPos = _filePath.find_last_of('.');
+std::string Cgi::_getFileExtension(const std::string& _fileToExec) {
+    size_t dotPos = _fileToExec.find_last_of('.');
     if (dotPos != std::string::npos) {
-        return _filePath.substr(dotPos);
+        return _fileToExec.substr(dotPos);
     }
     return "";
 }
@@ -167,12 +158,12 @@ Route Cgi::getRoute() const {
 	return _route;
 }
 
-std::string Cgi::getFilePath() const {
-	return _filePath;
+std::string Cgi::getFileToExec() const {
+	return _fileToExec;
 }
 
-std::string Cgi::getFileExe() const {
-	return _fileExe;
+std::string Cgi::getExecutablePath() const {
+	return _executablePath;
 }
 
 char** Cgi::getEnvp() const {
@@ -185,16 +176,16 @@ char** Cgi::getEnvp() const {
 Cgi & Cgi::operator=(Cgi const &op) {
     _request = op._request;
     _route = op._route;
-    _filePath = op._filePath;
-    _fileExe = op._fileExe;
+    _fileToExec = op._fileToExec;
+    _executablePath = op._executablePath;
     _envp = op._envp;
     return *this;
 }
 
 std::ostream & operator<<(std::ostream &o, Cgi const &obj) {
 	o << "Request:\n" << obj.getRequest() << "\n\n";
-	o << "Executable:\n|" << obj.getFileExe() << "|\n";
-	o << "File to execute:\n|" << obj.getFileExe() << "|\n\n";
+	o << "Executable:\n|" << obj.getExecutablePath() << "|\n";
+	o << "File to execute:\n|" << obj.getFileToExec() << "|\n\n";
     if (obj.getEnvp())
 	{
 		char **tmp = obj.getEnvp();
