@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/11 09:44:15 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/11 11:39:36 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,58 @@ Response::~Response() {
 
 // ============================================================================== MEMBER FUNCTIONS
 
-// ==================================================================== FILE TRANSFER
+// ==================================================================== DELETE
+
+int Response::deleteFile() {
+
+    if (std::remove(_path.c_str()) != 0) {
+        std::cerr << "Error deleting file !!!!" << std::endl;
+        return 500;
+    }
+    return 204;
+}
+
+// ==================================================================== POST
+
+// int Response::sendFile() {
+
+//     std::cout << "\n\nIN SENDFILE !!\n\n";
+// 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
+// 	if (!infile) {
+// 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
+// 		return 500;
+// 	} else {
+// 		infile.seekg(0, std::ios::end);
+// 		std::streampos fileSize = infile.tellg();
+// 		infile.seekg(0, std::ios::beg);
+
+//         std::string fileName = extractFileName();
+
+// 		std::stringstream responseHeaders;
+// 			responseHeaders << "HTTP/1.1 200 OK\r\n";
+// 			responseHeaders << "Content-Type: " << getMimeType() << "\r\n";
+// 			responseHeaders << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n";
+//             responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
+
+// 		write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
+// 		const std::streamsize bufferSize = 8192;
+// 		char buffer[bufferSize];
+
+//         while (!infile.eof())
+//             {
+//                 infile.read(buffer, sizeof(buffer));
+//                 ssize_t result = write(_clientSocket, buffer, infile.gcount());
+//                 if (result == -1)
+//                 {
+//                     std::cerr << "Error writing to socket." << std::endl;
+//                     break;
+//                 }
+//             }
+
+//         infile.close();
+// 	}
+// 	return 200;
+// }
 
 int Response::sendFile() {
 
@@ -40,44 +91,38 @@ int Response::sendFile() {
 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
 		return 500;
 	} else {
-		infile.seekg(0, std::ios::end);
-		std::streampos fileSize = infile.tellg();
-		infile.seekg(0, std::ios::beg);
+		// infile.seekg(0, std::ios::end);
+		// std::streampos fileSize = infile.tellg();
+		// infile.seekg(0, std::ios::beg);
 
-        std::string fileName = extractFileName();
+        // std::string fileName = extractFileName();
 
-		std::stringstream responseHeaders;
-			responseHeaders << "HTTP/1.1 200 OK\r\n";
-			responseHeaders << "Content-Type: " << getMimeType() << "\r\n";
-			responseHeaders << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n";
-            responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
+		std::stringstream responseBody;
+			// responseBody << "HTTP/1.1 200 OK\r\n";
+			// responseBody << "Content-Type: " << getMimeType() << "\r\n";
+			// responseBody << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n\r\n";
+            // responseBody << "Content-Length: " << fileSize << "\r\n\r\n";
 
-		write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
+		// write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
 		const std::streamsize bufferSize = 8192;
 		char buffer[bufferSize];
 
         while (!infile.eof())
             {
                 infile.read(buffer, sizeof(buffer));
-                ssize_t result = write(_clientSocket, buffer, infile.gcount());
-                if (result == -1)
-                {
-                    std::cerr << "Error writing to socket." << std::endl;
-                    break;
-                }
+                responseBody << buffer;
+                // ssize_t result = write(_clientSocket, buffer, infile.gcount());
+                // if (result == -1)
+                // {
+                //     std::cerr << "Error writing to socket." << std::endl;
+                //     break;
+                // }
             }
-
         infile.close();
+        _body = responseBody.str().c_str()/* + "end_of_file"*/;
 	}
 	return 200;
 }
-
-/*
-
-TO DO (Arno)
-	work on 300 reidrections
-    build 403 page
-*/
 
 int Response::receiveFile() {
 
@@ -121,27 +166,18 @@ int Response::receiveFile() {
 	return 200;
 }
 
-int Response::deleteFile() {
+// ==================================================================== GET METHOD
 
-    if (std::remove(_path.c_str()) != 0) {
-        std::cerr << "Error deleting file !!!!" << std::endl;
-        return 500;
-    }
-    return 204;
-}
-
-int Response::fileTransfer() {//           FAUT-IL UTILISER SELECT/POLL ?
+int Response::fileTransfer() {
 
     std::cout << "In file transfer, method is " << _method << std::endl;
     switch (_method) {
-        case GET:       return sendFile();
+        // case GET:       return sendFile();
         case POST:      return receiveFile();
         case DELETE:    return deleteFile();
         default:        return 200;//                METHOD UNKNOWN, what statusocde ?
     }
 }
-
-// ==================================================================== GET METHOD
 
 std::string Response::getReason(int sc) {
 
@@ -168,48 +204,12 @@ std::string Response::getHeaders(const int s) {
         h += "Content-Type: " + getMimeType() + "\r\n";
     }
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
+
+    if (!_extension.empty() && _extension.compare(".html")) {
+        std::string fileName = extractFileName();
+	    h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+    }
     return h;
-}
-
-bool Response::isDirectory(std::string path) {
-    struct stat fileStat;
-    if (path[_path.size() - 1] != '/')
-                path += "/";
-    if (stat(path.c_str(), &fileStat) == 0) {
-        return S_ISDIR(fileStat.st_mode);
-    }
-    return false;
-}
-
-int Response::generateAutoindex() {
-
-    std::stringstream response;
-
-    if (_path[_path.size() - 1] != '/')
-        _path += "/";
-
-    DIR* dir = opendir(_path.c_str());
-    if (!dir) {
-        std::cerr << "Error opening directory.\n";
-        return 500;
-    }
-
-    response << "<html><head><title>Autoindex</title></head><body>";
-    response << "<h1>Autoindex</h1>";
-    response << "<ul>";
-
-    struct dirent* entry;
-    while ((entry = readdir(dir))) {
-        std::string name = entry->d_name;
-        if (name != "." && name != "..") {
-            response << "<li>" << name << "</li>";
-        }
-    }
-
-    closedir(dir);
-    response << "</ul></body></html>";
-    _body = response.str();
-    return 200;
 }
 
 void Response::getBody(bool autoindex) {
@@ -217,8 +217,13 @@ void Response::getBody(bool autoindex) {
 	std::ifstream			myfile;
     std::string             line;
 
+    std::cout << "Trying to get the body!\n";
     if (_method == GET) {
-        if (isDirectory(_path)) {
+        if (!_extension.empty() && _extension.compare(".html")) {
+            std::cout << "But access to sendfile2\n";
+            sendFile();
+        }
+        else if (isDirectory(_path)) {
             if (autoindex) {
                 _statusCode = generateAutoindex();
             } else {
@@ -263,6 +268,8 @@ void      Response::buildResponse(Route *route) {
 
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
+    } else {
+        std::cout << "No access to fileTransfer.\n";
     }
 
     if (_statusCode == 200 || _statusCode == 204) {
@@ -381,4 +388,45 @@ void	Response::getFullPath(Route *route, std::string uri) {
 	}
     std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]\n";
 	return;
+}
+
+bool Response::isDirectory(std::string path) {
+    struct stat fileStat;
+    if (path[_path.size() - 1] != '/')
+                path += "/";
+    if (stat(path.c_str(), &fileStat) == 0) {
+        return S_ISDIR(fileStat.st_mode);
+    }
+    return false;
+}
+
+int Response::generateAutoindex() {
+
+    std::stringstream response;
+
+    if (_path[_path.size() - 1] != '/')
+        _path += "/";
+
+    DIR* dir = opendir(_path.c_str());
+    if (!dir) {
+        std::cerr << "Error opening directory.\n";
+        return 500;
+    }
+
+    response << "<html><head><title>Autoindex</title></head><body>";
+    response << "<h1>Autoindex</h1>";
+    response << "<ul>";
+
+    struct dirent* entry;
+    while ((entry = readdir(dir))) {
+        std::string name = entry->d_name;
+        if (name != "." && name != "..") {
+            response << "<li>" << name << "</li>";
+        }
+    }
+
+    closedir(dir);
+    response << "</ul></body></html>";
+    _body = response.str();
+    return 200;
 }
