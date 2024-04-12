@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/25 15:02:19 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/12 14:55:15 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ std::map<std::string, std::string>	Server::buildMimeTypes() {
 	
 	std::map<std::string, std::string> MIMEtypes;
     MIMEtypes.insert(std::make_pair(".html", "text/html"));
+    MIMEtypes.insert(std::make_pair(".css", "text/css"));
     MIMEtypes.insert(std::make_pair(".txt", "text/plain"));
     MIMEtypes.insert(std::make_pair(".jpg", "image/jpeg"));
     MIMEtypes.insert(std::make_pair(".jpeg", "image/jpeg"));

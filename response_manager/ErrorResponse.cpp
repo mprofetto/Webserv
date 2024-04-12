@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 16:09:15 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/12 10:57:12 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/12 13:42:01 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void    Response::redirectClient() {
     
     std::stringstream response;
     response << "HTTP/1.1 301 Moved Permanently\r\n";
-    response << "Location: index.html\r\n\r\n";
+    response << "Location: " << _path << "\r\n\r\n";
     _statusLine = response.str().c_str();
     std::cout << "In redirect, LINE IS : " << _statusLine << std::endl;
     return;

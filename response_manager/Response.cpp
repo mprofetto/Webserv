@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/12 11:13:36 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/12 15:07:51 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,13 +170,14 @@ std::string Response::getHeaders(const int s) {
     }
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
 
-    if (!_extension.empty() && _extension.compare(".html")) {
+    if (!_extension.empty() && _extension == ".css") {
         std::string fileName = extractFileName();
-	    h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+        if (_extension == ".css") {
+	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
+        } else if (_extension.compare(".html")) {
+	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+        }
     }
-    // if (_statusCode >= 300 && _statusCode <= 310) {
-    //     h += 
-    // }
     return h;
 }
 
@@ -214,16 +215,6 @@ void Response::getBody(bool autoindex) {
 
 // ==================================================================== SWITCH
 
-int Response::isRedirect() {
-
-    // std::cout << "In redirect, FILE : " << file << std::endl;
-    if (_request->getPath() == "/oldresource.html") {
-        std::cout << "YES 301 !\n";
-        return 301;
-    }
-    return 200;
-}
-
 void      Response::buildResponse(Route *route) {
 
     std::cout << "In buildResponse !\n";
@@ -248,8 +239,6 @@ void      Response::buildResponse(Route *route) {
         std::cout << "No access to fileTransfer.\n";
     }
 
-    _statusCode = isRedirect();
-
     if (_statusCode == 200 || _statusCode == 204) {
         getBody(autodindex);
         _headers = getHeaders(_body.length()) + "\n";
@@ -270,19 +259,19 @@ unsigned long   Response::getBytesSend() const{
 }
 
 
-std::string     Response::getResponse() {
+std::string     Response::getResponse() const {
     return _responseLine;
 }
 
-std::string     Response::getPath() {
+std::string     Response::getPath() const {
     return _path;
 }
 
-int             Response::getStatusCode() {
+int             Response::getStatusCode() const {
     return _statusCode;
 }
 
-int Response::getClientSocket() {
+int Response::getClientSocket() const {
     return _clientSocket;
 }
 
@@ -358,18 +347,29 @@ std::string     Response::getMimeType() {
 
 void	Response::getFullPath(Route *route, std::string uri) {
 
+    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]\n";
+
 	if (route) {
-        _path = route->getRoot();
-        if (!route->getAutoindex()) {
-            _path += "/" + route->getIndex().front();
+        
+        if (!route->getRedirection().empty()) {
+            _path = route->getRedirection();
+            _statusCode = 301;
+        } else {
+            _path = route->getRoot();
+            if (!route->getAutoindex()) {
+                _path += "/" + route->getIndex().front();
+            }
         }
 	} else {
         if (isDirectory("." + uri)) {
+            std::cout << "STEP 1\n";
             _path = "." + uri;
         } else if (_method == DELETE) {
+            std::cout << "STEP 2\n";
             std::string parsedUri = uri.substr(uri.find_last_of('/'));
             _path = "./upload" + parsedUri;
         } else {
+            std::cout << "STEP 3\n";
             _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
             std::cout << "Right after condition, _path is : " << _path << std::endl;
             std::ifstream myfile(_path.c_str());

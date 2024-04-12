@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/12 10:46:55 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/12 14:31:09 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,10 +60,10 @@ class Response {
 
     // GET & SET
         unsigned long   getBytesSend() const;
-        std::string     getResponse();
-        std::string     getPath();
-        int             getStatusCode();
-        int             getClientSocket();
+        std::string     getResponse() const;
+        std::string     getPath() const;
+        int             getStatusCode() const;
+        int             getClientSocket() const;
 
         void            addToBytesSend(unsigned long bytes_to_add);
         void            setPath(std::string& str);
