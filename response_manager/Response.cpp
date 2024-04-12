@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/11 11:39:36 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/12 15:19:04 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,28 @@ Response::Response(Server* server, int statusCode, Request* request, const int s
         _request(request) {
 
     return;
+}
+
+Response::Response(const Response& src) {
+    *this = src;
+    return;
+}
+
+Response& Response::operator=(const Response& src) {
+        _clientSocket = src._clientSocket;
+        _bytesSend = src._bytesSend;
+        _method = src._method;
+        _statusCode = src._statusCode;
+        _path = src._path;
+        _errorPath = src._errorPath;
+        _responseLine = src._responseLine;
+        _statusLine = src._statusLine;
+        _extension = src._extension;
+        _headers = src._headers;
+        _body = src._body;
+        _server = src._server;
+        _request = src._request;
+        return *this;
 }
 
 Response::~Response() {
@@ -44,46 +66,6 @@ int Response::deleteFile() {
 
 // ==================================================================== POST
 
-// int Response::sendFile() {
-
-//     std::cout << "\n\nIN SENDFILE !!\n\n";
-// 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
-// 	if (!infile) {
-// 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
-// 		return 500;
-// 	} else {
-// 		infile.seekg(0, std::ios::end);
-// 		std::streampos fileSize = infile.tellg();
-// 		infile.seekg(0, std::ios::beg);
-
-//         std::string fileName = extractFileName();
-
-// 		std::stringstream responseHeaders;
-// 			responseHeaders << "HTTP/1.1 200 OK\r\n";
-// 			responseHeaders << "Content-Type: " << getMimeType() << "\r\n";
-// 			responseHeaders << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n";
-//             responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
-
-// 		write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
-// 		const std::streamsize bufferSize = 8192;
-// 		char buffer[bufferSize];
-
-//         while (!infile.eof())
-//             {
-//                 infile.read(buffer, sizeof(buffer));
-//                 ssize_t result = write(_clientSocket, buffer, infile.gcount());
-//                 if (result == -1)
-//                 {
-//                     std::cerr << "Error writing to socket." << std::endl;
-//                     break;
-//                 }
-//             }
-
-//         infile.close();
-// 	}
-// 	return 200;
-// }
-
 int Response::sendFile() {
 
 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
@@ -91,37 +73,19 @@ int Response::sendFile() {
 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
 		return 500;
 	} else {
-		// infile.seekg(0, std::ios::end);
-		// std::streampos fileSize = infile.tellg();
-		// infile.seekg(0, std::ios::beg);
-
-        // std::string fileName = extractFileName();
 
 		std::stringstream responseBody;
-			// responseBody << "HTTP/1.1 200 OK\r\n";
-			// responseBody << "Content-Type: " << getMimeType() << "\r\n";
-			// responseBody << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n\r\n";
-            // responseBody << "Content-Length: " << fileSize << "\r\n\r\n";
-
-		// write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
-		const std::streamsize bufferSize = 8192;
-		char buffer[bufferSize];
+		char buffer[8192];
 
         while (!infile.eof())
             {
                 infile.read(buffer, sizeof(buffer));
                 responseBody << buffer;
-                // ssize_t result = write(_clientSocket, buffer, infile.gcount());
-                // if (result == -1)
-                // {
-                //     std::cerr << "Error writing to socket." << std::endl;
-                //     break;
-                // }
             }
         infile.close();
-        _body = responseBody.str().c_str()/* + "end_of_file"*/;
+        _body = responseBody.str().c_str();
 	}
-	return 200;
+	return 201;
 }
 
 int Response::receiveFile() {
@@ -205,9 +169,13 @@ std::string Response::getHeaders(const int s) {
     }
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
 
-    if (!_extension.empty() && _extension.compare(".html")) {
+    if (!_extension.empty() && _extension == ".css") {
         std::string fileName = extractFileName();
-	    h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+        if (_extension == ".css") {
+	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
+        } else if (_extension.compare(".html")) {
+	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+        }
     }
     return h;
 }
@@ -217,10 +185,8 @@ void Response::getBody(bool autoindex) {
 	std::ifstream			myfile;
     std::string             line;
 
-    std::cout << "Trying to get the body!\n";
     if (_method == GET) {
         if (!_extension.empty() && _extension.compare(".html")) {
-            std::cout << "But access to sendfile2\n";
             sendFile();
         }
         else if (isDirectory(_path)) {
@@ -248,9 +214,9 @@ void Response::getBody(bool autoindex) {
 
 // ==================================================================== SWITCH
 
-
 void      Response::buildResponse(Route *route) {
 
+    std::cout << "In buildResponse !\n";
     bool autodindex = false;
     if (route) {
         autodindex = route->getAutoindex();
@@ -287,17 +253,32 @@ void      Response::buildResponse(Route *route) {
 
 // ============================================================================== GETTER & SETTER
 
-std::string     Response::getResponse() {
+unsigned long   Response::getBytesSend() const{
+    return _bytesSend;
+}
+
+
+std::string     Response::getResponse() const {
     return _responseLine;
 }
 
-std::string     Response::getPath() {
+std::string     Response::getPath() const {
     return _path;
 }
 
-int             Response::getStatusCode() {
+int             Response::getStatusCode() const {
     return _statusCode;
 }
+
+int Response::getClientSocket() const {
+    return _clientSocket;
+}
+
+void            Response::addToBytesSend(unsigned long bytes_to_add)
+{
+    _bytesSend += bytes_to_add;
+}
+
 
 void            Response::setPath(std::string& str) {
     _path = str;
@@ -365,18 +346,29 @@ std::string     Response::getMimeType() {
 
 void	Response::getFullPath(Route *route, std::string uri) {
 
+    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]\n";
+
 	if (route) {
-        _path = route->getRoot();
-        if (!route->getAutoindex()) {
-            _path += "/" + route->getIndex().front();
+        
+        if (!route->getRedirection().empty()) {
+            _path = route->getRedirection();
+            _statusCode = 301;
+        } else {
+            _path = route->getRoot();
+            if (!route->getAutoindex()) {
+                _path += "/" + route->getIndex().front();
+            }
         }
 	} else {
         if (isDirectory("." + uri)) {
+            std::cout << "STEP 1\n";
             _path = "." + uri;
         } else if (_method == DELETE) {
+            std::cout << "STEP 2\n";
             std::string parsedUri = uri.substr(uri.find_last_of('/'));
             _path = "./upload" + parsedUri;
         } else {
+            std::cout << "STEP 3\n";
             _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
             std::cout << "Right after condition, _path is : " << _path << std::endl;
             std::ifstream myfile(_path.c_str());

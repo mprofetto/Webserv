@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/11 11:31:48 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/12 15:17:34 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void	TcpListener::handleRequest(int client_socket)
 			std::cout << "PATH to check : " << checkRoute << " | with : " << (*it)->getPath() << std::endl;
 			route = *it; // while until every path sent ? like index + img ?
 			break;
-		} //else if (_pending_request.getPath() == (*it)->getCgiPath())
+		}
 	}
 
 	if (!route) {
@@ -108,6 +108,8 @@ void	TcpListener::handleRequest(int client_socket)
 		}
 		std::cout << "------------CGI-------------" << std::endl;
 	}
+
+	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 
 	Response response(server, status_code, &_pending_request, client_socket);//                create response here
 	response.buildResponse(route);

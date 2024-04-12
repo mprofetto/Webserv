@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/11 09:44:01 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/12 15:18:12 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ class Response {
 
     // CONSTRUCTORS
         Response(Server* server, int statusCode, Request* request, const int socket);
+        Response(const Response& src);
+        Response& operator=(const Response& src);
         ~Response();
 
     // MEMBER FUNCTIONS
@@ -41,6 +43,8 @@ class Response {
         std::string     getHeaders(const int s);
         std::string     getReason(int sc);
         int             fileTransfer();
+        int             isRedirect();
+        void            redirectClient();
         int             sendFile();
         int             receiveFile();
         int             deleteFile();
@@ -55,15 +59,18 @@ class Response {
         bool            isDirectory(std::string path);
 
     // GET & SET
-        std::string     getResponse();
-        std::string     getPath();
-        int             getStatusCode();
+        unsigned long   getBytesSend() const;
+        std::string     getResponse() const;
+        std::string     getPath() const;
+        int             getStatusCode() const;
+        int             getClientSocket() const;
 
         void            setPath(std::string& str);
         void            setErrorPath(std::string& str);
 
     private:
         int                                 _clientSocket;
+        unsigned long                       _bytesSend;
         int                                 _method;
         int                                 _statusCode;
         std::string                         _path;
