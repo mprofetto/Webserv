@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/10 18:32:54 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/12 11:13:36 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,9 +174,9 @@ std::string Response::getHeaders(const int s) {
         std::string fileName = extractFileName();
 	    h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
     }
-    if (_statusCode >= 300 && _statusCode <= 310) {
-        h += 
-    }
+    // if (_statusCode >= 300 && _statusCode <= 310) {
+    //     h += 
+    // }
     return h;
 }
 
@@ -214,6 +214,15 @@ void Response::getBody(bool autoindex) {
 
 // ==================================================================== SWITCH
 
+int Response::isRedirect() {
+
+    // std::cout << "In redirect, FILE : " << file << std::endl;
+    if (_request->getPath() == "/oldresource.html") {
+        std::cout << "YES 301 !\n";
+        return 301;
+    }
+    return 200;
+}
 
 void      Response::buildResponse(Route *route) {
 
@@ -238,6 +247,8 @@ void      Response::buildResponse(Route *route) {
     } else {
         std::cout << "No access to fileTransfer.\n";
     }
+
+    _statusCode = isRedirect();
 
     if (_statusCode == 200 || _statusCode == 204) {
         getBody(autodindex);

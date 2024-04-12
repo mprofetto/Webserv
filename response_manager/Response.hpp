@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/10 18:21:51 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/12 10:46:55 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ class Response {
         std::string     getHeaders(const int s);
         std::string     getReason(int sc);
         int             fileTransfer();
+        int             isRedirect();
+        void            redirectClient();
         int             sendFile();
         int             receiveFile();
         int             deleteFile();
