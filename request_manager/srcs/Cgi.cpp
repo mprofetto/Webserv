@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/11 20:42:23 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/12 18:01:14 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,11 @@ Cgi::Cgi() {
 Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL), _exitCode(500) {
 	if (!_route.getCgi())
 		throw NotCgiException();
-	_fileToExec =  "." + _request.getPath(); // fichier a executer
+	_fileToExec = _request.getPath(); // fichier a executer
 	_executablePath = _route.getPath(); // localisation de l'executable
 }
 
 Cgi::~Cgi() {
-	if (_envp) {
-		for (size_t i = 0; _envp[i]; i++)
-			delete[] _envp[i];
-	 	delete[] _envp;		
-	}
 }
 
 Cgi::Cgi(Cgi const &copy) {
@@ -37,6 +32,11 @@ Cgi::Cgi(Cgi const &copy) {
 /* ----- FUNCTIONS ----- */
 
 void Cgi::executeCgi() {
+    //check if the file to execute actually exist
+	if (access(_fileToExec.c_str(), F_OK) != 0)
+		throw FileNotFoundException();
+
+    //check if the file to exec got an executable extension for python3 or perl
     std::string extension = _getFileExtension(_fileToExec);
     
     if (extension == ".py" || extension == ".pl") {
@@ -50,6 +50,8 @@ void Cgi::executeCgi() {
             close(pipefd[1]);
             throw ForkException();
         }
+
+        // CHILD
         if (pid == 0) {
             close(pipefd[0]);
             dup2(pipefd[1], STDOUT_FILENO);
@@ -71,12 +73,12 @@ void Cgi::executeCgi() {
             }
             std::cerr << "Error executing CGI." << std::endl;
                 exit(EXIT_FAILURE);
-        } else {
+        } else { //PARENT
             close(pipefd[1]);
-            char buffer[1024];
+            char buffer[1023];
             int status;
             ssize_t bytesRead;
-            while ((bytesRead = read(pipefd[0], buffer, 1024)) > 0) {
+            while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
                 std::cout.write(buffer, bytesRead);
             }
             close(pipefd[0]);
@@ -85,6 +87,7 @@ void Cgi::executeCgi() {
                 std::cerr << "Child process exited with an error." << std::endl;
             else
                 _exitCode = 200;
+            _freeArray(_envp, -1);
         }
     } else {
        throw UnsupportedExtensionException();
@@ -124,9 +127,7 @@ char **Cgi::_createEnv() {
         std::string tmp = it->first + "=" + it->second;
         ret[i] = new char[tmp.size() + 1];
 		if (!ret[i]) {
-			for (int j = i; j >= 0; --j)
-				delete[] ret[j];
-			delete[] ret;
+			_freeArray(ret, i);
 			return NULL;
 		}
         strcpy(ret[i], tmp.c_str());
@@ -136,10 +137,20 @@ char **Cgi::_createEnv() {
 	return ret;
 }
 
+void    Cgi::_freeArray(char **arr, int flag) {
+	if (flag == -1)
+        for (size_t i = 0; arr[i]; i++)
+		    delete[] arr[i];
+    else
+        for (int i = 0; i < flag; i++)
+            delete[] arr[i];
+	delete[] arr;	  
+}
+
 std::string Cgi::_getFileExtension(const std::string& _fileToExec) {
     size_t dotPos = _fileToExec.find_last_of('.');
     if (dotPos != std::string::npos) {
-        return _fileToExec.substr(dotPos);
+        return _fileToExec.c_str() + dotPos;
     }
     return "";
 }
@@ -207,6 +218,10 @@ const   char* Cgi::ForkException::what() const throw() {
 
 const   char* Cgi::NotCgiException::what() const throw() {
     return "CgiException: not a CGI";
+}
+
+const   char* Cgi::FileNotFoundException::what() const throw() {
+    return "CgiException: file not found";
 }
 
 const   char* Cgi::UnsupportedExtensionException::what() const throw() {
