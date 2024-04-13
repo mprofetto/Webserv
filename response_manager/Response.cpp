@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/08 19:12:06 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/13 13:04:21 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,64 +25,74 @@ Response::Response(Server* server, int statusCode, Request* request, const int s
     return;
 }
 
+Response::Response(const Response& src) {
+    *this = src;
+    return;
+}
+
+Response& Response::operator=(const Response& src) {
+        _clientSocket = src._clientSocket;
+        _bytesSend = src._bytesSend;
+        _method = src._method;
+        _statusCode = src._statusCode;
+        _path = src._path;
+        _errorPath = src._errorPath;
+        _responseLine = src._responseLine;
+        _statusLine = src._statusLine;
+        _extension = src._extension;
+        _headers = src._headers;
+        _body = src._body;
+        _server = src._server;
+        _request = src._request;
+        return *this;
+}
+
 Response::~Response() {
     return;
 }
 
 // ============================================================================== MEMBER FUNCTIONS
 
-// ==================================================================== FILE TRANSFER
+// ==================================================================== DELETE
+
+int Response::deleteFile() {
+
+    if (std::remove(_path.c_str()) != 0) {
+        std::cerr << "Error deleting file !!!!" << std::endl;
+        return 500;
+    }
+    return 204;
+}
+
+// ==================================================================== POST
 
 int Response::sendFile() {
 
+    std::cout << "PATH = |" << _path << "|\n";
 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
 	if (!infile) {
 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
 		return 500;
 	} else {
-		infile.seekg(0, std::ios::end);
-		std::streampos fileSize = infile.tellg();
-		infile.seekg(0, std::ios::beg);
 
-        std::string fileName = extractFileName();
+		std::stringstream responseBody;
+		char buffer[8192];
 
-		std::stringstream responseHeaders;
-			responseHeaders << "HTTP/1.1 200 OK\r\n";
-			responseHeaders << "Content-Type: " << getMimeType() << "\r\n";
-			responseHeaders << "Content-Disposition: attachment; filename=\"" << fileName << "\"\r\n";
-            responseHeaders << "Content-Length: " << fileSize << "\r\n\r\n";
-			
-		write(_clientSocket, responseHeaders.str().c_str(), responseHeaders.str().length());
-		const std::streamsize bufferSize = 8192;
-		char buffer[bufferSize];
-
-        while (!infile.eof()) 
+        while (!infile.eof())
             {
                 infile.read(buffer, sizeof(buffer));
-                ssize_t result = write(_clientSocket, buffer, infile.gcount());
-                if (result == -1) 
-                {
-                    std::cerr << "Error writing to socket." << std::endl;
-                    break;
-                }
+                responseBody << buffer;
             }
-
         infile.close();
+        _body = responseBody.str().c_str();
 	}
-	return 200;
+	return 201;
 }
-
-/*
-
-TO DO (Arno)
-	work on 300 reidrections
-    build 403 page
-*/
 
 int Response::receiveFile() {
 
     std::cout << "IN RECEIVE FILE\n";
-    
+
     std::stringstream rawRequest(_request->getRaw());
     std::string line;
     std::string fileName;
@@ -111,7 +121,7 @@ int Response::receiveFile() {
     // }
     // outputFile << fileBody;
     // outputFile.close();
-                
+
     std::ofstream targetFile(destination, std::ios::binary);
     if (!targetFile) {
         std::cerr << "Error creating the file.\n";
@@ -121,27 +131,18 @@ int Response::receiveFile() {
 	return 200;
 }
 
-int Response::deleteFile() {
-    
-    if (std::remove(_path.c_str()) != 0) {
-        std::cerr << "Error deleting file !!!!" << std::endl;
-        return 500;
-    }
-    return 204;
-}
+// ==================================================================== GET METHOD
 
-int Response::fileTransfer() {//           FAUT-IL UTILISER SELECT/POLL ?
+int Response::fileTransfer() {
 
     std::cout << "In file transfer, method is " << _method << std::endl;
     switch (_method) {
-        case GET:       return sendFile();
+        // case GET:       return sendFile();
         case POST:      return receiveFile();
         case DELETE:    return deleteFile();
         default:        return 200;//                METHOD UNKNOWN, what statusocde ?
     }
 }
-
-// ==================================================================== GET METHOD
 
 std::string Response::getReason(int sc) {
 
@@ -168,48 +169,16 @@ std::string Response::getHeaders(const int s) {
         h += "Content-Type: " + getMimeType() + "\r\n";
     }
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
-    return h;
-}
 
-bool Response::isDirectory(std::string path) {
-    struct stat fileStat;
-    if (path[_path.size() - 1] != '/')
-                path += "/";
-    if (stat(path.c_str(), &fileStat) == 0) {
-        return S_ISDIR(fileStat.st_mode);
-    }
-    return false;
-}
-
-int Response::generateAutoindex() {
-
-    std::stringstream response;
-    
-    if (_path[_path.size() - 1] != '/')
-        _path += "/";
-
-    DIR* dir = opendir(_path.c_str());
-    if (!dir) {
-        std::cerr << "Error opening directory.\n"; 
-        return 500;
-    }
-
-    response << "<html><head><title>Autoindex</title></head><body>";
-    response << "<h1>Autoindex</h1>";
-    response << "<ul>";
-
-    struct dirent* entry;
-    while ((entry = readdir(dir))) {
-        std::string name = entry->d_name;
-        if (name != "." && name != "..") {
-            response << "<li>" << name << "</li>";
+    if (!_extension.empty() && _extension == ".css") {
+        std::string fileName = extractFileName();
+        if (_extension == ".css") {
+	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
+        } else if (_extension.compare(".html")) {
+	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
         }
     }
-
-    closedir(dir);
-    response << "</ul></body></html>";
-    _body = response.str();
-    return 200;
+    return h;
 }
 
 void Response::getBody(bool autoindex) {
@@ -218,7 +187,10 @@ void Response::getBody(bool autoindex) {
     std::string             line;
 
     if (_method == GET) {
-        if (isDirectory(_path)) {
+        if (!_extension.empty() && _extension.compare(".html")) {
+            sendFile();
+        }
+        else if (isDirectory(_path)) {
             if (autoindex) {
                 _statusCode = generateAutoindex();
             } else {
@@ -243,28 +215,30 @@ void Response::getBody(bool autoindex) {
 
 // ==================================================================== SWITCH
 
-
 void      Response::buildResponse(Route *route) {
 
+    std::cout << "In buildResponse !\n";
     bool autodindex = false;
     if (route) {
         autodindex = route->getAutoindex();
-        
+
     }
     _extension = extractExtension(_request->getPath());
     getFullPath(route, _request->getPath());
-    
+
     std::stringstream   ss;
 
     std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
                 << _request->getRaw()
                 << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
                 << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
-    
+
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
+    } else {
+        std::cout << "No access to fileTransfer.\n";
     }
-    
+
     if (_statusCode == 200 || _statusCode == 204) {
         getBody(autodindex);
         _headers = getHeaders(_body.length()) + "\n";
@@ -274,23 +248,38 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl;
+    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket;
     return;
 }
 
 // ============================================================================== GETTER & SETTER
 
-std::string     Response::getResponse() {
+unsigned long   Response::getBytesSend() const{
+    return _bytesSend;
+}
+
+
+std::string     Response::getResponse() const {
     return _responseLine;
 }
 
-std::string     Response::getPath() {
+std::string     Response::getPath() const {
     return _path;
 }
 
-int             Response::getStatusCode() {
+int             Response::getStatusCode() const {
     return _statusCode;
 }
+
+int Response::getClientSocket() const {
+    return _clientSocket;
+}
+
+void            Response::addToBytesSend(unsigned long bytes_to_add)
+{
+    _bytesSend += bytes_to_add;
+}
+
 
 void            Response::setPath(std::string& str) {
     _path = str;
@@ -305,13 +294,13 @@ void            Response::setErrorPath(std::string& str) {
 // ============================================================================== UTILS
 
 std::string Response::extractExtension(std::string uri) {
-    
+
     std::cout << "In extract extension, path : " << uri << std::endl;
     size_t extPos = uri.find_last_of(".");
     if (extPos != std::string::npos) {
         std::string extension = uri.substr(extPos, std::string::npos);
         return extension;
-        std::cout << "EXTENSION IS : " << extension << std::endl;    
+        std::cout << "EXTENSION IS : " << extension << std::endl;
     } else {
         std::cerr << "Couldn't extract extension.\n";
         return "";
@@ -319,11 +308,11 @@ std::string Response::extractExtension(std::string uri) {
 }
 
 std::string Response::extractFileName() {
-    
+
     size_t extPos = _path.find_last_of("/");
     if (extPos != std::string::npos) {
         std::string fileName = _path.substr(extPos + 1, std::string::npos);
-        return fileName;    
+        return fileName;
     } else {
         std::cerr << "Couldn't extract file name.\n";
         return NULL;
@@ -331,7 +320,7 @@ std::string Response::extractFileName() {
 }
 
 std::string Response::extractFileBody(std::string request) {
-    
+
     size_t boundaryPos = request.find("Content-Type");
     if (boundaryPos == std::string::npos) {
         return "";
@@ -358,18 +347,29 @@ std::string     Response::getMimeType() {
 
 void	Response::getFullPath(Route *route, std::string uri) {
 
+    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]\n";
+
 	if (route) {
-        _path = route->getRoot();
-        if (!route->getAutoindex()) {
-            _path += "/" + route->getIndex().front();
+        
+        if (!route->getRedirection().empty()) {
+            _path = route->getRedirection();
+            _statusCode = 301;
+        } else {
+            _path = route->getRoot();
+            if (!route->getAutoindex()) {
+                _path += "/" + route->getIndex().front();
+            }
         }
 	} else {
         if (isDirectory("." + uri)) {
+            std::cout << "STEP 1\n";
             _path = "." + uri;
         } else if (_method == DELETE) {
+            std::cout << "STEP 2\n";
             std::string parsedUri = uri.substr(uri.find_last_of('/'));
             _path = "./upload" + parsedUri;
         } else {
+            std::cout << "STEP 3\n";
             _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
             std::cout << "Right after condition, _path is : " << _path << std::endl;
             std::ifstream myfile(_path.c_str());
@@ -381,4 +381,45 @@ void	Response::getFullPath(Route *route, std::string uri) {
 	}
     std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]\n";
 	return;
+}
+
+bool Response::isDirectory(std::string path) {
+    struct stat fileStat;
+    if (path[_path.size() - 1] != '/')
+                path += "/";
+    if (stat(path.c_str(), &fileStat) == 0) {
+        return S_ISDIR(fileStat.st_mode);
+    }
+    return false;
+}
+
+int Response::generateAutoindex() {
+
+    std::stringstream response;
+
+    if (_path[_path.size() - 1] != '/')
+        _path += "/";
+
+    DIR* dir = opendir(_path.c_str());
+    if (!dir) {
+        std::cerr << "Error opening directory.\n";
+        return 500;
+    }
+
+    response << "<html><head><title>Autoindex</title></head><body>";
+    response << "<h1>Autoindex</h1>";
+    response << "<ul>";
+
+    struct dirent* entry;
+    while ((entry = readdir(dir))) {
+        std::string name = entry->d_name;
+        if (name != "." && name != "..") {
+            response << "<li>" << name << "</li>";
+        }
+    }
+
+    closedir(dir);
+    response << "</ul></body></html>";
+    _body = response.str();
+    return 200;
 }

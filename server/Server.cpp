@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 12:16:09 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/13 10:29:08 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,10 @@ const char	*Server::invalidSocket::what(void) const throw()
 }
 
 std::map<std::string, std::string>	Server::buildMimeTypes() {
-	
+
 	std::map<std::string, std::string> MIMEtypes;
     MIMEtypes.insert(std::make_pair(".html", "text/html"));
+    MIMEtypes.insert(std::make_pair(".css", "text/css"));
     MIMEtypes.insert(std::make_pair(".txt", "text/plain"));
     MIMEtypes.insert(std::make_pair(".jpg", "image/jpeg"));
     MIMEtypes.insert(std::make_pair(".jpeg", "image/jpeg"));
@@ -111,6 +112,20 @@ int							Server::getSocket(void) const
 std::map<int, std::string>	Server::getErrorPages(void) const
 {
 	return (this->_error_pages);
+}
+
+std::string					Server::getDefaultErrorPage(int error_code)
+{
+	unsigned long		pos;
+	std::stringstream	mystream;
+	std::string			my_error_code;
+	std::string			result("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Error Page</title></head><body><div><h1>Error $</h1></div></body></html>");
+
+	mystream << error_code;
+	my_error_code = mystream.str();
+	pos = result.find_first_of("$");
+	result.replace(pos, 1, my_error_code);
+	return (result);
 }
 
 void						Server::addRoute(Route *route)

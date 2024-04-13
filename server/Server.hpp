@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/25 14:56:31 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/11 11:32:06 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ class Server
 		std::list<Route *>			getRoute(void) const;
 		std::list<std::string>		getServerNames(void) const;
 		std::map<int, std::string>	getErrorPages(void) const;
+		std::string					getDefaultErrorPage(int error_code);
 		std::list<std::string>		getIndex(void) const;
 		std::string					getHost(void) const;
 		int							getPort(void) const;
