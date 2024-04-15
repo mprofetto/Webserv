@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/12 15:07:51 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/15 15:26:32 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ int Response::sendFile() {
 
 int Response::receiveFile() {
 
-    std::cout << "IN RECEIVE FILE\n";
+    std::cout << "IN RECEIVE FILE" << std::endl;
 
     std::stringstream rawRequest(_request->getRaw());
     std::string line;
@@ -217,7 +217,7 @@ void Response::getBody(bool autoindex) {
 
 void      Response::buildResponse(Route *route) {
 
-    std::cout << "In buildResponse !\n";
+    std::cout << "In buildResponse !" << std::endl;
     bool autodindex = false;
     if (route) {
         autodindex = route->getAutoindex();
@@ -236,7 +236,7 @@ void      Response::buildResponse(Route *route) {
     if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
             _statusCode = fileTransfer();
     } else {
-        std::cout << "No access to fileTransfer.\n";
+        std::cout << "No access to fileTransfer." << std::endl;
     }
 
     if (_statusCode == 200 || _statusCode == 204) {
@@ -248,7 +248,7 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
     return;
 }
 
@@ -347,7 +347,7 @@ std::string     Response::getMimeType() {
 
 void	Response::getFullPath(Route *route, std::string uri) {
 
-    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]\n";
+    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
 
 	if (route) {
         
@@ -362,14 +362,14 @@ void	Response::getFullPath(Route *route, std::string uri) {
         }
 	} else {
         if (isDirectory("." + uri)) {
-            std::cout << "STEP 1\n";
+            std::cout << "STEP 1" << std::endl;
             _path = "." + uri;
         } else if (_method == DELETE) {
-            std::cout << "STEP 2\n";
+            std::cout << "STEP 2" << std::endl;
             std::string parsedUri = uri.substr(uri.find_last_of('/'));
             _path = "./upload" + parsedUri;
         } else {
-            std::cout << "STEP 3\n";
+            std::cout << "STEP 3" << std::endl;
             _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
             std::cout << "Right after condition, _path is : " << _path << std::endl;
             std::ifstream myfile(_path.c_str());
@@ -379,7 +379,7 @@ void	Response::getFullPath(Route *route, std::string uri) {
             }
         }
 	}
-    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]\n";
+    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
 	return;
 }
 

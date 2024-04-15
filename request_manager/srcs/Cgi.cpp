@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/05 12:28:15 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/12 16:54:58 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,7 @@ std::string Cgi::_getFileExtension(const std::string& _filePath) {
     size_t dotPos = _filePath.find_last_of('.');
     if (dotPos != std::string::npos) {
         return _filePath.substr(dotPos);
+        // return filename.c_str() + dotPos;
     }
     return "";
 }

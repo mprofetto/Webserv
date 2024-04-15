@@ -15,9 +15,8 @@ h1 {
     color: #333;
 }
 
-h2 {
+p {
     color: #666;
-    margin-top: 20px;
 }
 
 button {
@@ -35,29 +34,8 @@ button:hover {
     background-color: #0056b3;
 }
 
+/* Ensure file input is visible */
 input[type="file"] {
-    display: none;
-}
-
-label.upload-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-top: 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
     display: inline-block;
+    margin-top: 10px;
 }
-
-label.upload-button:hover {
-    background-color: #0056b3;
-}
-
-input[type="text"] {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-

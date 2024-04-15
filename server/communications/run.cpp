@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/12 14:43:52 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/12 16:55:10 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,23 +91,23 @@ void	TcpListener::handleRequest(int client_socket)
 		std::cout << "ROUTE found.\n";
 	}
 
-	std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
-	if (route) {
-		std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
-		if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-				std::cout << "[CGI] Start\n";
-				try {
-					Cgi cgi(_pending_request, *route);
-					cgi.executeCgi();
-					status_code = cgi.getExitCode();
-				}
-				catch(std::exception &e) {
-					std::cout << e.what() << std::endl;
-				}
-				std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
-		}
-		std::cout << "------------CGI-------------" << std::endl;
-	}
+	// std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
+	// if (route) {
+	// 	std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
+	// 	if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+	// 			std::cout << "[CGI] Start\n";
+	// 			try {
+	// 				Cgi cgi(_pending_request, *route);
+	// 				cgi.executeCgi();
+	// 				status_code = cgi.getExitCode();
+	// 			}
+	// 			catch(std::exception &e) {
+	// 				std::cout << e.what() << std::endl;
+	// 			}
+	// 			std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
+	// 	}
+	// 	std::cout << "------------CGI-------------" << std::endl;
+	// }
 
 	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 
