@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/13 13:43:44 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/15 15:29:27 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ char **Cgi::_createEnv() {
 	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front())); // to check !!
     std::stringstream port;
 	port << _route.getServer()->getPort();
-	mapEnv.insert(std::make_pair("SERVER_PORT", port.str()));// to check !!!
+	mapEnv.insert(std::make_pair("SERVER_PORT", port.str()));
 	mapEnv.insert(std::make_pair("SCRIPT_NAME", _request.getPath()));
 	mapEnv.insert(std::make_pair("PATH_INFO", _request.getPath()));
 	mapEnv.insert(std::make_pair("SERVER_PROTOCOL", _request.getHttpVersion()));
@@ -202,17 +202,18 @@ Cgi & Cgi::operator=(Cgi const &op) {
 }
 
 std::ostream & operator<<(std::ostream &o, Cgi const &obj) {
-	o << "Request:\n" << obj.getRequest() << "\n\n";
-	o << "Executable:\n|" << obj.getExecutablePath() << "|\n";
-	o << "File to execute:\n|" << obj.getFileToExec() << "|\n\n";
+	o << "Request" << std::endl << obj.getRequest() << std::endl;
+	o << "Executable:" << std::endl << "|" << obj.getExecutablePath() << std::endl;
+	o << "File to execute" << std::endl << "|" << obj.getFileToExec() << std::endl;
     if (obj.getEnvp())
 	{
 		char **tmp = obj.getEnvp();
 		for(size_t i = 0; tmp[i]; i++)
-			o << tmp[i] << "\n";
+			o << tmp[i] << std::endl;
 	}
     return o;
 }
+
 
 /* ----- EXCEPTIONS ----- */
 
