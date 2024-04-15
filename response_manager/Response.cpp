@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/15 15:28:54 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/15 15:42:44 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ int Response::deleteFile() {
 
 int Response::sendFile() {
 
+    std::cout << "PATH = |" << _path << "|\n";
 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
 	if (!infile) {
 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;

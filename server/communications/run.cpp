@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/15 15:28:43 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/15 15:44:57 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	TcpListener::runTcpListener()
 
 void	TcpListener::handleNewConnection(Server *server)
 {
-	std::cout << "Handling new connection\n";
+	std::cout << "Handling new connection" << std::endl;
 	int			client_socket;
 	sockaddr	client_addr;
 	socklen_t	addr_size = sizeof(sockaddr);
@@ -64,7 +64,7 @@ void	TcpListener::handleRequest(int client_socket)
 {
 	if (_pending_request.getMethod() == POST)
 	{
-		std::cout << "Method is POST\n";
+		std::cout << "Method is POST" << std::endl;
 		std::cout << "Body is: " << _pending_request.getBody().size() << "Content lenght is: " << _pending_request.getContentLength() <<std::endl;
 	}
 	int status_code = 200;
@@ -77,39 +77,35 @@ void	TcpListener::handleRequest(int client_socket)
 
 	std::list<Route *> r = server->getRoute();
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		// std::cout << "our paths : " << (*it)->getPath() << " to compare to " << _pending_request.getPath() << std::endl;
-		if (!(*it)->getPath().compare(checkRoute)) {
-			std::cout << "PATH to check : " << checkRoute << " | with : " << (*it)->getPath() << std::endl;
-			route = *it; // while until every path sent ? like index + img ?
+		if (!(*it)->getPath().compare(checkRoute) || !((*it)->getPath() + "/").compare(checkRoute)) { // la deuxieme condition necessaire car ne rentre pas dans cgi sinon
+			route = *it;
 			break;
 		}
 	}
 
-	if (!route) {
-		std::cout << "No ROUTE found.\n";
-	} else {
-		std::cout << "ROUTE found.\n";
+	if (route) {
+		if ((!route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+				std::cout << "[CGI] START" << std::endl;
+				try {
+					Cgi cgi(_pending_request, *route);
+					std::string tmp = cgi.executeCgi();
+					std::cout << "[CGI] END ===> [SATUS CODE = " << status_code << "]" << std::endl;
+					status_code = cgi.getExitCode();
+					Response response_cgi(server, cgi.getExitCode(), &_pending_request, client_socket);
+					std::string path = _pending_request.getPath();
+					response_cgi.setPath(path);
+					response_cgi.buildResponse(route);
+					FD_SET(client_socket, &this->_write_master_fd);
+					this->registerResponse(client_socket, response_cgi);
+					std::cout << "------------CGI-------------" << std::endl;
+					return ;
+				}
+				catch(std::exception &e) {
+					std::cout << e.what() << std::endl;
+				}	
+		}
+		
 	}
-
-	// std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
-	// if (route) {
-	// 	std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
-	// 	if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-	// 			std::cout << "[CGI] Start\n";
-	// 			try {
-	// 				Cgi cgi(_pending_request, *route);
-	// 				cgi.executeCgi();
-	// 				status_code = cgi.getExitCode();
-	// 			}
-	// 			catch(std::exception &e) {
-	// 				std::cout << e.what() << std::endl;
-	// 			}
-	// 			std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
-	// 	}
-	// 	std::cout << "------------CGI-------------" << std::endl;
-	// }
-
-	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 
 	Response response(server, status_code, &_pending_request, client_socket);//                create response here
 	response.buildResponse(route);
@@ -130,7 +126,7 @@ void	TcpListener::registerResponse(int socket, Response &response)
 
 void	TcpListener::writeResponse(int client_socket)
 {
-	std::cout << "Sending response\n";
+	std::cout << "Sending response" << std::endl;
 	std::string	response = this->_responses.find(client_socket)->second.getResponse();
 
 	send(client_socket, response.c_str(), response.size(), 0);
