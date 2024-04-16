@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/16 09:36:05 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 12:31:18 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,12 +130,34 @@ void	TcpListener::registerResponse(int socket, Response *response)
 
 void	TcpListener::writeResponse(int client_socket)
 {
-	std::cout << "Sending response\n";
+	std::cout << "Sending response" << std::endl;
 	std::string	response = this->_responses.find(client_socket)->second->getResponse();
 
-	send(client_socket, response.c_str(), response.size(), 0);
+	std::cout << "Response length, about to send is : " << response.length() << std::endl;
+	
+	size_t totalBytesSent = 0;
+	
+	int i = 1;
+	while (totalBytesSent < response.size()) {
+		std::cout << "We had " << i << " loops." << std::endl;
+		i++;
+		long bytesSent = send(client_socket, response.c_str() + totalBytesSent, response.size() - totalBytesSent, 0);
+		if (bytesSent == -1) {
+			std::cerr << "Error on sending response." << std::endl;
+			perror("send");
+			break;
+		} else if (bytesSent == 0) {
+			std::cerr << "Nothing has been sent :0" << std::endl;
+			break;
+		} else {
+			std::cout << bytesSent << " bytes sent." << std::endl;
+			totalBytesSent += bytesSent;
+		}
+	}
+	
 	this->_responses.erase(client_socket);
 	FD_CLR(client_socket, &this->_write_master_fd);
 	// DELETE RESPONSES HERE
 	this->_responses.erase(client_socket);
+	std::cout << "Response Sent" << std::endl;
 }
