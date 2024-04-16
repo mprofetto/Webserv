@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/12 11:45:53 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/16 15:44:32 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,3 +62,7 @@ int	main(int argc, char **argv)
 	return (0);
 }
 
+// int main(void)
+// {
+// 	std::cout << generateExpirationDate() << "\n";
+// }

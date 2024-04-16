@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/11 11:31:48 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/16 14:05:47 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,11 @@ void	TcpListener::handleNewConnection(Server *server)
 
 void	TcpListener::handleRequest(int client_socket)
 {
-	if (_pending_request.getMethod() == POST)
-	{
-		std::cout << "Method is POST\n";
-		std::cout << "Body is: " << _pending_request.getBody().size() << "Content lenght is: " << _pending_request.getContentLength() <<std::endl;
-	}
+	// if (_pending_request.getMethod() == POST)
+	// {
+	// 	std::cout << "Method is POST\n";
+	// 	std::cout << "Body is: " << _pending_request.getBody().size() << "Content lenght is: " << _pending_request.getContentLength() <<std::endl;
+	// }
 	int status_code = 200;
 	Route *route = NULL;
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
@@ -85,11 +85,11 @@ void	TcpListener::handleRequest(int client_socket)
 		} //else if (_pending_request.getPath() == (*it)->getCgiPath())
 	}
 
-	if (!route) {
-		std::cout << "No ROUTE found.\n";
-	} else {
-		std::cout << "ROUTE found.\n";
-	}
+	// if (!route) {
+	// 	std::cout << "No ROUTE found.\n";
+	// } else {
+	// 	std::cout << "ROUTE found.\n";
+	// }
 
 	std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
 	if (route) {
@@ -113,6 +113,28 @@ void	TcpListener::handleRequest(int client_socket)
 	response.buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerResponse(client_socket, response);
+
+	/*
+		Server		*server = getServerByHosT();
+		Route		*route = findRoute();
+		char		*responseBody;
+		int			status_code;
+		Response	response(server, this->_pending_request, socket);
+
+		if (Route)
+		{
+			std::string	filename = getFilenameToUseForResponse();
+			if (filename == isCGI())
+				getCGIResponse(&status_code, &responseBody);
+			else
+				getResponse(&status_code, &responseBody);
+			response.buildResponse(&status_code, &responseBody);
+		}
+		else
+			response.buildResponse(&status_code, &responseBody);
+		FD_SET(client_socket, &this->_write_master_fd);
+		this->registerResponse(client_socket, response);
+	*/
 }
 
 void	TcpListener::registerResponse(int socket, Response &response)

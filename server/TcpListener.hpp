@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/15 10:07:20 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/16 15:14:16 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <map>
 # include <string>
 # include <sstream>
+# include <ctime>
 # include <fcntl.h>
 # include <exception>
 # include <errno.h>
