@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/16 09:43:21 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 12:36:46 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,12 @@ int Response::deleteFile() {
 void Response::sendFile() {
 
     std::cout << "IN SENDFILE\n" << std::endl;
+    std::ifstream   sizeFile(_path, std::ios::binary | std::ios::in);
+    sizeFile.seekg(0, std::ios::end);
+    int file_size = sizeFile.tellg();
+    std::cout << "Size of file is : " << file_size << std::endl;
+    sizeFile.close();
+
 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
 	if (!infile) {
 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
@@ -77,21 +83,19 @@ void Response::sendFile() {
 	} else {
 
 		// std::stringstream responseBody;
-		char buffer[1024];
+		char buffer[8192];
 
-        // infile.seekg(0, std::ios::end);
-        // int file_size = infile.tellg();
-        // std::cout << "Size of file is : " << file_size << std::endl;
     
         while (!infile.eof())
             {
-                bzero(buffer, sizeof(buffer));
+                // bzero(buffer, sizeof(buffer));
                 infile.read(buffer, sizeof(buffer));
                 // std::cout << "BUFFER : " << buffer << std::endl;
                 _body.append(buffer, infile.gcount());
+                // responseBody << buffer;
             }
         infile.close();
-        _body += "END_OF_FILE";
+        // _body += "END_OF_FILE";
         // _body = responseBody.str().c_str();
         std::cout << "So bodysize is : " << _body.length() << std::endl;
 	}
