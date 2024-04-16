@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/11 11:31:07 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/11 11:42:14 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ std::map<int, std::string>	Server::getErrorPages(void) const
 	return (this->_error_pages);
 }
 
-std::string					Server::getDefaultErrorPage(int error_code)
+std::string					Server::getDefaultErrorPage(int error_code) const
 {
 	unsigned long		pos;
 	std::stringstream	mystream;

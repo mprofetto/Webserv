@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/10 13:27:51 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/15 10:07:20 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,6 @@
 # include "../utils.hpp"
 # include "../response_manager/Response.hpp"
 # include "communications/IncompleteRequest.hpp"
-
-
 
 # define MAXBUFFERSIZE 2097152
 
@@ -110,6 +108,8 @@ class TcpListener
 
 		void			initTcpListener();
 		void			runTcpListener();
+		Server					*getServerByHost(int port, std::string host);
+
 
 		//temporary debug methods
 		void			printServers() const;
@@ -124,7 +124,6 @@ class TcpListener
 		std::list<Server *>					_servers;
 		Request								_pending_request;
 		std::map<int, IncompleteRequest>	_incomplete_requests;
-		// std::map<int, std::string>			_responses;
 		std::map<int, Response>				_responses;
 
 		//Init Methods
@@ -137,14 +136,12 @@ class TcpListener
 		void					readRequest(int socket);
 		bool					incompleteRequestIsAlreadyStored(int socket);
 		void					registerRequestAsPending(int client_socket);
-		// void					registerReponse(int socket, std::string response);
 		void					registerResponse(int socket, Response &response);
 		void					writeResponse(int socket);
-		void					handleRequest(int client_socket); /*this function store response with this->registerResponse(std::string response, int socket);*/
+		void					handleRequest(int client_socket);
 
 		//Utils
-		Server					*getServerByHost(int port, std::string host);
-		Server					*getServerBySocket(int socket);//return NULL if there is no server for this socket
+		Server					*getServerBySocket(int socket);
 		int						getPortBySocket(int *socket);
 		// std::string				getResponse(int socket);
 		Response					getResponseToSend(int socket);
