@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/15 15:28:43 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 09:36:05 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,29 +111,31 @@ void	TcpListener::handleRequest(int client_socket)
 
 	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 
-	Response response(server, status_code, &_pending_request, client_socket);//                create response here
-	response.buildResponse(route);
+	Response* response = new Response(server, status_code, &_pending_request, client_socket);//                create response here
+	response->buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerResponse(client_socket, response);
 }
 
-void	TcpListener::registerResponse(int socket, Response &response)
+void	TcpListener::registerResponse(int socket, Response *response)
 {
-	std::map<int, Response>::iterator	it;
+	std::map<int, Response*>::iterator	it;
 
 	it = this->_responses.find(socket);
 	if (it == this->_responses.end())
-		this->_responses.insert(std::pair<int, Response>(socket, response));
+		this->_responses.insert(std::pair<int, Response*>(socket, response));
 	else
-		(*it).second = response;
+		it->second = response;
 }
 
 void	TcpListener::writeResponse(int client_socket)
 {
 	std::cout << "Sending response\n";
-	std::string	response = this->_responses.find(client_socket)->second.getResponse();
+	std::string	response = this->_responses.find(client_socket)->second->getResponse();
 
 	send(client_socket, response.c_str(), response.size(), 0);
 	this->_responses.erase(client_socket);
 	FD_CLR(client_socket, &this->_write_master_fd);
+	// DELETE RESPONSES HERE
+	this->_responses.erase(client_socket);
 }

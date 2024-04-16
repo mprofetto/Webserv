@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/15 15:28:54 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 09:40:58 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,26 +66,36 @@ int Response::deleteFile() {
 
 // ==================================================================== POST
 
-int Response::sendFile() {
+#include <strings.h>
+void Response::sendFile() {
 
+    std::cout << "IN SENDFILE\n" << std::endl;
 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
 	if (!infile) {
 		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
-		return 500;
+		_statusCode = 500;
 	} else {
 
-		std::stringstream responseBody;
-		char buffer[8192];
+		// std::stringstream responseBody;
+		char buffer[1024];
 
+        // infile.seekg(0, std::ios::end);
+        // int file_size = infile.tellg();
+        // std::cout << "Size of file is : " << file_size << std::endl;
+    
         while (!infile.eof())
             {
+                bzero(buffer, sizeof(buffer));
                 infile.read(buffer, sizeof(buffer));
-                responseBody << buffer;
+                // std::cout << "BUFFER : " << buffer << std::endl;
+                _body.append(buffer, infile.gcount());
             }
         infile.close();
-        _body = responseBody.str().c_str();
+        _body += "END_OF_FILE";
+        // _body = responseBody.str().c_str();
+        std::cout << "So bodysize is : " << _body.length() << std::endl;
 	}
-	return 201;
+	_statusCode = 201;
 }
 
 int Response::receiveFile() {
@@ -169,7 +179,7 @@ std::string Response::getHeaders(const int s) {
     }
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
 
-    if (!_extension.empty() && _extension == ".css") {
+    if (!_extension.empty()) {
         std::string fileName = extractFileName();
         if (_extension == ".css") {
 	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
@@ -247,7 +257,8 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
+    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
+    std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
     return;
 }
 
@@ -287,6 +298,16 @@ void            Response::setPath(std::string& str) {
 
 void            Response::setErrorPath(std::string& str) {
     _errorPath = str;
+    return;
+}
+
+void            Response::setBody(std::string& str) {
+    _body = str;
+    return;
+}
+
+void            Response::setHeaders(std::string& str) {
+    _headers = str;
     return;
 }
 
