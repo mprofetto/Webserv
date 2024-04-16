@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/16 11:42:31 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 17:21:23 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ void Response::sendFile() {
     
         while (!infile.eof())
             {
-                // bzero(buffer, sizeof(buffer));
+                bzero(buffer, sizeof(buffer));
                 infile.read(buffer, sizeof(buffer));
                 // std::cout << "BUFFER : " << buffer << std::endl;
                 _body.append(buffer, infile.gcount());
@@ -183,13 +183,17 @@ std::string Response::getHeaders(const int s) {
     }
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
 
-    if (!_extension.empty()) {
+    // if (!_extension.empty()) {
+    //     std::string fileName = extractFileName();
+    //     if (_extension == ".css") {
+	//         h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
+    //     } else if (_extension.compare(".html")) {
+	//         h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+    //     }
+    // }
+    if (!_extension.empty() && _extension.compare(".html")) {
         std::string fileName = extractFileName();
-        if (_extension == ".css") {
-	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
-        } else if (_extension.compare(".html")) {
-	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
-        }
+         h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
     }
     return h;
 }

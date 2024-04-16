@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/16 12:31:18 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 17:43:42 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,19 @@ void	TcpListener::registerResponse(int socket, Response *response)
 		it->second = response;
 }
 
+std::vector<std::string> chunkString(const std::string& str, size_t chunkSize) {
+    std::vector<std::string> chunks;
+    size_t pos = 0;
+
+    while (pos < str.size()) {
+        size_t len = std::min(chunkSize, str.size() - pos);
+        chunks.push_back(str.substr(pos, len));
+        pos += len;
+    }
+
+    return chunks;
+}
+
 void	TcpListener::writeResponse(int client_socket)
 {
 	std::cout << "Sending response" << std::endl;
@@ -136,12 +149,21 @@ void	TcpListener::writeResponse(int client_socket)
 	std::cout << "Response length, about to send is : " << response.length() << std::endl;
 	
 	size_t totalBytesSent = 0;
-	
+	std::vector<std::string> chunks;
+
+	while (pos < str.size()) {
+        size_t len = std::min(8192, str.size() - pos);
+        chunks.push_back(str.substr(pos, len));
+        pos += len;
+    }
+
 	int i = 1;
-	while (totalBytesSent < response.size()) {
+	for (std::vector<std::string>::iterator it = chunks.begin(); it != chunks.end(); ++it) {
 		std::cout << "We had " << i << " loops." << std::endl;
 		i++;
-		long bytesSent = send(client_socket, response.c_str() + totalBytesSent, response.size() - totalBytesSent, 0);
+
+        const std::string& chunk = *it;
+        ssize_t bytesSent = send(client_socket, chunk.c_str(), chunk.size(), 0);
 		if (bytesSent == -1) {
 			std::cerr << "Error on sending response." << std::endl;
 			perror("send");
@@ -154,10 +176,10 @@ void	TcpListener::writeResponse(int client_socket)
 			totalBytesSent += bytesSent;
 		}
 	}
-	
-	this->_responses.erase(client_socket);
+
 	FD_CLR(client_socket, &this->_write_master_fd);
 	// DELETE RESPONSES HERE
+	delete this->_responses.find(client_socket)->second;
 	this->_responses.erase(client_socket);
 	std::cout << "Response Sent" << std::endl;
 }
