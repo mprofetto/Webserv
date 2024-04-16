@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/16 09:43:08 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 15:48:03 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ class Response {
         void            setBody(std::string& str);
         void            setHeaders(std::string& str);
 
-        void            addToBytesSend(unsigned long bytes_to_add);
+        // void            addToBytesSend(unsigned long bytes_to_add);
 
         void            addToBytesSend(unsigned long bytes_to_add);
 
