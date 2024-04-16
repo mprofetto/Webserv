@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/15 15:44:57 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/16 09:43:50 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,29 +107,51 @@ void	TcpListener::handleRequest(int client_socket)
 		
 	}
 
-	Response response(server, status_code, &_pending_request, client_socket);//                create response here
-	response.buildResponse(route);
+	// std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
+	// if (route) {
+	// 	std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
+	// 	if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+	// 			std::cout << "[CGI] Start\n";
+	// 			try {
+	// 				Cgi cgi(_pending_request, *route);
+	// 				cgi.executeCgi();
+	// 				status_code = cgi.getExitCode();
+	// 			}
+	// 			catch(std::exception &e) {
+	// 				std::cout << e.what() << std::endl;
+	// 			}
+	// 			std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
+	// 	}
+	// 	std::cout << "------------CGI-------------" << std::endl;
+	// }
+
+	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
+
+	Response* response = new Response(server, status_code, &_pending_request, client_socket);//                create response here
+	response->buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerResponse(client_socket, response);
 }
 
-void	TcpListener::registerResponse(int socket, Response &response)
+void	TcpListener::registerResponse(int socket, Response *response)
 {
-	std::map<int, Response>::iterator	it;
+	std::map<int, Response*>::iterator	it;
 
 	it = this->_responses.find(socket);
 	if (it == this->_responses.end())
-		this->_responses.insert(std::pair<int, Response>(socket, response));
+		this->_responses.insert(std::pair<int, Response*>(socket, response));
 	else
-		(*it).second = response;
+		it->second = response;
 }
 
 void	TcpListener::writeResponse(int client_socket)
 {
-	std::cout << "Sending response" << std::endl;
-	std::string	response = this->_responses.find(client_socket)->second.getResponse();
+	std::cout << "Sending response\n";
+	std::string	response = this->_responses.find(client_socket)->second->getResponse();
 
 	send(client_socket, response.c_str(), response.size(), 0);
 	this->_responses.erase(client_socket);
 	FD_CLR(client_socket, &this->_write_master_fd);
+	// DELETE RESPONSES HERE
+	this->_responses.erase(client_socket);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/15 14:05:02 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/16 09:43:08 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Response {
         int             fileTransfer();
         int             isRedirect();
         void            redirectClient();
-        int             sendFile();
+        void            sendFile();
         int             receiveFile();
         int             deleteFile();
         std::string     extractFileBody(std::string request);
@@ -67,6 +67,10 @@ class Response {
 
         void            setPath(std::string& str);
         void            setErrorPath(std::string& str);
+        void            setBody(std::string& str);
+        void            setHeaders(std::string& str);
+
+        void            addToBytesSend(unsigned long bytes_to_add);
 
         void            addToBytesSend(unsigned long bytes_to_add);
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:39:42 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/10 13:30:09 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/16 09:36:48 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,9 @@ void	TcpListener::printServers(void) const
 // 		return ((*it).second);
 // }
 
-Response		TcpListener::getResponseToSend(int socket)
+Response		*TcpListener::getResponseToSend(int socket)
 {
-	std::map<int, Response>::iterator	it;
+	std::map<int, Response*>::iterator	it;
 
 	it = this->_responses.find(socket);
 	return (it->second);
