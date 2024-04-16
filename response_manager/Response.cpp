@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/16 17:49:23 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 18:06:09 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,18 +183,18 @@ std::string Response::getHeaders(const int s) {
     }
     h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
 
-    // if (!_extension.empty()) {
-    //     std::string fileName = extractFileName();
-    //     if (_extension == ".css") {
-	//         h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
-    //     } else if (_extension.compare(".html")) {
-	//         h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
-    //     }
-    // }
-    if (!_extension.empty() && _extension.compare(".html")) {
+    if (!_extension.empty()) {
         std::string fileName = extractFileName();
-         h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+        if (_extension == ".css") {
+	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
+        } else if (_extension.compare(".html")) {
+	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+        }
     }
+    // if (!_extension.empty() && _extension.compare(".html")) {
+    //     std::string fileName = extractFileName();
+    //      h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+    // }
     return h;
 }
 
