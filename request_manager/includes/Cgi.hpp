@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/13 12:25:16 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 13:03:57 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@
 # include <map>
 # include <string>
 # include <vector>
+# include <signal.h>
+
+# define CGI_TIMEOUT 3
 
 class Cgi {
 private:

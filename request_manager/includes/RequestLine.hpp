@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:20 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 11:54:40 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 15:33:56 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,11 @@
 # include <fstream>
 # include <sys/stat.h>
 
+# include <vector>
+
 enum {DELETE, GET, POST, UNVALID};
+
+# define vec_str std::vector<std::string>
 
 class RequestLine {
 private:
@@ -28,6 +32,8 @@ private:
     std::string _not_valid;
     std::string _query;
 
+    vec_str _vectorSplit(std::string str, char sep);
+
 public:
     RequestLine();
     RequestLine(int const &method, std::string const &path, std::string const &http_version, std::string const &methodName);
@@ -35,7 +41,7 @@ public:
     ~RequestLine();
 
     RequestLine &operator=(RequestLine const &op);
-    
+
     int         getMethod() const;
     std::string getPath() const;
     std::string getHTTPVersion() const;
