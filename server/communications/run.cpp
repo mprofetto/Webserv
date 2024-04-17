@@ -6,10 +6,9 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/15 15:26:52 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 13:20:36 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 # include "../TcpListener.hpp"
 # include "../../request_manager/includes/Cgi.hpp"
@@ -81,30 +80,6 @@ void	TcpListener::handleRequest(int client_socket)
 			route = *it;
 			break;
 		}
-	}
-
-	if (route) {
-		if ((!route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-				std::cout << "[CGI] START" << std::endl;
-				try {
-					Cgi cgi(_pending_request, *route);
-					std::string tmp = cgi.executeCgi();
-					std::cout << "[CGI] END ===> [SATUS CODE = " << status_code << "]" << std::endl;
-					status_code = cgi.getExitCode();
-					Response response_cgi(server, cgi.getExitCode(), &_pending_request, client_socket);
-					std::string path = _pending_request.getPath();
-					response_cgi.setPath(path);
-					response_cgi.buildResponse(route);
-					FD_SET(client_socket, &this->_write_master_fd);
-					this->registerResponse(client_socket, response_cgi);
-					std::cout << "------------CGI-------------" << std::endl;
-					return ;
-				}
-				catch(std::exception &e) {
-					std::cout << e.what() << std::endl;
-				}	
-		}
-		
 	}
 
 	Response response(server, status_code, &_pending_request, client_socket);//                create response here

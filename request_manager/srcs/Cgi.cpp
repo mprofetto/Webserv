@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/15 15:29:27 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 13:04:01 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,15 @@ std::string Cgi::executeCgi() {
         if (pipe(pipefd) == -1) {
             throw PipeException();
         }
+        if (!_request.getHeaders().empty())
+				_envp = _createEnv();
+
         pid_t pid = fork();
         if (pid == -1) {
             close(pipefd[0]);
             close(pipefd[1]);
+            _freeArray(_envp, -1);
+                _envp = NULL;
             throw ForkException();
         }
 
@@ -61,10 +66,6 @@ std::string Cgi::executeCgi() {
             close(pipefd[0]);
             dup2(pipefd[1], STDOUT_FILENO);
             close(pipefd[1]);
-            
-			if (!_request.getHeaders().empty())
-				_envp = _createEnv();
-			
             if (extension == ".py") {
                 const char *exec = "/usr/bin/python3";
                 char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
@@ -79,22 +80,41 @@ std::string Cgi::executeCgi() {
             std::cerr << "Error executing CGI." << std::endl;
                 exit(EXIT_FAILURE);
         } else { //PARENT
-            std::string tmp = "";
-            close(pipefd[1]);
-            char buffer[1023];
-            int status;
-            ssize_t bytesRead;
-            while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
-                std::cout.write(buffer, bytesRead);
-                tmp += buffer;
+
+            pid_t timeOut = fork();
+            if (timeOut == -1) {
+                close(pipefd[0]);
+                close(pipefd[1]);
+                _freeArray(_envp, -1);
+                _envp = NULL;
+                throw ForkException();
             }
-            close(pipefd[0]);
-            waitpid(pid, &status, 0);
-            if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
-                std::cerr << "Child process exited with an error." << std::endl;
-            else
-                _exitCode = 200;
-                return tmp;
+            if (!timeOut) {
+                struct timeval tv;
+                tv.tv_sec = CGI_TIMEOUT;
+                tv.tv_usec = 0;
+                select(0, NULL, NULL, NULL, &tv);
+                kill(pid, SIGTERM);
+                std::exit(2);
+            } else {
+                std::string tmp = "";
+                close(pipefd[1]);
+                char buffer[1023];
+                int status;
+                ssize_t bytesRead;
+                while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
+                    std::cout.write(buffer, bytesRead);
+                    tmp += buffer;
+                }
+                close(pipefd[0]);
+                waitpid(pid, &status, 0);
+                kill(timeOut, SIGTERM);
+                if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
+                    std::cerr << "Child process exited with an error." << std::endl;
+                else
+                    _exitCode = 200;
+                    return tmp;
+                }
         }
     } else {
        throw UnsupportedExtensionException();
