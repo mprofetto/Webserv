@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/17 09:29:44 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/17 11:35:29 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,46 +83,28 @@ void	TcpListener::handleRequest(int client_socket)
 		}
 	}
 
-	if (route) {
-		if ((!route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-				std::cout << "[CGI] START" << std::endl;
-				try {
-					Cgi cgi(_pending_request, *route);
-					std::string tmp = cgi.executeCgi();
-					std::cout << "[CGI] END ===> [SATUS CODE = " << status_code << "]" << std::endl;
-					status_code = cgi.getExitCode();
-					Response response_cgi(server, cgi.getExitCode(), &_pending_request, client_socket);
-					std::string path = _pending_request.getPath();
-					response_cgi.setPath(path);
-					response_cgi.buildResponse(route);
-					FD_SET(client_socket, &this->_write_master_fd);
-					this->registerResponse(client_socket, response_cgi);
-					std::cout << "------------CGI-------------" << std::endl;
-					return ;
-				}
-				catch(std::exception &e) {
-					std::cout << e.what() << std::endl;
-				}	
-		}
-		
-	}
-
-	// std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
 	// if (route) {
-	// 	std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
-	// 	if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-	// 			std::cout << "[CGI] Start\n";
+	// 	if ((!route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
+	// 			std::cout << "[CGI] START" << std::endl;
 	// 			try {
 	// 				Cgi cgi(_pending_request, *route);
-	// 				cgi.executeCgi();
+	// 				std::string tmp = cgi.executeCgi();
+	// 				std::cout << "[CGI] END ===> [SATUS CODE = " << status_code << "]" << std::endl;
 	// 				status_code = cgi.getExitCode();
+	// 				Response *response_cgi = new Response(server, cgi.getExitCode(), &_pending_request, client_socket);
+	// 				std::string path = _pending_request.getPath();
+	// 				response_cgi->setPath(path);
+	// 				response_cgi->buildResponse(route);
+	// 				FD_SET(client_socket, &this->_write_master_fd);
+	// 				this->registerResponse(client_socket, response_cgi);
+	// 				std::cout << "------------CGI-------------" << std::endl;
+	// 				return ;
 	// 			}
 	// 			catch(std::exception &e) {
 	// 				std::cout << e.what() << std::endl;
-	// 			}
-	// 			std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
+	// 			}	
 	// 	}
-	// 	std::cout << "------------CGI-------------" << std::endl;
+		
 	// }
 
 	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
@@ -144,24 +126,12 @@ void	TcpListener::registerResponse(int socket, Response *response)
 		it->second = response;
 }
 
-// void	TcpListener::writeResponse(int client_socket)
-// {
-// 	std::cout << "Sending response\n";
-// 	std::string	response = this->_responses.find(client_socket)->second->getResponse();
-
-// 	send(client_socket, response.c_str(), response.size(), 0);
-// 	this->_responses.erase(client_socket);
-// 	FD_CLR(client_socket, &this->_write_master_fd);
-// 	// DELETE RESPONSES HERE
-// 	this->_responses.erase(client_socket);
-// }
-
 std::vector<std::string>	TcpListener::chunkResponse(std::string response) {
 	
 	std::vector<std::string> chunks;
 	
 	size_t pos = 0;
-	size_t chunkSize = 8192;
+	size_t chunkSize = 16384;
 	while (pos < response.size()) {
         size_t len = std::min(chunkSize, response.size() - pos);
         chunks.push_back(response.substr(pos, len));
@@ -201,7 +171,6 @@ void	TcpListener::writeResponse(int client_socket)
 	}
 
 	FD_CLR(client_socket, &this->_write_master_fd);
-	// DELETE RESPONSES HERE
 	delete this->_responses.find(client_socket)->second;
 	this->_responses.erase(client_socket);
 	std::cout << "Response Sent" << std::endl;
