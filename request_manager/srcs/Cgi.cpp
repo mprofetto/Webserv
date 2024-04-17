@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/17 13:04:01 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 13:45:03 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ std::string Cgi::executeCgi() {
                 execve(exec, const_cast<char *const *>(args), _envp);
             }
             std::cerr << "Error executing CGI." << std::endl;
-                exit(EXIT_FAILURE);
+                std::exit(EXIT_FAILURE);
         } else { //PARENT
 
             pid_t timeOut = fork();
