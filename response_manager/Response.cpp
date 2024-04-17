@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/16 18:06:09 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 18:22:04 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,10 +191,6 @@ std::string Response::getHeaders(const int s) {
 	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
         }
     }
-    // if (!_extension.empty() && _extension.compare(".html")) {
-    //     std::string fileName = extractFileName();
-    //      h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
-    // }
     return h;
 }
 
@@ -265,8 +261,8 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
-    std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
+    // std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
     return;
 }
 
