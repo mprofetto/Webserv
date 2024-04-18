@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/17 16:13:21 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 10:07:02 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -428,8 +428,8 @@ std::string Response::extractFileBody(std::string request) {
 std::string     Response::getMimeType() {
 
     if (!_extension.empty()) {
-        if (_extension == ".py")
-            return _server->getMimeType(".html");//                 A DEL ABSOLUMENT
+        if (_extension == ".py" || _extension == ".pl")
+            return _server->getMimeType("default");//                 A DEL ABSOLUMENT
         else
             return _server->getMimeType(_extension);
     }
