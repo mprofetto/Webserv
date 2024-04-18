@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:22:51 by mprofett          #+#    #+#             */
-/*   Updated: 2024/03/04 09:56:38 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/17 11:06:24 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ std::list<std::string>	TcpListener::tokenizeConfigurationFile(std::string filena
 	std::cout << "\n\n!!!\nFILENAME : " << filename << "\n!!!\n\n";
 
 	myfile.open(filename);
-	if (std::ios_base::failbit == true)
+	if (!myfile)
 		throw openFileFailure();
 	while (std::getline(myfile, line))
 	{

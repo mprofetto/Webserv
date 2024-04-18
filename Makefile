@@ -6,7 +6,7 @@
 #    By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/12 14:48:07 by mprofett          #+#    #+#              #
-#    Updated: 2024/04/12 11:23:56 by mprofett         ###   ########.fr        #
+#    Updated: 2024/04/17 10:06:51 by mprofett         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,6 @@ SRC			= webserv.cpp \
 			server/Server.cpp \
 			server/Server_Users.cpp \
 			server/Route.cpp \
-			session_management/session_management.cpp \
 			session_management/User.cpp \
 
 OBJ			= ${SRC:.cpp=.o}

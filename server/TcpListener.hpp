@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/16 15:14:16 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/17 11:23:14 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 # include "communications/IncompleteRequest.hpp"
 
 # define MAXBUFFERSIZE 2097152
+# define COOKIE_EXPIRATION_DURATION 120
 
 class Server;
 class Response;
@@ -172,6 +173,9 @@ class TcpListener
 		std::list<std::string>	tokenizeConfigurationFile(std::string filename);
 		void					parseConfigurationFile(std::string filename);
 };
+
+std::string	generateSessionId(void);
+std::string	generateExpirationDate(time_t duration);
 
 #endif
 

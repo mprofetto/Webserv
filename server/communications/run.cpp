@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/16 14:05:47 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/16 16:25:25 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,6 @@ void	TcpListener::handleRequest(int client_socket)
 
 	Response response(server, status_code, &_pending_request, client_socket);//                create response here
 	response.buildResponse(route);
-	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerResponse(client_socket, response);
 
 	/*
@@ -132,7 +131,6 @@ void	TcpListener::handleRequest(int client_socket)
 		}
 		else
 			response.buildResponse(&status_code, &responseBody);
-		FD_SET(client_socket, &this->_write_master_fd);
 		this->registerResponse(client_socket, response);
 	*/
 }
@@ -153,6 +151,7 @@ void	TcpListener::writeResponse(int client_socket)
 	std::cout << "Sending response\n";
 	std::string	response = this->_responses.find(client_socket)->second.getResponse();
 
+	std::cout << response.size() << "\n";
 	send(client_socket, response.c_str(), response.size(), 0);
 	this->_responses.erase(client_socket);
 	FD_CLR(client_socket, &this->_write_master_fd);

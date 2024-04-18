@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/12 11:29:17 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/17 11:17:54 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,12 @@ class Server
 		std::string							convertIpAddress(std::vector<std::string> address);
 		void								printDatas(void) const;
 		std::list<Route *>					_routes;
+
+		// Cookies
+
+		std::string							applyCookieLang(std::string	&sessionId, std::string &filename);
+		std::string							applyCookieLoginInfo(std::string &sessionId, std::string &response_body);
+
 
 	private:
 		std::list<std::string>				_server_names;
