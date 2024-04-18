@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 14:26:11 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 14:31:54 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,8 @@ std::string Cgi::executeCgi() {
         std::string exe = _getFileExtension(_executablePath, '/');
         char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
         execve(exec, const_cast<char *const *>(args), _envp);            
-
         std::cerr << "Error executing CGI." << std::endl;
-            std::exit(EXIT_FAILURE);
+        std::exit(EXIT_FAILURE);
     } else { //PARENT
 
         pid_t timeOut = fork();
@@ -100,7 +99,6 @@ std::string Cgi::executeCgi() {
             int status;
             ssize_t bytesRead;
             while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
-                //std::cout.write(buffer, bytesRead);
                 ret += std::string(buffer, bytesRead);
             }
             close(pipefd[0]);
@@ -130,7 +128,7 @@ char **Cgi::_createEnv() {
 	std::stringstream content_length;
 	content_length << _request.getContentLength();
 	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str()));
-	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front())); // to check !!
+	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front()));
     std::stringstream port;
 	port << _route.getServer()->getPort();
 	mapEnv.insert(std::make_pair("SERVER_PORT", port.str()));
