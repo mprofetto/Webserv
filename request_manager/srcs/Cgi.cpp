@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 23:28:40 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 00:01:44 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,17 +50,29 @@ std::string Cgi::executeCgi() {
     if (_route.getExtension() != extension || (extension != ".py" && extension != ".pl"))
         throw UnsupportedExtensionException();
 
-    int pipefd[2];
-    if (pipe(pipefd) == -1) {
+    int pipefdin[2];
+    int pipefdout[2];
+    if (pipe(pipefdin) == -1) {
+        throw PipeException();
+    }
+    if (pipe(pipefdout) == -1) {
+        close (pipefdin[0]);
+        close (pipefdin[1]);
         throw PipeException();
     }
     if (!_request.getHeaders().empty())
             _envp = _createEnv();
-
+    int fdin = dup(STDIN_FILENO);
+    int fdout = dup(STDOUT_FILENO);
+    
     pid_t pid = fork();
     if (pid == -1) {
-        close(pipefd[0]);
-        close(pipefd[1]);
+        close(pipefdin[0]);
+        close(pipefdin[1]);
+        close(pipefdout[0]);
+        close(pipefdout[1]);
+        close(fdin);
+        close(fdout);
         _freeArray(_envp, -1);
         _envp = NULL;
         throw ForkException();
@@ -68,21 +80,23 @@ std::string Cgi::executeCgi() {
 
     // CHILD
     if (pid == 0) {
-        close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[1]);
+        close(pipefdin[1]);
+        close(pipefdout[0]);
+        dup2(pipefdin[0], STDIN_FILENO);
+        dup2(pipefdin[1], STDOUT_FILENO);
         const char *exec = _executablePath.c_str();
         std::string exe = _getFileExtension(_executablePath, '/');
         char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
         execve(exec, const_cast<char *const *>(args), _envp);            
         std::cerr << "Error executing CGI." << std::endl;
+        _freeArray(_envp, -1);
         std::exit(EXIT_FAILURE);
     } else { //PARENT
 
         pid_t timeOut = fork();
         if (timeOut == -1) {
-            close(pipefd[0]);
-            close(pipefd[1]);
+            close(pipefdin[0]);
+            close(pipefdin[1]);
             _freeArray(_envp, -1);
             _envp = NULL;
             throw ForkException();
@@ -95,26 +109,41 @@ std::string Cgi::executeCgi() {
             kill(pid, SIGTERM);
             std::exit(2);
         } else {
-            close(pipefd[1]);
+            close(pipefdin[0]);
+            close(pipefdout[1]);
             char buffer[1023];
+            dup2(pipefdin[1], STDIN_FILENO);
+            dup2(pipefdout[0], STDOUT_FILENO);
+            int post;
+            if (_request.getMethod() == POST)
+                {
+                        std::stringstream ss;
+                        ss << _request.getQuery().size();
+                        _envp["CONTENT_LENGTH"] = std::string(ss.str());
+                        post = write(pipefdin[1], _request.getQuery().c_str(), _request.getQuery().size());
+                }
             int status;
-            ssize_t bytesRead;
-            while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
-                ret += std::string(buffer, bytesRead);
-            }
-            close(pipefd[0]);
+            int bytesRead;
             waitpid(pid, &status, 0);
             kill(timeOut, SIGTERM);
-            if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS) {
-                std::cerr << "Child process exited with an error." << std::endl;
+            while (status && ((bytesRead = read(pipefdout[0], buffer, 1023)) > 0)) {
+                buffer[bytesRead] = 0;
+                ret += std::string(buffer, bytesRead);
             }
-            else {
-                _exitCode = 200;
-                return ret;
+            close(pipefdin[1]);
+            close(pipefdout[0]);
+            dup2(fdin, STDIN_FILENO);
+            dup2(fdout, STDOUT_FILENO);
+            if (status || (_request.getMethod() == POST && post != _request.getQuery().size())) {
+                std::cerr << "Child process exited with an error." << std::endl;
             }
         }
     }
-    return "";
+    _freeArray(_envp, -1);
+    close(fdin);
+    close(fdout);
+    _exitCode = 200;
+    return ret;
 }
 
 char **Cgi::_createEnv() {
