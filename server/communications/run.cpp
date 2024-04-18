@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/04/18 13:29:07 by nesdebie         ###   ########.fr       */
-=======
-/*   Updated: 2024/04/18 13:10:12 by achansar         ###   ########.fr       */
->>>>>>> c32f2d56680cb86c8cf61f49923022aebf6ae5f6
+/*   Updated: 2024/04/18 13:35:26 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
