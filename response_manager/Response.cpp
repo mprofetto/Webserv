@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 10:11:02 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 10:18:08 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,10 +210,12 @@ std::string Response::getHeaders(const int s) {
     std::string h;
     std::ostringstream intss;
     intss << s;
+
     if (_method == GET) {
         h += "Content-Type: " + getMimeType() + "\r\n";
     }
     h += "Content-Length: " + intss.str() + "\r\n";
+
     if (!_extension.empty() && (_extension == ".css" || _extension == ".html")) {
         std::string fileName = extractFileName();
         if (_extension == ".css") {
