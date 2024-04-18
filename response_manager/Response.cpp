@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 10:07:02 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:09:51 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 // ============================================================================== CONSTRUCTORS
 
 Response::Response(Server* server, int statusCode, Request* request, const int socket) :
+        _cgi(false),
         _clientSocket(socket),
         _method(request->getMethod()),
         _statusCode(statusCode),
@@ -70,6 +71,8 @@ int Response::deleteFile() {
 void Response::sendFile() {
 
     std::cout << "IN SENDFILE\n" << std::endl;
+    
+    //check size, a virer --------------------------------------------
     std::ifstream   sizeFile(_path, std::ios::binary | std::ios::in);
     sizeFile.seekg(0, std::ios::end);
     int file_size = sizeFile.tellg();
@@ -85,7 +88,6 @@ void Response::sendFile() {
 
 		char buffer[8192];
 
-    
         while (!infile.eof())
             {
                 bzero(buffer, sizeof(buffer));
@@ -148,27 +150,58 @@ int Response::receiveFile() {
 
 // ==================================================================== GET METHOD
 
+#include <cstdlib>
+std::string    convertEncoding(std::string s) {
+
+    std::string str = s;
+    size_t pos = str.find('%');
+
+    while (pos != std::string::npos) {
+        std::string sub = str.substr(pos + 1, 2);
+        int deci = strtol(sub.c_str(), NULL, 16);
+        char special = deci;
+        str.replace(pos, 3, 1, special);
+        pos = str.find('%', pos);
+    }
+
+    pos = str.find('+');
+    while (pos != std::string::npos) {
+        str[pos] = ' ';
+        pos = str.find('+', pos + 1);
+    }
+    return str;
+}
+
 int Response::handleForm() {
     
-    std::string formBody = extractFileBody(_request->getRaw());
+    std::istringstream formBody(_request->getBody());
     std::map<std::string, std::string> formInfos;
+    std::vector<std::string> formElements;
+
+    for (std::string ele; std::getline(formBody, ele, '&'); ) {
+        formElements.push_back(ele);
+    }
+
+    for (std::vector<std::string>::iterator it = formElements.begin(); it != formElements.end(); it++) {
+        std::string str = *it;
+        size_t pos = str.find('=');
+        std::string key = convertEncoding(str.substr(0, pos));
+        std::string value = convertEncoding(str.substr(pos + 1));
+        formInfos[key] = value;
+    }
     
-
-    std::cout << "IN FORM BODY : " << formBody << std::endl;
-    // name=halo%26%26&email=chansarelarno%40hotmail.fr&message=Sava+les+gars+%3F+Encore+une+fois+%23cool.&gender=male
-
-    
-
-    return 200;
+    for (std::map<std::string, std::string>::iterator it = formInfos.begin(); it != formInfos.end(); it++) {
+        std::cout << "[" << it->first << "] = " << it->second << std::endl;
+    }
+    return 201;
 }
 
 int Response::handlePostRequest() {
 
-    if (_request->getPath() == "/submitForm") {
+    if (_path == "/submitForm") {
         return handleForm();
     } else {
-        sendFile();
-        return 200;
+        return receiveFile();
     }
 }
 
@@ -216,7 +249,7 @@ std::string Response::getHeaders(const int s) {
     }
     h += "Content-Length: " + intss.str() + "\r\n";
 
-    if (!_extension.empty() && (_extension == ".css" || _extension == ".html")) {
+    if (!_extension.empty() && _cgi == false) {
         std::string fileName = extractFileName();
         if (_extension == ".css") {
 	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
@@ -224,10 +257,6 @@ std::string Response::getHeaders(const int s) {
 	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
         }
     }
-    // if (!_extension.empty() && _extension.compare(".html")) {
-    //     std::string fileName = extractFileName();
-    //      h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
-    // }
     return h;
 }
 
@@ -243,15 +272,8 @@ void Response::getBody(bool autoindex, Route *route) {
 				try {
 					Cgi cgi(*_request, *route);
 				    _body = cgi.executeCgi();
-					// std::cout << "[CGI] END ===> [SATUS CODE = " << status_code << "]" << std::endl;
 					_statusCode = cgi.getExitCode();
-					// Response *response_cgi = new Response(server, cgi.getExitCode(), &_request, client_socket);
-					// std::string path = _request.getPath();
-					// response_cgi->setPath(path);
-					// response_cgi->buildResponse(route);
-					// FD_SET(client_socket, &this->_write_master_fd);
-					// this->registerResponse(client_socket, response_cgi);
-					// std::cout << "------------CGI-------------" << std::endl;
+                    _cgi = true;
 					return ;
 				}
 				catch(std::exception &e) {
@@ -466,7 +488,10 @@ void	Response::getFullPath(Route *route, std::string uri) {
             std::ifstream myfile(_path.c_str());
             if (myfile.fail()) {
                 _statusCode = 404;
-                _path = "/";
+                if (uri == "/submitForm")
+                    _path = uri;
+                else
+                    _path = "/";
             }
         }
 	}
