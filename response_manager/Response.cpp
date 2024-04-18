@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/17 16:13:21 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 09:55:48 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void Response::sendFile() {
 
 		char buffer[8192];
 
-    
+
         while (!infile.eof())
             {
                 bzero(buffer, sizeof(buffer));
@@ -149,15 +149,15 @@ int Response::receiveFile() {
 // ==================================================================== GET METHOD
 
 int Response::handleForm() {
-    
+
     std::string formBody = extractFileBody(_request->getRaw());
     std::map<std::string, std::string> formInfos;
-    
+
 
     std::cout << "IN FORM BODY : " << formBody << std::endl;
     // name=halo%26%26&email=chansarelarno%40hotmail.fr&message=Sava+les+gars+%3F+Encore+une+fois+%23cool.&gender=male
 
-    
+
 
     return 200;
 }
@@ -206,7 +206,7 @@ std::string Response::getReason(int sc) {
 }
 
 std::string Response::getHeaders(const int s) {
-    
+
     std::string h;
     std::ostringstream intss;
     intss << s;
@@ -256,10 +256,10 @@ void Response::getBody(bool autoindex, Route *route) {
 				}
 				catch(std::exception &e) {
 					std::cout << e.what() << std::endl;
-				}	
+				}
 		}
     }
-    
+
     if (_method == GET) {
         // if (!_extension.empty() && _extension.compare(".html")) {
         //     std::cout << "No, this sendfile :)" << std::endl;
@@ -441,7 +441,7 @@ void	Response::getFullPath(Route *route, std::string uri) {
     std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
 
 	if (route) {
-        
+
         if (!route->getRedirection().empty()) {
             _path = route->getRedirection();
             _statusCode = 301;
