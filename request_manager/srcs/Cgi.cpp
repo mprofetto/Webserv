@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 13:30:20 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 14:26:11 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ std::string Cgi::executeCgi() {
 	if (access(_fileToExec.c_str(), F_OK) != 0)
 		throw FileNotFoundException();
 
-    std::string extension = _getFileExtension(_fileToExec);
+    std::string extension = _getFileExtension(_fileToExec, '.');
     if (!extension.size())
         throw UnsupportedExtensionException();
 
@@ -70,17 +70,11 @@ std::string Cgi::executeCgi() {
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
-        if (extension == ".py") {
-            const char *exec = "/usr/bin/python3";
-            char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
-            execve(exec, const_cast<char *const *>(args), _envp);            
-        }
+        const char *exec = _executablePath.c_str();
+        std::string exe = _getFileExtension(_executablePath, '/');
+        char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
+        execve(exec, const_cast<char *const *>(args), _envp);            
 
-        if (extension == ".pl") {
-            const char *exec = "/usr/bin/perl";
-            char const *args[3] = {"perl",  _fileToExec.c_str(), NULL};
-            execve(exec, const_cast<char *const *>(args), _envp);
-        }
         std::cerr << "Error executing CGI." << std::endl;
             std::exit(EXIT_FAILURE);
     } else { //PARENT
@@ -176,9 +170,11 @@ void    Cgi::_freeArray(char **arr, int flag) {
 	delete[] arr;	  
 }
 
-std::string Cgi::_getFileExtension(const std::string& _fileToExec) {
-    size_t dotPos = _fileToExec.find_last_of('.');
+std::string Cgi::_getFileExtension(const std::string& _fileToExec, char sep) {
+    size_t dotPos = _fileToExec.find_last_of(sep);
     if (dotPos != std::string::npos) {
+        if (sep == '/' && (dotPos + 1) != std::string::npos)
+            dotPos++;
         return _fileToExec.c_str() + dotPos;
     }
     return "";
