@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   IncompleteRequest.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 14:46:06 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/10 09:05:41 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 23:33:19 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef INCOMPLETEREQUEST_HPP
 # define INCOMPLETEREQUEST_HPP
 
+# include <cstdlib>
 # include <string>
 
 class IncompleteRequest

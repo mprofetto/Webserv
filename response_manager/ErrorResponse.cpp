@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorResponse.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 16:09:15 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/12 13:42:01 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/18 23:30:38 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void    Response::buildErrorResponse() {
     std::map<int, std::string> errorMap = _server->getErrorPages();
     std::map<int, std::string>::iterator it = errorMap.find(_statusCode);
     if (it != _server->getErrorPages().end() && it != errorMap.end()) {
-        myfile.open(it->second);
+        myfile.open(it->second.c_str());
     } else if (it != _server->getErrorPages().end() || myfile.fail()) {
         _statusCode = 500;
         _body = get500ErrorPage();// response line is missing

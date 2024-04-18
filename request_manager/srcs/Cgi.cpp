@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 14:31:54 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 23:28:40 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
 		throw NotCgiException();
     if (!_request.getQuery().size())
 	    _fileToExec = "." + _request.getPath(); // fichier a executer
-    else 
+    else {
         _fileToExec = _request.getPath() + "?" + _request.getQuery();
+    }
 	_executablePath = _route.getPath(); // localisation de l'executable
 }
 
@@ -107,11 +108,12 @@ std::string Cgi::executeCgi() {
             if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS) {
                 std::cerr << "Child process exited with an error." << std::endl;
             }
-            else
+            else {
                 _exitCode = 200;
                 return ret;
             }
         }
+    }
     return "";
 }
 
@@ -162,9 +164,10 @@ void    Cgi::_freeArray(char **arr, int flag) {
 	if (flag == -1)
         for (size_t i = 0; arr[i]; i++)
 		    delete[] arr[i];
-    else
+    else {
         for (int i = 0; i < flag; i++)
             delete[] arr[i];
+    }
 	delete[] arr;	  
 }
 

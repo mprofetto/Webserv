@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLine.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:20 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 13:08:51 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/18 23:26:55 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUEST_LINE_HPP
 # define REQUEST_LINE_HPP
 
+# include <cstring>
 # include <string>
 # include <iostream>
 # include <fstream>
