@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/18 23:31:17 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 00:52:44 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ void	TcpListener::writeResponse(int client_socket)
 
 	std::cout << "Response length, about to send is : " << response.length() << std::endl;
 	
-	size_t totalBytesSent = 0;
+	//size_t totalBytesSent = 0;
 	std::vector<std::string> chunks = chunkResponse(response);
 
 	int i = 1;
@@ -155,7 +155,7 @@ void	TcpListener::writeResponse(int client_socket)
 			break;
 		} else {
 			std::cout << bytesSent << " bytes sent." << std::endl;
-			totalBytesSent += bytesSent;
+			//totalBytesSent += bytesSent;
 		}
 	}
 

@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/19 00:50:52 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 01:20:16 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,42 +50,32 @@ std::string Cgi::executeCgi() {
     if (_route.getExtension() != extension || (extension != ".py" && extension != ".pl"))
         throw UnsupportedExtensionException();
 
-    int pipefdin[2];
-    int pipefdout[2];
-    if (pipe(pipefdin) == -1) {
-        throw PipeException();
-    }
-    if (pipe(pipefdout) == -1) {
-        close(pipefdin[0]);
-        close(pipefdin[1]);
+    int pipefd[2];
+    if (pipe(pipefd) == -1) {
         throw PipeException();
     }
 
     if (!_request.getHeaders().empty())
         _envp = _createEnv();
 
-    //int fdin = dup(STDIN_FILENO);
-    //int fdout = dup(STDOUT_FILENO);
+    int fdin = dup(STDIN_FILENO);
+    int fdout = dup(STDOUT_FILENO);
 
     pid_t pid = fork();
     if (pid == -1) {
-        close(pipefdin[0]);
-        close(pipefdin[1]);
-        close(pipefdout[0]);
-        close(pipefdout[1]);
-        //close(fdin);
-        //close(fdout);
+        close(pipefd[0]);
+        close(pipefd[1]);
+        close(fdin);
+        close(fdout);
         _freeArray(_envp, -1);
         _envp = NULL;
         throw ForkException();
     }
 
     if (pid == 0) {
-        close(pipefdin[1]);
-        close(pipefdout[0]);
-
-        dup2(pipefdin[0], STDIN_FILENO);
-        dup2(pipefdin[1], STDOUT_FILENO);
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
 
         const char *exec = _executablePath.c_str();
         std::string exe = _getFileExtension(_executablePath, '/');
@@ -97,8 +87,8 @@ std::string Cgi::executeCgi() {
     } else {
         pid_t timeOut = fork();
         if (timeOut == -1) {
-            close(pipefdin[0]);
-            close(pipefdin[1]);
+            close(pipefd[0]);
+            close(pipefd[1]);
             _freeArray(_envp, -1);
             _envp = NULL;
             throw ForkException();
@@ -111,46 +101,38 @@ std::string Cgi::executeCgi() {
             kill(pid, SIGTERM);
             std::exit(2);
         } else {
-            close(pipefdin[0]);
-            close(pipefdout[1]);
-
-            
-            dup2(pipefdin[1], STDIN_FILENO);
-            dup2(pipefdout[0], STDOUT_FILENO);
+            close(pipefd[1]);
 
             size_t post;
             if (_request.getMethod() == POST) {
-                post = write(pipefdin[1], _request.getQuery().c_str(), _request.getQuery().size());
+                post = write(pipefd[1], _request.getQuery().c_str(), _request.getQuery().size());
             }
 
             int status;
             int bytesRead;
-            pid_t result = waitpid(pid, &status, 0);
+            int result = waitpid(pid, &status, 0);
             if (result == 0) {
-                _exitCode = 504;
+               _exitCode = 504;
                 _freeArray(_envp, -1);
                 return "";
             }
             kill(timeOut, SIGTERM);
             char buffer[1024];
-            while ((bytesRead = read(pipefdout[0], buffer, sizeof(buffer))) > 0) {
+            while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
                 ret.append(buffer, bytesRead);
             }
-            close(pipefdin[1]);
-            close(pipefdout[0]);
+            close(pipefd[0]);
 
-            //dup2(fdin, STDIN_FILENO);
-            //dup2(fdout, STDOUT_FILENO);
+            dup2(fdin, STDIN_FILENO);
+            dup2(fdout, STDOUT_FILENO);
 
             if (status || (_request.getMethod() == POST && post != _request.getQuery().size())) {
                 std::cerr << "Child process exited with an error." << std::endl;
             }
         }
     }
-
-    _freeArray(_envp, -1);
-    //close(fdin);
-    //close(fdout);
+    close(fdin);
+    close(fdout);
 
     _exitCode = 200;
     return ret;

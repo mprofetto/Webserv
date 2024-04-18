@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:20 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 23:26:55 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 01:07:08 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <iostream>
 # include <fstream>
 # include <sys/stat.h>
-
+# include <sstream>
 # include <vector>
 
 enum {DELETE, GET, POST, UNVALID};
