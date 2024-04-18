@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 10:42:57 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 15:30:29 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,12 @@
 # include <vector>
 # include <iostream>
 # include <map>
+# include <cstdlib>
 
 # define CONTENT_LENGTH_MAX 2000000000
 # define SPACE 32
 
 # define map_strstr std::map<std::string, std::string>
-# define vec_str std::vector<std::string>
 
 class Request {
     private:
@@ -39,13 +39,14 @@ class Request {
         size_t      _content_length;
         std::string _boundary_string;
 
-        void        _parseRequest(std::string const &request);
+        //void        _parseRequest(std::string const &request);
+        void        _parseRequest(std::string const &head);
         vec_str     _vectorSplit(std::string str, char sep);
         std::string _strtrim(std::string & s);
 
     public:
         Request();
-        Request(std::string &request);
+        //Request(std::string &request);
         Request(std::string &head, std::string &body);
         Request(Request const &copy);
         ~Request();

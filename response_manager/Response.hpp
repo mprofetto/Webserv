@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/11 09:44:01 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/17 16:12:39 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include "../request_manager/includes/Request.hpp"
+#include "../request_manager/includes/Cgi.hpp"
 #include "../server/Server.hpp"
 #include "../server/TcpListener.hpp"
 #include <sstream>
@@ -32,20 +33,26 @@ class Response {
 
     // CONSTRUCTORS
         Response(Server* server, int statusCode, Request* request, const int socket);
+        Response(const Response& src);
+        Response& operator=(const Response& src);
         ~Response();
 
     // MEMBER FUNCTIONS
-        void            getBody(bool autodindex);
+        void            getBody(bool autodindex, Route *route);
         void            buildResponse(Route* route);
         void            buildErrorResponse();
         std::string     getHeaders(const int s);
         std::string     getReason(int sc);
         int             fileTransfer();
-        int             sendFile();
+        int             isRedirect();
+        void            redirectClient();
+        void            sendFile();
         int             receiveFile();
         int             deleteFile();
         std::string     extractFileBody(std::string request);
         int             generateAutoindex();
+        int             handlePostRequest();
+        int             handleForm();
 
     // UTILS
         void	        getFullPath(Route *route, std::string uri);
@@ -55,15 +62,22 @@ class Response {
         bool            isDirectory(std::string path);
 
     // GET & SET
-        std::string     getResponse();
-        std::string     getPath();
-        int             getStatusCode();
+        unsigned long   getBytesSend() const;
+        std::string     getResponse() const;
+        std::string     getPath() const;
+        int             getStatusCode() const;
+        int             getClientSocket() const;
 
         void            setPath(std::string& str);
         void            setErrorPath(std::string& str);
+        void            setBody(std::string& str);
+        void            setHeaders(std::string& str);
+
+        void            addToBytesSend(unsigned long bytes_to_add);
 
     private:
         int                                 _clientSocket;
+        unsigned long                       _bytesSend;
         int                                 _method;
         int                                 _statusCode;
         std::string                         _path;

@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/03/19 15:12:55 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 13:03:57 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,22 @@
 # include <map>
 # include <string>
 # include <vector>
+# include <signal.h>
+
+# define CGI_TIMEOUT 3
 
 class Cgi {
 private:
     Request		_request;
 	Route		_route;
-	std::string	_filePath;
-	std::string _fileExe;
+	std::string	_fileToExec;
+	std::string _executablePath;
 	char**		_envp;
 	int			_exitCode;
 
-    std::string _getFileExtension(std::string const &filePath);
+    std::string _getFileExtension(std::string const &fileToExec);
 	char**		_createEnv();
+	void		_freeArray(char **arr, int flag);
 
 public:
     Cgi();
@@ -47,13 +51,13 @@ public:
 
 	Cgi     	&operator=(Cgi const &op);
 	
-    void		executeCgi();
+    std::string		executeCgi();
 
 	int			getExitCode() const;
 	Request		getRequest() const;
 	Route		getRoute() const;
-	std::string getFilePath() const;
-	std::string getFileExe() const;
+	std::string getFileToExec() const;
+	std::string getExecutablePath() const;
 	char**		getEnvp() const;
 
     class	PipeException : public std::exception {
@@ -69,6 +73,10 @@ public:
             const char *what() const throw();
 	};
     class	UnsupportedExtensionException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
+	class	FileNotFoundException : public std::exception {
         public:
             const char *what() const throw();
 	};

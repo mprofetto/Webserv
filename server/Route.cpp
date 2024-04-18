@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:46:07 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 08:49:56 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/08 12:05:18 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,11 @@ Route::Route(Server *server) : _autoindex(true), _cgi(false), _delete(true), _ge
 Route::~Route()
 {
 	return;
+}
+
+Server*					Route::getServer(void) const 
+{
+	return (this->_server);
 }
 
 bool					Route::getAutoindex(void) const

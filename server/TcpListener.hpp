@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/17 11:23:14 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 09:41:53 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,8 @@ class TcpListener
 		std::list<Server *>					_servers;
 		Request								_pending_request;
 		std::map<int, IncompleteRequest>	_incomplete_requests;
-		std::map<int, Response>				_responses;
+		// std::map<int, std::string>			_responses;
+		std::map<int, Response*>				_responses;
 
 		//Init Methods
 		void					bindSocket(Server *server);
@@ -138,7 +139,8 @@ class TcpListener
 		void					readRequest(int socket);
 		bool					incompleteRequestIsAlreadyStored(int socket);
 		void					registerRequestAsPending(int client_socket);
-		void					registerResponse(int socket, Response &response);
+		// void					registerReponse(int socket, std::string response);
+		void					registerResponse(int socket, Response *response);
 		void					writeResponse(int socket);
 		void					handleRequest(int client_socket);
 
@@ -146,7 +148,7 @@ class TcpListener
 		Server					*getServerBySocket(int socket);
 		int						getPortBySocket(int *socket);
 		// std::string				getResponse(int socket);
-		Response					getResponseToSend(int socket);
+		Response					*getResponseToSend(int socket);
 
 
 		//Parse config file

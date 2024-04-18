@@ -6,19 +6,21 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 10:47:57 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/15 15:42:46 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
-#include <cstdlib> //atoi
+
  /* ----- CONSTRUCTORS & DESTRUCTOR ----- */
 
 Request::Request() {
 }
 
-Request::Request(std::string & req): _raw(req), _body(""), _complete(true),  _expect(false), _content_length(0), _boundary_string("") {
-    _parseRequest(req);
+Request::Request(std::string &head, std::string &body): _body(body), _complete(true),  _expect(false), _content_length(0), _boundary_string(""){
+    _raw = head + body;
+    std::cout << "------ HEAD + BODY -------" << std::endl << head + body << std::endl;
+    _parseRequest(head);
     if (_req.getMethod() == POST && getHeader("Content-Length").size()) {
         _content_length = atoi(getHeader("Content-Length").c_str());
         if (_content_length > CONTENT_LENGTH_MAX)
@@ -33,14 +35,24 @@ Request::Request(std::string & req): _raw(req), _body(""), _complete(true),  _ex
             if (it->second == "100-continue")
                 _expect = true;
         }
-    }
+    } 
 }
 
-Request::Request(std::string &head, std::string &body): _body(body), _complete(true),  _expect(false), _content_length(0), _boundary_string(""){
+Request::Request(Request const &copy) {
+    *this = copy;
+}
+
+Request::~Request() {
+}
+
+
+/* ----- PRIVATE FUNCTIONS ----- */
+
+void Request::_parseRequest(std::string const & head) {
     std::istringstream  iss(head);
     std::string         line;
     int                 count = 0;
-    _raw = head + body;
+    
     while (std::getline(iss, line, '\n')) {
             if (line.size() == 0)
                 continue ;
@@ -65,72 +77,6 @@ Request::Request(std::string &head, std::string &body): _body(body), _complete(t
             std::string headerVal = line.substr(pos + 1);
             this->_headers.insert(std::make_pair(headerName, headerVal));
         } 
-    if (_req.getMethod() == POST && getHeader("Content-Length").size()) {
-        _content_length = atoi(getHeader("Content-Length").c_str());
-        if (_content_length > CONTENT_LENGTH_MAX)
-            throw ContentLengthException();
-        std::cout << "Content lenght in request manager: " << _content_length << " Body lenght in request manager: " << _body.size() << std::endl;
-        if (_body.size() < _content_length)
-            _complete = false;
-    }
-    if (_req.getMethod() == POST && !_headers.empty()) {
-        map_strstr::iterator it = _headers.find("Expect");
-        if (it->first == "Expect") {
-            if (it->second == "100-continue")
-                _expect = true;
-        }
-    } 
-}
-
-
-Request::Request(Request const &copy) {
-    *this = copy;
-}
-
-Request::~Request() {
-}
-
-
-/* ----- PRIVATE FUNCTIONS ----- */
-
-void Request::_parseRequest(std::string const & request) {
-    std::istringstream  iss(request);
-    std::string         line;
-    int                 count = 0;
-
-    while (std::getline(iss, line, '\n')) {
-            if (line.size() == 0)
-                continue ;
-            if (count == 0) {
-                vec_str arr = _vectorSplit(line, SPACE);
-                std::string httpMethods[3] = {"DELETE", "GET", "POST"};
-                int method;
-
-                for (method = 0; method < 3 && httpMethods[method] != arr[0]; method++);
-                _req =  RequestLine(method, arr[1], arr[2], arr[0]);
-                count++;
-                continue ;
-            }
-            if (_body != "") {
-                if (line != _boundary_string)
-                    _body += line;
-                continue ;
-            }
-            size_t pos = line.find(':');
-            if (pos == std::string::npos && _req.getMethod() != GET) {
-                if (line.size() >= 2 && line[0] == '-' && line[1] == '-') {
-                    _boundary_string = line;
-                    // std::cout << "Do we ever enter this condition ?" << std::endl; // todel
-                    // std::cout << "If yes, boundary is : " << _boundary_string << std::endl; // todel
-                }
-                else
-                    _body = line;
-                continue ;
-            }
-            std::string headerName = line.substr(0, pos);
-            std::string headerVal = line.substr(pos + 1);
-            this->_headers.insert(std::make_pair(headerName, headerVal));
-        }
 }
 
 vec_str Request::_vectorSplit(std::string str, char sep) {
@@ -142,6 +88,8 @@ vec_str Request::_vectorSplit(std::string str, char sep) {
         arr.push_back(token);
         token = std::strtok(0, &sep);
     }
+    for (int i = 0; i < 3; i++)
+        std::cout << "============> ARR=[" << arr[i] << "]\n";
     return arr;
 }
 
