@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 11:57:44 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:30:20 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
     if (!_request.getQuery().size())
 	    _fileToExec = "." + _request.getPath(); // fichier a executer
     else 
-        _fileToExec = "." + _request.getPath() + "?" + _request.getQuery();
+        _fileToExec = _request.getPath() + "?" + _request.getQuery();
 	_executablePath = _route.getPath(); // localisation de l'executable
 }
 
@@ -37,89 +37,89 @@ Cgi::Cgi(Cgi const &copy) {
 /* ----- FUNCTIONS ----- */
 
 std::string Cgi::executeCgi() {
-    //check if the file to execute actually exist
+    std::string ret = "";
+
 	if (access(_fileToExec.c_str(), F_OK) != 0)
 		throw FileNotFoundException();
 
-    //check if the file to exec got an executable extension for python3 or perl
     std::string extension = _getFileExtension(_fileToExec);
-    
-    if (_route.getExtension() == extension && (extension == ".py" || extension == ".pl")) {
-        int pipefd[2];
-        if (pipe(pipefd) == -1) {
-            throw PipeException();
-        }
-        if (!_request.getHeaders().empty())
-				_envp = _createEnv();
+    if (!extension.size())
+        throw UnsupportedExtensionException();
 
-        pid_t pid = fork();
-        if (pid == -1) {
+    if (_route.getExtension() != extension || (extension != ".py" && extension != ".pl"))
+        throw UnsupportedExtensionException();
+
+    int pipefd[2];
+    if (pipe(pipefd) == -1) {
+        throw PipeException();
+    }
+    if (!_request.getHeaders().empty())
+            _envp = _createEnv();
+
+    pid_t pid = fork();
+    if (pid == -1) {
+        close(pipefd[0]);
+        close(pipefd[1]);
+        _freeArray(_envp, -1);
+        _envp = NULL;
+        throw ForkException();
+    }
+
+    // CHILD
+    if (pid == 0) {
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+        if (extension == ".py") {
+            const char *exec = "/usr/bin/python3";
+            char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
+            execve(exec, const_cast<char *const *>(args), _envp);            
+        }
+
+        if (extension == ".pl") {
+            const char *exec = "/usr/bin/perl";
+            char const *args[3] = {"perl",  _fileToExec.c_str(), NULL};
+            execve(exec, const_cast<char *const *>(args), _envp);
+        }
+        std::cerr << "Error executing CGI." << std::endl;
+            std::exit(EXIT_FAILURE);
+    } else { //PARENT
+
+        pid_t timeOut = fork();
+        if (timeOut == -1) {
             close(pipefd[0]);
             close(pipefd[1]);
             _freeArray(_envp, -1);
-                _envp = NULL;
+            _envp = NULL;
             throw ForkException();
         }
-
-        // CHILD
-        if (pid == 0) {
-            close(pipefd[0]);
-            dup2(pipefd[1], STDOUT_FILENO);
+        if (!timeOut) {
+            struct timeval tv;
+            tv.tv_sec = CGI_TIMEOUT;
+            tv.tv_usec = 0;
+            select(0, NULL, NULL, NULL, &tv);
+            kill(pid, SIGTERM);
+            std::exit(2);
+        } else {
             close(pipefd[1]);
-            if (extension == ".py") {
-                const char *exec = "/usr/bin/python3";
-                char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
-                execve(exec, const_cast<char *const *>(args), _envp);            
+            char buffer[1023];
+            int status;
+            ssize_t bytesRead;
+            while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
+                //std::cout.write(buffer, bytesRead);
+                ret += std::string(buffer, bytesRead);
             }
-
-            if (extension == ".pl") {
-                const char *exec = "/usr/bin/perl";
-                char const *args[3] = {"perl",  _fileToExec.c_str(), NULL};
-                execve(exec, const_cast<char *const *>(args), _envp);
+            close(pipefd[0]);
+            waitpid(pid, &status, 0);
+            kill(timeOut, SIGTERM);
+            if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS) {
+                std::cerr << "Child process exited with an error." << std::endl;
             }
-            std::cerr << "Error executing CGI." << std::endl;
-                std::exit(EXIT_FAILURE);
-        } else { //PARENT
-
-            pid_t timeOut = fork();
-            if (timeOut == -1) {
-                close(pipefd[0]);
-                close(pipefd[1]);
-                _freeArray(_envp, -1);
-                _envp = NULL;
-                throw ForkException();
+            else
+                _exitCode = 200;
+                return ret;
             }
-            if (!timeOut) {
-                struct timeval tv;
-                tv.tv_sec = CGI_TIMEOUT;
-                tv.tv_usec = 0;
-                select(0, NULL, NULL, NULL, &tv);
-                kill(pid, SIGTERM);
-                std::exit(2);
-            } else {
-                std::string tmp = "";
-                close(pipefd[1]);
-                char buffer[1023];
-                int status;
-                ssize_t bytesRead;
-                while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
-                    //std::cout.write(buffer, bytesRead);
-                    tmp += std::string(buffer, bytesRead);
-                }
-                close(pipefd[0]);
-                waitpid(pid, &status, 0);
-                kill(timeOut, SIGTERM);
-                if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS) {
-                    std::cerr << "Child process exited with an error." << std::endl;
-                }
-                else
-                    _exitCode = 200;
-                    return tmp;
-                }
         }
-    } else {
-       throw UnsupportedExtensionException();
-    }
     return "";
 }
 

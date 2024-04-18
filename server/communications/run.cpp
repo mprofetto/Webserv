@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/17 16:13:33 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:29:07 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,14 +71,29 @@ void	TcpListener::handleRequest(int client_socket)
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
 
 	std::string checkRoute = _pending_request.getPath();
+	std::string cgi_ext = checkRoute;
+    size_t dotPos = cgi_ext.find_last_of('.');
+    if (dotPos != std::string::npos)
+        cgi_ext = cgi_ext.c_str() + dotPos;
 	if (!checkRoute.empty() && checkRoute[checkRoute.size() - 1] != '/')
 		checkRoute += "/";
-
 	std::list<Route *> r = server->getRoute();
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		if (!(*it)->getPath().compare(checkRoute) || !((*it)->getPath() + "/").compare(checkRoute)) { // la deuxieme condition necessaire car ne rentre pas dans cgi sinon
+		if (!(*it)->getPath().compare(checkRoute)) { // la deuxieme condition necessaire car ne rentre pas dans cgi sinon
 			route = *it;
 			break;
+		}
+		if ((*it)->getPath() == "/usr/bin/python3") {
+			if (cgi_ext == ".py"){
+				route = *it;
+				break;
+			}
+		}
+		if ((*it)->getPath() == "/usr/bin/perl") {
+			if (cgi_ext == ".pl"){
+				route = *it;
+				break;
+			}
 		}
 	}
 

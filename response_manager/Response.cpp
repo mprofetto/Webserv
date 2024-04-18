@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 10:07:02 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:02:13 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,6 +237,7 @@ void Response::getBody(bool autoindex, Route *route) {
     std::string             line;
 
 
+    std::cout << "CGI ????????\n";
 	if (route) {
 		if ((!route->getExtension().empty()) || _request->getMethod() == POST || (_request->getMethod() == GET && _request->getPath().compare("/"))) {
 				std::cout << "[CGI] START" << std::endl;
@@ -440,8 +441,7 @@ void	Response::getFullPath(Route *route, std::string uri) {
 
     std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
 
-	if (route) {
-        
+	if (route) { 
         if (!route->getRedirection().empty()) {
             _path = route->getRedirection();
             _statusCode = 301;
@@ -454,11 +454,13 @@ void	Response::getFullPath(Route *route, std::string uri) {
 	} else {
         if (isDirectory("." + uri)) {
             std::cout << "STEP 1" << std::endl;
-            _path = "." + uri;
+            _path = uri;
         } else if (_method == DELETE) {
             std::cout << "STEP 2" << std::endl;
             std::string parsedUri = uri.substr(uri.find_last_of('/'));
-            _path = "./upload" + parsedUri;
+            _path = "./upload" + parsedUri; 
+        } else if (_extension == ".py" || _extension == ".pl") {
+            _path = uri;
         } else {
             std::cout << "STEP 3" << std::endl;
             _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
