@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/18 09:44:29 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 10:12:48 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,6 @@ void	TcpListener::writeResponse(int client_socket)
 	std::string	response = this->_responses.find(client_socket)->second->getResponse();
 
 	std::cout << "Response length, about to send is : " << response.length() << std::endl;
-
 	size_t totalBytesSent = 0;
 	std::vector<std::string> chunks;
 
