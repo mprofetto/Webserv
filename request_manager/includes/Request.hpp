@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:08:01 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 11:58:59 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/17 15:30:29 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@
 # define SPACE 32
 
 # define map_strstr std::map<std::string, std::string>
-# define vec_str std::vector<std::string>
 
 class Request {
     private:

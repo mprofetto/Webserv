@@ -6,10 +6,9 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/16 16:03:45 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:13:37 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 # include "../TcpListener.hpp"
 # include "../../request_manager/includes/Cgi.hpp"
@@ -62,11 +61,9 @@ void	TcpListener::handleNewConnection(Server *server)
 
 void	TcpListener::handleRequest(int client_socket)
 {
-	if (_pending_request.getMethod() == POST)
-	{
-		std::cout << "Method is POST" << std::endl;
-		std::cout << "Body is: " << _pending_request.getBody().size() << "Content lenght is: " << _pending_request.getContentLength() <<std::endl;
-	}
+
+	std::cout << "Right before habnleRequest, uri is : " << _pending_request.getPath() << std::endl;
+
 	int status_code = 200;
 	Route *route = NULL;
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
@@ -82,48 +79,6 @@ void	TcpListener::handleRequest(int client_socket)
 			break;
 		}
 	}
-
-	// if (route) {
-	// 	if ((!route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-	// 			std::cout << "[CGI] START" << std::endl;
-	// 			try {
-	// 				Cgi cgi(_pending_request, *route);
-	// 				std::string tmp = cgi.executeCgi();
-	// 				std::cout << "[CGI] END ===> [SATUS CODE = " << status_code << "]" << std::endl;
-	// 				status_code = cgi.getExitCode();
-	// 				Response response_cgi(server, cgi.getExitCode(), &_pending_request, client_socket);
-	// 				std::string path = _pending_request.getPath();
-	// 				response_cgi.setPath(path);
-	// 				response_cgi.buildResponse(route);
-	// 				FD_SET(client_socket, &this->_write_master_fd);
-	// 				this->registerResponse(client_socket, response_cgi);
-	// 				std::cout << "------------CGI-------------" << std::endl;
-	// 				return ;
-	// 			}
-	// 			catch(std::exception &e) {
-	// 				std::cout << e.what() << std::endl;
-	// 			}
-	// 	}
-
-	// }
-
-	// std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
-	// if (route) {
-	// 	std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
-	// 	if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-	// 			std::cout << "[CGI] Start\n";
-	// 			try {
-	// 				Cgi cgi(_pending_request, *route);
-	// 				cgi.executeCgi();
-	// 				status_code = cgi.getExitCode();
-	// 			}
-	// 			catch(std::exception &e) {
-	// 				std::cout << e.what() << std::endl;
-	// 			}
-	// 			std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
-	// 	}
-	// 	std::cout << "------------CGI-------------" << std::endl;
-	// }
 
 	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 
@@ -144,50 +99,52 @@ void	TcpListener::registerResponse(int socket, Response *response)
 		it->second = response;
 }
 
-void	TcpListener::writeResponse(int client_socket)
-{
-	std::cout << "Sending response\n";
-	std::string	response = this->_responses.find(client_socket)->second->getResponse();
+std::vector<std::string>	TcpListener::chunkResponse(std::string response) {
 
-	std::cout << "Response.size()" << response.size() << "\n";
-	std::cout << send(client_socket, response.c_str(), response.size(), 0);
-	this->_responses.erase(client_socket);
-	FD_CLR(client_socket, &this->_write_master_fd);
-	// DELETE RESPONSES HERE
-	// this->_responses.erase(client_socket);
-	std::cout << "Response sended\n";
+	std::vector<std::string> chunks;
+
+	size_t pos = 0;
+	size_t chunkSize = 16384;
+	while (pos < response.size()) {
+        size_t len = std::min(chunkSize, response.size() - pos);
+        chunks.push_back(response.substr(pos, len));
+        pos += len;
+    }
+	return chunks;
 }
 
-// void	TcpListener::writeResponse(int client_socket)
-// {
-// 	std::cout << "Sending response" << std::endl;
-// 	std::string	response = this->_responses.find(client_socket)->second->getResponse();
+void	TcpListener::writeResponse(int client_socket)
+{
+	std::cout << "Sending response" << std::endl;
+	std::string	response = this->_responses.find(client_socket)->second->getResponse();
 
-// 	std::cout << "Response length, about to send is : " << response.length() << std::endl;
+	std::cout << "Response length, about to send is : " << response.length() << std::endl;
 
-// 	size_t totalBytesSent = 0;
+	size_t totalBytesSent = 0;
+	std::vector<std::string> chunks = chunkResponse(response);
 
-// 	int i = 1;
-// 	while (totalBytesSent < response.size()) {
-// 		std::cout << "We had " << i << " loops." << std::endl;
-// 		i++;
-// 		long bytesSent = send(client_socket, response.c_str() + totalBytesSent, response.size() - totalBytesSent, 0);
-// 		if (bytesSent == -1) {
-// 			std::cerr << "Error on sending response." << std::endl;
-// 			perror("send");
-// 			break;
-// 		} else if (bytesSent == 0) {
-// 			std::cerr << "Nothing has been sent :0" << std::endl;
-// 			break;
-// 		} else {
-// 			std::cout << bytesSent << " bytes sent." << std::endl;
-// 			totalBytesSent += bytesSent;
-// 		}
-// 	}
+	int i = 1;
+	for (std::vector<std::string>::iterator it = chunks.begin(); it != chunks.end(); ++it) {
+		std::cout << "We had " << i << " loops." << std::endl;
+		i++;
 
-// 	this->_responses.erase(client_socket);
-// 	FD_CLR(client_socket, &this->_write_master_fd);
-// 	// DELETE RESPONSES HERE
-// 	this->_responses.erase(client_socket);
-// 	std::cout << "Response Sent" << std::endl;
-// }
+        const std::string& chunk = *it;
+        ssize_t bytesSent = send(client_socket, chunk.c_str(), chunk.size(), 0);
+		if (bytesSent == -1) {
+			std::cerr << "Error on sending response." << std::endl;
+			perror("send");
+			break;
+		} else if (bytesSent == 0) {
+			std::cerr << "Nothing has been sent :0" << std::endl;
+			break;
+		} else {
+			std::cout << bytesSent << " bytes sent." << std::endl;
+			totalBytesSent += bytesSent;
+		}
+	}
+
+	FD_CLR(client_socket, &this->_write_master_fd);
+	delete this->_responses.find(client_socket)->second;
+	this->_responses.erase(client_socket);
+	std::cout << "Response Sent" << std::endl;
+}

@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/16 15:48:03 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:13:24 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include "../request_manager/includes/Request.hpp"
+#include "../request_manager/includes/Cgi.hpp"
 #include "../server/Server.hpp"
 #include "../server/TcpListener.hpp"
 #include <sstream>
@@ -37,7 +38,7 @@ class Response {
         ~Response();
 
     // MEMBER FUNCTIONS
-        void            getBody(bool autodindex);
+        void            getBody(bool autodindex, Route *route);
         void            buildResponse(Route* route);
         void            buildErrorResponse();
         std::string     getHeaders(const int s);
@@ -50,6 +51,8 @@ class Response {
         int             deleteFile();
         std::string     extractFileBody(std::string request);
         int             generateAutoindex();
+        int             handlePostRequest();
+        int             handleForm();
 
     // UTILS
         void	        getFullPath(Route *route, std::string uri);
@@ -70,11 +73,10 @@ class Response {
         void            setBody(std::string& str);
         void            setHeaders(std::string& str);
 
-        // void            addToBytesSend(unsigned long bytes_to_add);
-
         void            addToBytesSend(unsigned long bytes_to_add);
 
     private:
+        bool                                _cgi;
         int                                 _clientSocket;
         unsigned long                       _bytesSend;
         int                                 _method;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLine.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/10 11:56:47 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:08:58 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,12 @@ RequestLine::RequestLine(int const &method, std::string const &path, std::string
         _not_valid = methodName;
     else
         _not_valid = "";
-    size_t pos = path.find('?');
-    if (pos == std::string::npos)
-        _path = path;
-    else {
-        _path = path.substr(0, pos);
-        _query = path.substr(pos + 1);
+    vec_str arr = _vectorSplit(path, '?');
+    if (arr.size() == 2) {
+        _path = arr[0];
+        _query = arr[1];
+    } else {
+        _path = arr[0];
     }
 }
 
@@ -35,6 +35,18 @@ RequestLine::RequestLine(const RequestLine & copy) {
 RequestLine::~RequestLine() {
 }
 
+/* ----- FUNCTIONS ----- */
+vec_str RequestLine::_vectorSplit(std::string str, char sep) {
+    vec_str arr;
+    char*   cstr = const_cast<char*>(str.c_str());
+    char*   token = std::strtok(cstr, &sep);
+
+    while (token != 0) {
+        arr.push_back(token);
+        token = std::strtok(0, &sep);
+    }
+    return arr;
+}
 
 /* ----- GETTERS ----- */
 

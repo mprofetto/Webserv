@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/16 12:36:46 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:09:51 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 // ============================================================================== CONSTRUCTORS
 
 Response::Response(Server* server, int statusCode, Request* request, const int socket) :
+        _cgi(false),
         _clientSocket(socket),
         _method(request->getMethod()),
         _statusCode(statusCode),
@@ -70,25 +71,26 @@ int Response::deleteFile() {
 void Response::sendFile() {
 
     std::cout << "IN SENDFILE\n" << std::endl;
+    
+    //check size, a virer --------------------------------------------
     std::ifstream   sizeFile(_path, std::ios::binary | std::ios::in);
     sizeFile.seekg(0, std::ios::end);
     int file_size = sizeFile.tellg();
     std::cout << "Size of file is : " << file_size << std::endl;
     sizeFile.close();
+    //----------------------------------------------------------------
 
 	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
 	if (!infile) {
-		std::cout << "Le fichier ne s'ouvre pas." << std::endl;
+		std::cerr << "Error opening local file." << std::endl;
 		_statusCode = 500;
 	} else {
 
-		// std::stringstream responseBody;
 		char buffer[8192];
 
-    
         while (!infile.eof())
             {
-                // bzero(buffer, sizeof(buffer));
+                bzero(buffer, sizeof(buffer));
                 infile.read(buffer, sizeof(buffer));
                 // std::cout << "BUFFER : " << buffer << std::endl;
                 _body.append(buffer, infile.gcount());
@@ -139,21 +141,79 @@ int Response::receiveFile() {
     if (!targetFile) {
         std::cerr << "Error creating the file.\n";
     }
+
+    // ADD a check if ressource exists and return 200
     targetFile.write(fileBody.c_str(), fileBody.size());
     targetFile.close();
-	return 200;
+	return 201;
 }
 
 // ==================================================================== GET METHOD
+
+#include <cstdlib>
+std::string    convertEncoding(std::string s) {
+
+    std::string str = s;
+    size_t pos = str.find('%');
+
+    while (pos != std::string::npos) {
+        std::string sub = str.substr(pos + 1, 2);
+        int deci = strtol(sub.c_str(), NULL, 16);
+        char special = deci;
+        str.replace(pos, 3, 1, special);
+        pos = str.find('%', pos);
+    }
+
+    pos = str.find('+');
+    while (pos != std::string::npos) {
+        str[pos] = ' ';
+        pos = str.find('+', pos + 1);
+    }
+    return str;
+}
+
+int Response::handleForm() {
+    
+    std::istringstream formBody(_request->getBody());
+    std::map<std::string, std::string> formInfos;
+    std::vector<std::string> formElements;
+
+    for (std::string ele; std::getline(formBody, ele, '&'); ) {
+        formElements.push_back(ele);
+    }
+
+    for (std::vector<std::string>::iterator it = formElements.begin(); it != formElements.end(); it++) {
+        std::string str = *it;
+        size_t pos = str.find('=');
+        std::string key = convertEncoding(str.substr(0, pos));
+        std::string value = convertEncoding(str.substr(pos + 1));
+        formInfos[key] = value;
+    }
+    
+    for (std::map<std::string, std::string>::iterator it = formInfos.begin(); it != formInfos.end(); it++) {
+        std::cout << "[" << it->first << "] = " << it->second << std::endl;
+    }
+    return 201;
+}
+
+int Response::handlePostRequest() {
+
+    if (_path == "/submitForm") {
+        return handleForm();
+    } else {
+        return receiveFile();
+    }
+}
+
 
 int Response::fileTransfer() {
 
     std::cout << "In file transfer, method is " << _method << std::endl;
     switch (_method) {
         // case GET:       return sendFile();
-        case POST:      return receiveFile();
+        case POST:      return handlePostRequest();
         case DELETE:    return deleteFile();
-        default:        return 200;//                METHOD UNKNOWN, what statusocde ?
+        default:        return 200;
     }
 }
 
@@ -167,23 +227,29 @@ std::string Response::getReason(int sc) {
     reasons.insert(std::make_pair(403, "Forbidden"));
     reasons.insert(std::make_pair(404, "Not Found"));
     reasons.insert(std::make_pair(500, "Internal Server Error"));
+    reasons.insert(std::make_pair(501, "Not Implemented"));
+
 
     std::map<int, std::string>::iterator it = reasons.find(sc);
     if (it == reasons.end()) {
-        std::cout << "Status code not implemented !" << std::endl;
+        std::map<int, std::string>::reverse_iterator itrev = reasons.rbegin();
+        return itrev->second;
     }
     return it->second;
 }
 
 std::string Response::getHeaders(const int s) {
+    
     std::string h;
+    std::ostringstream intss;
+    intss << s;
 
     if (_method == GET) {
         h += "Content-Type: " + getMimeType() + "\r\n";
     }
-    h += "Content-Length: " + std::to_string(s) + "\r\n";// virer tostirng
+    h += "Content-Length: " + intss.str() + "\r\n";
 
-    if (!_extension.empty()) {
+    if (!_extension.empty() && _cgi == false) {
         std::string fileName = extractFileName();
         if (_extension == ".css") {
 	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
@@ -194,32 +260,52 @@ std::string Response::getHeaders(const int s) {
     return h;
 }
 
-void Response::getBody(bool autoindex) {
+void Response::getBody(bool autoindex, Route *route) {
 
 	std::ifstream			myfile;
     std::string             line;
 
+
+	if (route) {
+		if ((!route->getExtension().empty()) || _request->getMethod() == POST || (_request->getMethod() == GET && _request->getPath().compare("/"))) {
+				std::cout << "[CGI] START" << std::endl;
+				try {
+					Cgi cgi(*_request, *route);
+				    _body = cgi.executeCgi();
+					_statusCode = cgi.getExitCode();
+                    _cgi = true;
+					return ;
+				}
+				catch(std::exception &e) {
+					std::cout << e.what() << std::endl;
+				}	
+		}
+    }
+    
     if (_method == GET) {
-        if (!_extension.empty() && _extension.compare(".html")) {
-            sendFile();
-        }
-        else if (isDirectory(_path)) {
+        // if (!_extension.empty() && _extension.compare(".html")) {
+        //     std::cout << "No, this sendfile :)" << std::endl;
+        //     sendFile();
+        // }
+        if (isDirectory(_path)) {
             if (autoindex) {
                 _statusCode = generateAutoindex();
             } else {
                 _statusCode = 403;
             }
         } else {
-            myfile.open(_path);
-            if (myfile.fail()) {
-                _statusCode = 500;
-            }
-            else {
-                while (std::getline(myfile, line)) {
-                    _body += line;
-                }
-            }
-            myfile.close();
+            std::cout << "This sendfile ??" << std::endl;
+            sendFile();
+            // myfile.open(_path);
+            // if (myfile.fail()) {
+            //     _statusCode = 500;
+            // }
+            // else {
+            //     while (std::getline(myfile, line)) {
+            //         _body += line;
+            //     }
+            // }
+            // myfile.close();
         }
     } else if (_method == POST || _method == DELETE) {
         _body = "";
@@ -253,7 +339,7 @@ void      Response::buildResponse(Route *route) {
     }
 
     if (_statusCode == 200 || _statusCode == 204) {
-        getBody(autodindex);
+        getBody(autodindex, route);
         _headers = getHeaders(_body.length()) + "\n";
         ss << _statusCode;
         _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason(_statusCode) + "\n";
@@ -364,7 +450,10 @@ std::string Response::extractFileBody(std::string request) {
 std::string     Response::getMimeType() {
 
     if (!_extension.empty()) {
-        return _server->getMimeType(_extension);
+        if (_extension == ".py" || _extension == ".pl")
+            return _server->getMimeType("default");//                 A DEL ABSOLUMENT
+        else
+            return _server->getMimeType(_extension);
     }
     return _server->getMimeType("default");
 }
@@ -399,7 +488,10 @@ void	Response::getFullPath(Route *route, std::string uri) {
             std::ifstream myfile(_path.c_str());
             if (myfile.fail()) {
                 _statusCode = 404;
-                _path = "/";
+                if (uri == "/submitForm")
+                    _path = uri;
+                else
+                    _path = "/";
             }
         }
 	}

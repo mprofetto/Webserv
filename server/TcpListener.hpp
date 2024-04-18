@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/16 09:37:14 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/16 18:17:27 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,7 @@ class TcpListener
 		int						getPortBySocket(int *socket);
 		// std::string				getResponse(int socket);
 		Response					*getResponseToSend(int socket);
+		std::vector<std::string>	chunkResponse(std::string response);
 
 
 		//Parse config file
