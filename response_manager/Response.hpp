@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/17 12:15:49 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/18 12:30:10 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ class Response {
         void            addToBytesSend(unsigned long bytes_to_add);
 
     private:
+        bool                                _cgi;
         int                                 _clientSocket;
         unsigned long                       _bytesSend;
         int                                 _method;
