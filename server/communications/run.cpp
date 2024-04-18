@@ -6,9 +6,10 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/18 10:12:48 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:30:16 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 # include "../TcpListener.hpp"
 # include "../../request_manager/includes/Cgi.hpp"
@@ -61,11 +62,9 @@ void	TcpListener::handleNewConnection(Server *server)
 
 void	TcpListener::handleRequest(int client_socket)
 {
-	if (_pending_request.getMethod() == POST)
-	{
-		std::cout << "Method is POST" << std::endl;
-		std::cout << "Body is: " << _pending_request.getBody().size() << "Content lenght is: " << _pending_request.getContentLength() <<std::endl;
-	}
+
+	std::cout << "Right before habnleRequest, uri is : " << _pending_request.getPath() << std::endl;
+
 	int status_code = 200;
 	Route *route = NULL;
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
@@ -104,6 +103,8 @@ void	TcpListener::handleRequest(int client_socket)
 				std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
 		}
 	}
+
+	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 
 	Response* response = new Response(server, status_code, &_pending_request, client_socket);//                create response here
 	response->buildResponse(route);
@@ -161,16 +162,29 @@ void	TcpListener::writeResponse(int client_socket)
 	std::string	response = this->_responses.find(client_socket)->second->getResponse();
 
 	std::cout << "Response length, about to send is : " << response.length() << std::endl;
+
 	size_t totalBytesSent = 0;
 	std::vector<std::string> chunks;
 
 	size_t pos = 0;
-	size_t chunkSize = 8192;
+	size_t chunkSize = 16384;
 	while (pos < response.size()) {
         size_t len = std::min(chunkSize, response.size() - pos);
         chunks.push_back(response.substr(pos, len));
         pos += len;
     }
+	return chunks;
+}
+
+void	TcpListener::writeResponse(int client_socket)
+{
+	std::cout << "Sending response" << std::endl;
+	std::string	response = this->_responses.find(client_socket)->second->getResponse();
+
+	std::cout << "Response length, about to send is : " << response.length() << std::endl;
+
+	size_t totalBytesSent = 0;
+	std::vector<std::string> chunks = chunkResponse(response);
 
 	int i = 1;
 	for (std::vector<std::string>::iterator it = chunks.begin(); it != chunks.end(); ++it) {
@@ -193,7 +207,6 @@ void	TcpListener::writeResponse(int client_socket)
 	}
 
 	FD_CLR(client_socket, &this->_write_master_fd);
-	// DELETE RESPONSES HERE
 	delete this->_responses.find(client_socket)->second;
 	this->_responses.erase(client_socket);
 	std::cout << "Response Sent" << std::endl;

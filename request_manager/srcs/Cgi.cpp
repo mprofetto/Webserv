@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/17 16:13:40 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 11:57:44 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,14 +103,15 @@ std::string Cgi::executeCgi() {
                 int status;
                 ssize_t bytesRead;
                 while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
-                    std::cout.write(buffer, bytesRead);
-                    tmp += buffer;
+                    //std::cout.write(buffer, bytesRead);
+                    tmp += std::string(buffer, bytesRead);
                 }
                 close(pipefd[0]);
                 waitpid(pid, &status, 0);
                 kill(timeOut, SIGTERM);
-                if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
+                if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS) {
                     std::cerr << "Child process exited with an error." << std::endl;
+                }
                 else
                     _exitCode = 200;
                     return tmp;

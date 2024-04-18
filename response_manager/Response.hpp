@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 10:18:49 by mprofett         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2024/04/18 13:29:37 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
@@ -76,6 +77,7 @@ class Response {
         void            addToBytesSend(unsigned long bytes_to_add);
 
     private:
+        bool                                _cgi;
         int                                 _clientSocket;
         unsigned long                       _bytesSend;
         int                                 _method;
