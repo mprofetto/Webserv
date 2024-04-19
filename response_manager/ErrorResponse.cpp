@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorResponse.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 16:09:15 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/12 13:42:01 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/19 11:02:14 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,10 @@ void    Response::buildErrorResponse() {
     std::map<int, std::string> errorMap = _server->getErrorPages();
     std::map<int, std::string>::iterator it = errorMap.find(_statusCode);
     if (it != _server->getErrorPages().end() && it != errorMap.end()) {
-        myfile.open(it->second);
+        myfile.open(it->second.c_str());
     } else if (it != _server->getErrorPages().end() || myfile.fail()) {
         _statusCode = 500;
-        _body = get500ErrorPage();// response line is missing
+        _body = get500ErrorPage();
         return;
     }
 
@@ -67,8 +67,12 @@ void    Response::buildErrorResponse() {
     }
     myfile.close();
 
-    _headers = getHeaders(_body.length()) + "\n";
+    std::ostringstream intss;
+    intss << _body.size();
+
+    _headers = "Content-Type: text/html\r\n";
+    _headers += "Content-Length: " + intss.str() + "\r\n\r\n";
     ss << _statusCode;
-    _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason(_statusCode) + "\n";
+    _statusLine = "HTTP/1.1 " + ss.str() + " " + getReason(_statusCode) + "\r\n";
     return;
 }

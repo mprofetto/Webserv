@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLine.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 13:08:58 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/19 01:05:19 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,15 +37,13 @@ RequestLine::~RequestLine() {
 
 /* ----- FUNCTIONS ----- */
 vec_str RequestLine::_vectorSplit(std::string str, char sep) {
-    vec_str arr;
-    char*   cstr = const_cast<char*>(str.c_str());
-    char*   token = std::strtok(cstr, &sep);
-
-    while (token != 0) {
-        arr.push_back(token);
-        token = std::strtok(0, &sep);
-    }
-    return arr;
+    vec_str tokens;
+    std::string token;
+    std::istringstream iss(str);
+    while (getline(iss, token, sep))
+        if (!token.empty())
+            tokens.push_back(token);
+    return tokens;
 }
 
 /* ----- GETTERS ----- */
