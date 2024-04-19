@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 14:20:32 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 11:50:26 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ private:
     std::string _getFileExtension(std::string const &fileToExec, char sep);
 	char**		_createEnv();
 	void		_freeArray(char **arr, int flag);
-
+	std::string _runCgi();
 public:
     Cgi();
 	Cgi(Request const &request, Route const &route);
@@ -77,6 +77,10 @@ public:
             const char *what() const throw();
 	};
 	class	FileNotFoundException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
+	class	WaitpidException : public std::exception {
         public:
             const char *what() const throw();
 	};
