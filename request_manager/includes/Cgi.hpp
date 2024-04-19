@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 14:20:32 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 15:09:26 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,10 @@ public:
             const char *what() const throw();
 	};
 	class	FileNotFoundException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
+	class	WaitpidException : public std::exception {
         public:
             const char *what() const throw();
 	};
