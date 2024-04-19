@@ -6,7 +6,11 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2024/04/18 13:35:26 by nesdebie         ###   ########.fr       */
+=======
+/*   Updated: 2024/04/19 00:52:44 by nesdebie         ###   ########.fr       */
+>>>>>>> Nestor_branch
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +75,9 @@ void	TcpListener::handleRequest(int client_socket)
 	std::string checkRoute = _pending_request.getPath();
 	std::string cgi_ext = checkRoute;
     size_t dotPos = cgi_ext.find_last_of('.');
-    if (dotPos != std::string::npos)
+    if (dotPos != std::string::npos) {
         cgi_ext = cgi_ext.c_str() + dotPos;
+	}
 	if (!checkRoute.empty() && checkRoute[checkRoute.size() - 1] != '/')
 		checkRoute += "/";
 	std::list<Route *> r = server->getRoute();
@@ -135,7 +140,7 @@ void	TcpListener::writeResponse(int client_socket)
 
 	std::cout << "Response length, about to send is : " << response.length() << std::endl;
 	
-	size_t totalBytesSent = 0;
+	//size_t totalBytesSent = 0;
 	std::vector<std::string> chunks = chunkResponse(response);
 
 	int i = 1;
@@ -154,7 +159,7 @@ void	TcpListener::writeResponse(int client_socket)
 			break;
 		} else {
 			std::cout << bytesSent << " bytes sent." << std::endl;
-			totalBytesSent += bytesSent;
+			//totalBytesSent += bytesSent;
 		}
 	}
 

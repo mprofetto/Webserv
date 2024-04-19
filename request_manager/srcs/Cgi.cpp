@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/18 13:30:20 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 01:39:15 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
 		throw NotCgiException();
     if (!_request.getQuery().size())
 	    _fileToExec = "." + _request.getPath(); // fichier a executer
-    else 
+    else {
         _fileToExec = _request.getPath() + "?" + _request.getQuery();
+    }
 	_executablePath = _route.getPath(); // localisation de l'executable
 }
 
@@ -38,11 +39,11 @@ Cgi::Cgi(Cgi const &copy) {
 
 std::string Cgi::executeCgi() {
     std::string ret = "";
+    
+    if (access(_fileToExec.c_str(), F_OK) != 0)
+        throw FileNotFoundException();
 
-	if (access(_fileToExec.c_str(), F_OK) != 0)
-		throw FileNotFoundException();
-
-    std::string extension = _getFileExtension(_fileToExec);
+    std::string extension = _getFileExtension(_fileToExec, '.');
     if (!extension.size())
         throw UnsupportedExtensionException();
 
@@ -53,38 +54,37 @@ std::string Cgi::executeCgi() {
     if (pipe(pipefd) == -1) {
         throw PipeException();
     }
+
     if (!_request.getHeaders().empty())
-            _envp = _createEnv();
+        _envp = _createEnv();
+
+    int fdin = dup(STDIN_FILENO);
+    int fdout = dup(STDOUT_FILENO);
 
     pid_t pid = fork();
     if (pid == -1) {
         close(pipefd[0]);
         close(pipefd[1]);
+        close(fdin);
+        close(fdout);
         _freeArray(_envp, -1);
         _envp = NULL;
         throw ForkException();
     }
 
-    // CHILD
     if (pid == 0) {
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
-        if (extension == ".py") {
-            const char *exec = "/usr/bin/python3";
-            char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
-            execve(exec, const_cast<char *const *>(args), _envp);            
-        }
 
-        if (extension == ".pl") {
-            const char *exec = "/usr/bin/perl";
-            char const *args[3] = {"perl",  _fileToExec.c_str(), NULL};
-            execve(exec, const_cast<char *const *>(args), _envp);
-        }
+        const char *exec = _executablePath.c_str();
+        std::string exe = _getFileExtension(_executablePath, '/');
+        char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
+        execve(exec, const_cast<char *const *>(args), _envp);
         std::cerr << "Error executing CGI." << std::endl;
-            std::exit(EXIT_FAILURE);
-    } else { //PARENT
-
+        _freeArray(_envp, -1);
+        std::exit(EXIT_FAILURE);
+    } else {
         pid_t timeOut = fork();
         if (timeOut == -1) {
             close(pipefd[0]);
@@ -102,26 +102,42 @@ std::string Cgi::executeCgi() {
             std::exit(2);
         } else {
             close(pipefd[1]);
-            char buffer[1023];
+
+            size_t post;
+            if (_request.getMethod() == POST) {
+                post = write(pipefd[1], _request.getQuery().c_str(), _request.getQuery().size());
+            }
+
             int status;
-            ssize_t bytesRead;
-            while ((bytesRead = read(pipefd[0], buffer, 1023)) > 0) {
-                //std::cout.write(buffer, bytesRead);
-                ret += std::string(buffer, bytesRead);
+            int bytesRead;
+            int result = waitpid(pid, &status, 0);
+            if (result == 0) {
+               _exitCode = 504;
+                _freeArray(_envp, -1);
+                return "";
+            }
+            kill(timeOut, SIGTERM);
+            char buffer[1024];
+            while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
+                ret.append(buffer, bytesRead);
             }
             close(pipefd[0]);
-            waitpid(pid, &status, 0);
-            kill(timeOut, SIGTERM);
-            if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS) {
+
+            dup2(fdin, STDIN_FILENO);
+            dup2(fdout, STDOUT_FILENO);
+
+            if (status || (_request.getMethod() == POST && post != _request.getQuery().size())) {
                 std::cerr << "Child process exited with an error." << std::endl;
             }
-            else
-                _exitCode = 200;
-                return ret;
-            }
         }
-    return "";
+    }
+    close(fdin);
+    close(fdout);
+
+    _exitCode = 200;
+    return ret;
 }
+
 
 char **Cgi::_createEnv() {
 	map_strstr mapEnv;
@@ -136,7 +152,7 @@ char **Cgi::_createEnv() {
 	std::stringstream content_length;
 	content_length << _request.getContentLength();
 	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str()));
-	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front())); // to check !!
+	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front()));
     std::stringstream port;
 	port << _route.getServer()->getPort();
 	mapEnv.insert(std::make_pair("SERVER_PORT", port.str()));
@@ -170,15 +186,18 @@ void    Cgi::_freeArray(char **arr, int flag) {
 	if (flag == -1)
         for (size_t i = 0; arr[i]; i++)
 		    delete[] arr[i];
-    else
+    else {
         for (int i = 0; i < flag; i++)
             delete[] arr[i];
+    }
 	delete[] arr;	  
 }
 
-std::string Cgi::_getFileExtension(const std::string& _fileToExec) {
-    size_t dotPos = _fileToExec.find_last_of('.');
+std::string Cgi::_getFileExtension(const std::string& _fileToExec, char sep) {
+    size_t dotPos = _fileToExec.find_last_of(sep);
     if (dotPos != std::string::npos) {
+        if (sep == '/' && (dotPos + 1) != std::string::npos)
+            dotPos++;
         return _fileToExec.c_str() + dotPos;
     }
     return "";

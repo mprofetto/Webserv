@@ -3,10 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2024/04/18 15:05:49 by achansar         ###   ########.fr       */
+=======
+/*   Updated: 2024/04/18 23:30:18 by nesdebie         ###   ########.fr       */
+>>>>>>> Nestor_branch
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +77,14 @@ void Response::sendFile() {
     std::cout << "IN SENDFILE\n" << std::endl;
     
     //check size, a virer --------------------------------------------
-    std::ifstream   sizeFile(_path, std::ios::binary | std::ios::in);
+    std::ifstream   sizeFile(_path.c_str(), std::ios::binary | std::ios::in);
     sizeFile.seekg(0, std::ios::end);
     int file_size = sizeFile.tellg();
     std::cout << "Size of file is : " << file_size << std::endl;
     sizeFile.close();
     //----------------------------------------------------------------
 
-	std::ifstream	infile(_path, std::ios::binary | std::ios::in);
+	std::ifstream	infile(_path.c_str(), std::ios::binary | std::ios::in);
 	if (!infile) {
 		std::cerr << "Error opening local file." << std::endl;
 		_statusCode = 500;
@@ -133,7 +137,7 @@ int Response::receiveFile() {
         return 409;
     }
 
-    std::ofstream targetFile(destination, std::ios::binary);
+    std::ofstream targetFile(destination.c_str(), std::ios::binary);
     if (!targetFile) {
         std::cerr << "Error creating the file.\n";
     }
@@ -410,8 +414,8 @@ std::string Response::extractExtension(std::string uri) {
         std::cout << "EXTENSION IS : " << extension << std::endl;
     } else {
         std::cerr << "Couldn't extract extension.\n";
-        return "";
     }
+    return "";
 }
 
 std::string Response::extractFileName() {

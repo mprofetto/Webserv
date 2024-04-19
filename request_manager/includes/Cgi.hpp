@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/17 13:03:57 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/18 14:20:32 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ private:
 	char**		_envp;
 	int			_exitCode;
 
-    std::string _getFileExtension(std::string const &fileToExec);
+    std::string _getFileExtension(std::string const &fileToExec, char sep);
 	char**		_createEnv();
 	void		_freeArray(char **arr, int flag);
 

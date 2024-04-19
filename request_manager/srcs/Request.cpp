@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/15 15:42:46 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 01:01:56 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,17 +80,15 @@ void Request::_parseRequest(std::string const & head) {
 }
 
 vec_str Request::_vectorSplit(std::string str, char sep) {
-    vec_str arr;
-    char*   cstr = const_cast<char*>(str.c_str());
-    char*   token = std::strtok(cstr, &sep);
-
-    while (token != 0) {
-        arr.push_back(token);
-        token = std::strtok(0, &sep);
-    }
+    vec_str tokens;
+    std::string token;
+    std::istringstream iss(str);
+    while (getline(iss, token, sep))
+        if (!token.empty())
+            tokens.push_back(token);
     for (int i = 0; i < 3; i++)
-        std::cout << "============> ARR=[" << arr[i] << "]\n";
-    return arr;
+        std::cout << "============> ARR=[" << tokens[i] << "]\n";
+    return tokens;
 }
 
 std::string Request::_strtrim(std::string &s) {
