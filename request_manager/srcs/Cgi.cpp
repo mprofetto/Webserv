@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/19 14:32:51 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 14:53:04 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
 		throw NotCgiException();
     if (!_request.getQuery().size())
 	    _fileToExec = "." + _request.getPath(); // fichier a executer
-    else
+    else {
         _fileToExec = _request.getPath() + "?" + _request.getQuery();
     }
 	_executablePath = _route.getPath();
@@ -275,6 +275,7 @@ void    Cgi::_freeArray(char **arr, int flag) {
     else {
         for (int i = 0; i < flag; i++)
             delete[] arr[i];
+    }
 	delete[] arr;
 }
 
