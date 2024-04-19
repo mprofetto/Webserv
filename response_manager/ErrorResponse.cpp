@@ -3,12 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorResponse.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/08 16:09:15 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/19 11:02:14 by nesdebie         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2024/04/19 14:33:23 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "Response.hpp"
 #include <sstream>
@@ -31,7 +32,7 @@ std::string get500ErrorPage() {//     TEMPORARY.... or not ?
 }
 
 void    Response::redirectClient() {
-    
+
     std::stringstream response;
     response << "HTTP/1.1 301 Moved Permanently\r\n";
     response << "Location: " << _path << "\r\n\r\n";
@@ -41,11 +42,11 @@ void    Response::redirectClient() {
 }
 
 void    Response::buildErrorResponse() {
-    
+
     std::stringstream   ss;
 	std::ifstream			myfile;
     std::string             line;
-    
+
 
     std::cout << "Before redirect, statusCode is : " << _statusCode << std::endl;
     if (_statusCode == 301) {

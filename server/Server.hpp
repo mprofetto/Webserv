@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/11 11:32:06 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:32:07 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ class Server
 		std::list<Route *>			getRoute(void) const;
 		std::list<std::string>		getServerNames(void) const;
 		std::map<int, std::string>	getErrorPages(void) const;
-		std::string					getDefaultErrorPage(int error_code);
+		std::string					getDefaultErrorPage(int error_code) const;
 		std::list<std::string>		getIndex(void) const;
 		std::string					getHost(void) const;
 		int							getPort(void) const;
@@ -84,12 +84,10 @@ class Server
 		void						setRoot(std::string path);
 		void						setSocket(int socket);
 
-		// Route 						*getRoute(std::string path);
-
 		std::map<std::string, std::string>	buildMimeTypes();
 		bool								isServerName(std::string name) const;
 		std::string							convertIpAddress(std::vector<std::string> address);
-		void								printDatas(void) const;
+		// void								printDatas(void) const;
 		std::list<Route *>					_routes;
 
 	private:

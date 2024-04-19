@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 13:13:24 by mprofett         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2024/04/19 14:33:32 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
@@ -63,6 +64,7 @@ class Response {
 
     // GET & SET
         unsigned long   getBytesSend() const;
+        std::string     getNextChunk() const;
         std::string     getResponse() const;
         std::string     getPath() const;
         int             getStatusCode() const;
@@ -75,10 +77,16 @@ class Response {
 
         void            addToBytesSend(unsigned long bytes_to_add);
 
+    // COOKIES
+
+        void	        renewCookieSession(void);
+        void	        setCookieSession(void);
+        void	        closeCookieSession(void);
+
     private:
+        unsigned long                       _bytesSend;
         bool                                _cgi;
         int                                 _clientSocket;
-        unsigned long                       _bytesSend;
         int                                 _method;
         int                                 _statusCode;
         std::string                         _path;

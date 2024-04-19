@@ -6,12 +6,11 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 14:49:51 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/10 09:41:25 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:35:09 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "IncompleteRequest.hpp"
-#include <iostream>
 
 IncompleteRequest::IncompleteRequest(std::string raw_request) :
 	_content_lenght(0),
@@ -44,7 +43,6 @@ void	IncompleteRequest::findHeaderEnd(void)
 {
 	unsigned long	header_end = this->_header.find("\r\n\r\n");
 
-	std::cout << "Header end index is: " << header_end << std::endl;
 	if (header_end == std::string::npos)
 		return;
 	this->_raw = this->_header;

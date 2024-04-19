@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:43:00 by mprofett          #+#    #+#             */
-/*   Updated: 2024/02/23 14:05:34 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:33:50 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ void	TcpListener::parseConfigurationFile(std::string filename)
 		token_list = getMaxBodySizeDirective(token_list);
 	while (token_list.empty() == false)
 		token_list = getNextServerConfig(token_list);
-	this->printServers();
 }
 
 std::list<std::string>	TcpListener::getNextServerDirective(std::list<std::string> token_list, Server	*new_server)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/13 10:29:08 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 14:25:37 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,12 +114,22 @@ std::map<int, std::string>	Server::getErrorPages(void) const
 	return (this->_error_pages);
 }
 
-std::string					Server::getDefaultErrorPage(int error_code)
+std::string					Server::getDefaultErrorPage(int error_code) const
 {
 	unsigned long		pos;
 	std::stringstream	mystream;
 	std::string			my_error_code;
-	std::string			result("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Error Page</title></head><body><div><h1>Error $</h1></div></body></html>");
+	std::string			result("
+	<!DOCTYPE html>
+	<html lang=\"en\">
+	<head>
+		<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+		<title>Error Page</title>
+	</head>
+	<body>
+		<h1>Error $</h1>
+	</body>
+	</html>");
 
 	mystream << error_code;
 	my_error_code = mystream.str();
@@ -235,66 +245,66 @@ bool						Server::isServerName(std::string name) const
 	return (false);
 }
 
-void						Server::printDatas(void) const
-{
-	std::list<Route *>::const_iterator			it_routes;
-	std::list<std::string>::const_iterator		it_server_names;
-	std::list<std::string>::const_iterator		it_index;
-	std::map<int, std::string>::const_iterator	it_error_pages;
-	std::string									str;
-	Route										*route;
-	std::pair<int, std::string>					error_page;
+// void						Server::printDatas(void) const
+// {
+// 	std::list<Route *>::const_iterator			it_routes;
+// 	std::list<std::string>::const_iterator		it_server_names;
+// 	std::list<std::string>::const_iterator		it_index;
+// 	std::map<int, std::string>::const_iterator	it_error_pages;
+// 	std::string									str;
+// 	Route										*route;
+// 	std::pair<int, std::string>					error_page;
 
-	std::cout << "Port: " << this->_port << "\n";
-	std::cout << "Root: " << this->_root << "\n";
-	std::cout << "Host: " << this->_host << "\n";
-	if (this->_routes.empty() == false)
-	{
-		std::cout << "Nbr of Routes is " << this->_routes.size() << "\n";
-		it_routes = this->_routes.begin();
-		while (it_routes != this->_routes.end())
-		{
-			route = *it_routes;
-			std::cout << "********************\n";
-			route->printRoute();
-			std::cout << "********************\n";
-			it_routes++;
-		}
-	}
-	else
-		std::cout << "No routes setup for this server\n";
-	if (this->_server_names.empty() == false)
-	{
-		it_server_names = this->_server_names.begin();
-		std::cout << "Server Names: ";
-		while (it_server_names != this->_server_names.end())
-		{
-			str = *it_server_names;
-			std::cout << " " << str;
-			it_server_names++;
-		}
-		std::cout << "\n";
-	}
-	if (this->_index.empty() == false)
-	{
-		it_index = this->_index.begin();
-		std::cout << "Index: ";
-		while (it_index != this->_index.end())
-		{
-			str = *it_index;
-			std::cout << " " << str;
-			it_index++;
-		}
-		std::cout << "\n";
-	}
-	if (this->_error_pages.empty() == false)
-	{
-		it_error_pages = this->_error_pages.begin();
-		while (it_error_pages != this->_error_pages.end())
-		{
-			error_page = *it_error_pages;
-			std::cout << "Error Pages: " << error_page.first << " " << error_page.second << "\n";
-			it_error_pages++;
-		}
-	}
-}
+// 	std::cout << "Port: " << this->_port << "\n";
+// 	std::cout << "Root: " << this->_root << "\n";
+// 	std::cout << "Host: " << this->_host << "\n";
+// 	if (this->_routes.empty() == false)
+// 	{
+// 		std::cout << "Nbr of Routes is " << this->_routes.size() << "\n";
+// 		it_routes = this->_routes.begin();
+// 		while (it_routes != this->_routes.end())
+// 		{
+// 			route = *it_routes;
+// 			std::cout << "********************\n";
+// 			route->printRoute();
+// 			std::cout << "********************\n";
+// 			it_routes++;
+// 		}
+// 	}
+// 	else
+// 		std::cout << "No routes setup for this server\n";
+// 	if (this->_server_names.empty() == false)
+// 	{
+// 		it_server_names = this->_server_names.begin();
+// 		std::cout << "Server Names: ";
+// 		while (it_server_names != this->_server_names.end())
+// 		{
+// 			str = *it_server_names;
+// 			std::cout << " " << str;
+// 			it_server_names++;
+// 		}
+// 		std::cout << "\n";
+// 	}
+// 	if (this->_index.empty() == false)
+// 	{
+// 		it_index = this->_index.begin();
+// 		std::cout << "Index: ";
+// 		while (it_index != this->_index.end())
+// 		{
+// 			str = *it_index;
+// 			std::cout << " " << str;
+// 			it_index++;
+// 		}
+// 		std::cout << "\n";
+// 	}
+// 	if (this->_error_pages.empty() == false)
+// 	{
+// 		it_error_pages = this->_error_pages.begin();
+// 		while (it_error_pages != this->_error_pages.end())
+// 		{
+// 			error_page = *it_error_pages;
+// 			std::cout << "Error Pages: " << error_page.first << " " << error_page.second << "\n";
+// 			it_error_pages++;
+// 		}
+// 	}
+// }

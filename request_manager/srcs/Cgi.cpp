@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/19 13:06:14 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 14:32:51 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
 	if (!_route.getCgi())
 		throw NotCgiException();
     if (!_request.getQuery().size())
-	    _fileToExec = "." + _request.getPath();
-    else {
+	    _fileToExec = "." + _request.getPath(); // fichier a executer
+    else
         _fileToExec = _request.getPath() + "?" + _request.getQuery();
     }
 	_executablePath = _route.getPath();
@@ -39,7 +39,7 @@ Cgi::Cgi(Cgi const &copy) {
 
 // std::string Cgi::executeCgi() {
 //     std::string ret = "";
-    
+
 //     if (access(_fileToExec.c_str(), F_OK) != 0)
 //         throw FileNotFoundException();
 
@@ -152,10 +152,17 @@ std::string Cgi::executeCgi() {
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
-        const char *exec = _executablePath.c_str();
-        std::string exe = _getFileExtension(_executablePath, '/');
-        char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
-        execve(exec, const_cast<char *const *>(args), _envp);
+        if (extension == ".py") {
+            const char *exec = "/usr/bin/python3";
+            char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
+            execve(exec, const_cast<char *const *>(args), _envp);
+        }
+
+        if (extension == ".pl") {
+            const char *exec = "/usr/bin/perl";
+            char const *args[3] = {"perl",  _fileToExec.c_str(), NULL};
+            execve(exec, const_cast<char *const *>(args), _envp);
+        }
         std::cerr << "Error executing CGI." << std::endl;
         std::exit(500);
     } else if (pid_execve > 0) {
@@ -268,8 +275,7 @@ void    Cgi::_freeArray(char **arr, int flag) {
     else {
         for (int i = 0; i < flag; i++)
             delete[] arr[i];
-    }
-	delete[] arr;	  
+	delete[] arr;
 }
 
 std::string Cgi::_getFileExtension(const std::string& _fileToExec, char sep) {
