@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/04/19 14:33:29 by mprofett         ###   ########.fr       */
-=======
-/*   Updated: 2024/04/18 16:29:21 by achansar         ###   ########.fr       */
->>>>>>> Arnaud_branch
+/*   Updated: 2024/04/19 15:15:33 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +72,6 @@ int Response::deleteFile() {
 void Response::sendFile() {
 
     // std::cout << "IN SENDFILE\n" << std::endl;
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> Arnaud_branch
     //check size, a virer --------------------------------------------
     std::ifstream   sizeFile(_path.c_str(), std::ios::binary | std::ios::in);
     sizeFile.seekg(0, std::ios::end);
@@ -102,13 +93,7 @@ void Response::sendFile() {
                 _body.append(buffer, infile.gcount());
             }
         infile.close();
-<<<<<<< HEAD
-        // _body += "END_OF_FILE";
-        // _body = responseBody.str().c_str();
-        // std::cout << "So bodysize is : " << _body.length() << std::endl;
-=======
         std::cout << "So bodysize is : " << _body.length() << std::endl;
->>>>>>> Arnaud_branch
 	}
 	_statusCode = 201;
 }
@@ -141,12 +126,8 @@ int Response::receiveFile() {
         std::cerr << "File already exists." << std::endl;
         return 409;
     }
-<<<<<<< HEAD
 
     std::ofstream targetFile(destination.c_str(), std::ios::binary);
-=======
-    std::ofstream targetFile(destination, std::ios::binary);
->>>>>>> Arnaud_branch
     if (!targetFile) {
         std::cerr << "Error creating the file.\n";
     }
@@ -298,10 +279,6 @@ void Response::getBody(bool autoindex, Route *route) {
                 _statusCode = 403;
             }
         } else {
-<<<<<<< HEAD
-            // std::cout << "This sendfile ??" << std::endl;
-=======
->>>>>>> Arnaud_branch
             sendFile();
         }
     } else if (_method == POST || _method == DELETE) {
@@ -450,13 +427,8 @@ std::string Response::extractFileBody(std::string request) {
 std::string     Response::getMimeType() {
 
     if (!_extension.empty()) {
-<<<<<<< HEAD
         if (_extension == ".py" || _extension == ".pl")
             return _server->getMimeType("default");//                 A DEL ABSOLUMENT
-=======
-        if (_extension == ".py")//                 A DEL ABSOLUMENT
-            return _server->getMimeType(".html");
->>>>>>> Arnaud_branch
         else
             return _server->getMimeType(_extension);
     }
