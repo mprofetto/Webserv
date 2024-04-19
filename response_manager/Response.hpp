@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/18 13:29:37 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:38:24 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,12 @@ class Response {
         void            setHeaders(std::string& str);
 
         void            addToBytesSend(unsigned long bytes_to_add);
+
+    // COOKIES
+
+        void	        renewCookieSession(void);
+        void	        setCookieSession(void);
+        void	        closeCookieSession(void);
 
     private:
         bool                                _cgi;

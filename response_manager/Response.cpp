@@ -5,11 +5,10 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/18 13:29:19 by mprofett         ###   ########.fr       */
+/*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
+/*   Updated: 2024/04/18 13:41:36 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "Response.hpp"
 
@@ -88,8 +87,6 @@ void Response::sendFile() {
 	} else {
 
 		char buffer[8192];
-
-
 
         while (!infile.eof())
             {
@@ -177,18 +174,26 @@ std::string    convertEncoding(std::string s) {
 
 int Response::handleForm() {
 
-    std::string formBody = extractFileBody(_request->getRaw());
-
     std::istringstream formBody(_request->getBody());
     std::map<std::string, std::string> formInfos;
+    std::vector<std::string> formElements;
 
+    for (std::string ele; std::getline(formBody, ele, '&'); ) {
+        formElements.push_back(ele);
+    }
 
-    std::cout << "IN FORM BODY : " << formBody << std::endl;
-    // name=halo%26%26&email=chansarelarno%40hotmail.fr&message=Sava+les+gars+%3F+Encore+une+fois+%23cool.&gender=male
+    for (std::vector<std::string>::iterator it = formElements.begin(); it != formElements.end(); it++) {
+        std::string str = *it;
+        size_t pos = str.find('=');
+        std::string key = convertEncoding(str.substr(0, pos));
+        std::string value = convertEncoding(str.substr(pos + 1));
+        formInfos[key] = value;
+    }
 
-
-
-    return 200;
+    for (std::map<std::string, std::string>::iterator it = formInfos.begin(); it != formInfos.end(); it++) {
+        std::cout << "[" << it->first << "] = " << it->second << std::endl;
+    }
+    return 201;
 }
 
 int Response::handlePostRequest() {

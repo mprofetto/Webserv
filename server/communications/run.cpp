@@ -6,10 +6,9 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/18 13:30:16 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/18 13:32:08 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 # include "../TcpListener.hpp"
 # include "../../request_manager/includes/Cgi.hpp"
@@ -78,29 +77,6 @@ void	TcpListener::handleRequest(int client_socket)
 		if (!(*it)->getPath().compare(checkRoute) || !((*it)->getPath() + "/").compare(checkRoute)) { // la deuxieme condition necessaire car ne rentre pas dans cgi sinon
 			route = *it;
 			break;
-		} //else if (_pending_request.getPath() == (*it)->getCgiPath())
-	}
-
-	if (!route) {
-		std::cout << "No ROUTE found.\n";
-	} else {
-		std::cout << "ROUTE found.\n";
-	}
-
-	std::cout << "[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]\n";
-	if (route) {
-		std::cout << "[CGI] YES ROUTE ! method is : " << _pending_request.getMethod() << std::endl;
-		if ((route && !route->getExtension().empty()) || _pending_request.getMethod() == POST || (_pending_request.getMethod() == GET && _pending_request.getPath().compare("/"))) {
-				std::cout << "[CGI] Start\n";
-				try {
-					Cgi cgi(_pending_request, *route);
-					cgi.executeCgi();
-					status_code = cgi.getExitCode();
-				}
-				catch(std::exception &e) {
-					std::cout << e.what() << std::endl;
-				}
-				std::cout << "[CGI] End\n [SATUS CODE =" << status_code << "]\n";
 		}
 	}
 
@@ -110,27 +86,6 @@ void	TcpListener::handleRequest(int client_socket)
 	response->buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerResponse(client_socket, response);
-
-	/*
-		Server		*server = getServerByHosT();
-		Route		*route = findRoute();
-		char		*responseBody;
-		int			status_code;
-		Response	response(server, this->_pending_request, socket);
-
-		if (Route)
-		{
-			std::string	filename = getFilenameToUseForResponse();
-			if (filename == isCGI())
-				getCGIResponse(&status_code, &responseBody);
-			else
-				getResponse(&status_code, &responseBody);
-			response.buildResponse(&status_code, &responseBody);
-		}
-		else
-			response.buildResponse(&status_code, &responseBody);
-		this->registerResponse(client_socket, response);
-	*/
 }
 
 void	TcpListener::registerResponse(int socket, Response *response)
@@ -144,26 +99,8 @@ void	TcpListener::registerResponse(int socket, Response *response)
 		it->second = response;
 }
 
-// void	TcpListener::writeResponse(int client_socket)
-// {
-// 	std::cout << "Sending response\n";
-// 	std::string	response = this->_responses.find(client_socket)->second->getResponse();
+std::vector<std::string>	TcpListener::chunkResponse(std::string response) {
 
-// 	send(client_socket, response.c_str(), response.size(), 0);
-// 	this->_responses.erase(client_socket);
-// 	FD_CLR(client_socket, &this->_write_master_fd);
-// 	// DELETE RESPONSES HERE
-// 	this->_responses.erase(client_socket);
-// }
-
-void	TcpListener::writeResponse(int client_socket)
-{
-	std::cout << "Sending response" << std::endl;
-	std::string	response = this->_responses.find(client_socket)->second->getResponse();
-
-	std::cout << "Response length, about to send is : " << response.length() << std::endl;
-
-	size_t totalBytesSent = 0;
 	std::vector<std::string> chunks;
 
 	size_t pos = 0;
