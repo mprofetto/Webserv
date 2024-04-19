@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 14:33:32 by mprofett         ###   ########.fr       */
+/*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
+/*   Updated: 2024/04/19 14:46:03 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <cstdlib>
 
 class Server;
 class Response {
