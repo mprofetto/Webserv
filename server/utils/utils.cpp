@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 10:39:42 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/16 09:36:48 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:32:49 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,30 +62,19 @@ Server	*TcpListener::getServerBySocket(int socket)
 	return (NULL);
 }
 
-void	TcpListener::printServers(void) const
-{
-	std::list<Server *>::const_iterator	it;
-	const Server *	serv;
-
-	it = this->_servers.begin();
-	while (it != this->_servers.end())
-	{
-		serv = *it;
-		serv->printDatas();
-		std::cout << "\n";
-		it++;
-	}
-}
-
-// std::string		TcpListener::getResponse(int socket)
+// void	TcpListener::printServers(void) const
 // {
-// 	std::map<int, std::string>::iterator	it;
+// 	std::list<Server *>::const_iterator	it;
+// 	const Server *	serv;
 
-// 	it = this->_responses.find(socket);
-// 	if (it == this->_responses.end())
-// 		return ("");
-// 	else
-// 		return ((*it).second);
+// 	it = this->_servers.begin();
+// 	while (it != this->_servers.end())
+// 	{
+// 		serv = *it;
+// 		serv->printDatas();
+// 		std::cout << "\n";
+// 		it++;
+// 	}
 // }
 
 Response		*TcpListener::getResponseToSend(int socket)

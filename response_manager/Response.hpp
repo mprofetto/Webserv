@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/18 13:38:24 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 11:21:25 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class Response {
 
     // GET & SET
         unsigned long   getBytesSend() const;
+        std::string     getNextChunk() const;
         std::string     getResponse() const;
         std::string     getPath() const;
         int             getStatusCode() const;
@@ -83,9 +84,9 @@ class Response {
         void	        closeCookieSession(void);
 
     private:
+        unsigned long                       _bytesSend;
         bool                                _cgi;
         int                                 _clientSocket;
-        unsigned long                       _bytesSend;
         int                                 _method;
         int                                 _statusCode;
         std::string                         _path;

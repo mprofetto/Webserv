@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:22:51 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/17 11:06:24 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:45:47 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,6 @@ std::list<std::string>	TcpListener::tokenizeConfigurationFile(std::string filena
 	std::string				token = "temp";
 	std::string				line;
 	size_t					pos = 0;
-
-	std::cout << "\n\n!!!\nFILENAME : " << filename << "\n!!!\n\n";
 
 	myfile.open(filename);
 	if (!myfile)

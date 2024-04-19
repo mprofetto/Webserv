@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 10:24:26 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 13:08:48 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ void	TcpListener::runTcpListener()
 
 void	TcpListener::handleNewConnection(Server *server)
 {
-	std::cout << "Handling new connection" << std::endl;
 	int			client_socket;
 	sockaddr	client_addr;
 	socklen_t	addr_size = sizeof(sockaddr);
@@ -63,7 +62,7 @@ void	TcpListener::handleNewConnection(Server *server)
 void	TcpListener::handleRequest(int client_socket)
 {
 
-	std::cout << "Right before habnleRequest, uri is : " << _pending_request.getPath() << std::endl;
+	// std::cout << "Right before habnleRequest, uri is : " << _pending_request.getPath() << std::endl;
 
 	int status_code = 200;
 	Route *route = NULL;
@@ -96,7 +95,7 @@ void	TcpListener::handleRequest(int client_socket)
 		}
 	}
 
-	std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
+	// std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 
 	Response* response = new Response(server, status_code, &_pending_request, client_socket);//                create response here
 	response->buildResponse(route);
@@ -115,52 +114,20 @@ void	TcpListener::registerResponse(int socket, Response *response)
 		it->second = response;
 }
 
-std::vector<std::string>	TcpListener::chunkResponse(std::string response) {
-
-	std::vector<std::string> chunks;
-
-	size_t pos = 0;
-	size_t chunkSize = 16384;
-	while (pos < response.size()) {
-        size_t len = std::min(chunkSize, response.size() - pos);
-        chunks.push_back(response.substr(pos, len));
-        pos += len;
-    }
-	return chunks;
-}
-
 void	TcpListener::writeResponse(int client_socket)
 {
-	std::cout << "Sending response" << std::endl;
-	std::string	response = this->_responses.find(client_socket)->second->getResponse();
+	Response	*response = this->_responses.find(client_socket)->second;
+	std::string	to_send = response->getNextChunk();
+	ssize_t		bytesSent = send(client_socket, to_send.c_str(), to_send.size(), 0);
 
-	std::cout << "Response length, about to send is : " << response.length() << std::endl;
-
-	size_t totalBytesSent = 0;
-	std::vector<std::string> chunks = chunkResponse(response);
-
-	int i = 1;
-	for (std::vector<std::string>::iterator it = chunks.begin(); it != chunks.end(); ++it) {
-		std::cout << "We had " << i << " loops." << std::endl;
-		i++;
-
-        const std::string& chunk = *it;
-        ssize_t bytesSent = send(client_socket, chunk.c_str(), chunk.size(), 0);
-		if (bytesSent == -1) {
-			std::cerr << "Error on sending response." << std::endl;
-			perror("send");
-			break;
-		} else if (bytesSent == 0) {
-			std::cerr << "Nothing has been sent :0" << std::endl;
-			break;
-		} else {
-			std::cout << bytesSent << " bytes sent." << std::endl;
-			totalBytesSent += bytesSent;
-		}
+	if (bytesSent == -1)
+		std::cerr << "Error on sending response." << std::endl;
+	else
+		response->addToBytesSend(bytesSent);
+	if (response->getBytesSend() == response->getResponse().size() || bytesSent <= 0)
+	{
+		FD_CLR(client_socket, &this->_write_master_fd);
+		delete response;
+		this->_responses.erase(client_socket);
 	}
-
-	FD_CLR(client_socket, &this->_write_master_fd);
-	delete this->_responses.find(client_socket)->second;
-	this->_responses.erase(client_socket);
-	std::cout << "Response Sent" << std::endl;
 }

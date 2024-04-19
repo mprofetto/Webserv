@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/18 13:29:48 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 11:03:47 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 # include "communications/IncompleteRequest.hpp"
 
 # define MAXBUFFERSIZE 2097152
-# define COOKIE_EXPIRATION_DURATION 120
+# define SENDCHUNKSIZE 16384
 
 class Server;
 class Response;
@@ -110,11 +110,11 @@ class TcpListener
 
 		void			initTcpListener();
 		void			runTcpListener();
-		Server					*getServerByHost(int port, std::string host);
+		Server			*getServerByHost(int port, std::string host);
 
 
 		//temporary debug methods
-		void			printServers() const;
+		// void			printServers() const;
 
 	private:
 
@@ -126,8 +126,8 @@ class TcpListener
 		std::list<Server *>					_servers;
 		Request								_pending_request;
 		std::map<int, IncompleteRequest>	_incomplete_requests;
-		// std::map<int, std::string>			_responses;
-		std::map<int, Response*>				_responses;
+		// std::map<int, IncompleteResponse>	_incomplete_response;
+		std::map<int, Response*>			_responses;
 
 		//Init Methods
 		void					bindSocket(Server *server);
@@ -139,15 +139,13 @@ class TcpListener
 		void					readRequest(int socket);
 		bool					incompleteRequestIsAlreadyStored(int socket);
 		void					registerRequestAsPending(int client_socket);
-		// void					registerReponse(int socket, std::string response);
 		void					registerResponse(int socket, Response *response);
 		void					writeResponse(int socket);
 		void					handleRequest(int client_socket);
 
 		//Utils
-		Server					*getServerBySocket(int socket);
-		int						getPortBySocket(int *socket);
-		// std::string				getResponse(int socket);
+		Server						*getServerBySocket(int socket);
+		int							getPortBySocket(int *socket);
 		Response					*getResponseToSend(int socket);
 		std::vector<std::string>	chunkResponse(std::string response);
 
@@ -176,9 +174,6 @@ class TcpListener
 		std::list<std::string>	tokenizeConfigurationFile(std::string filename);
 		void					parseConfigurationFile(std::string filename);
 };
-
-std::string	generateSessionId(void);
-std::string	generateExpirationDate(time_t duration);
 
 #endif
 

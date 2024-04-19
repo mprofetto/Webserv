@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/17 11:17:54 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:32:07 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@
 # include <unistd.h>
 # include "Route.hpp"
 # include "../utils.hpp"
-# include "../session_management/User.hpp"
 
 # define LOCALHOST "127.0.0.1"
 
@@ -85,32 +84,15 @@ class Server
 		void						setRoot(std::string path);
 		void						setSocket(int socket);
 
-		// User Management
-
-		bool						userIsValid(std::string name, std::string password);
-		User						getUserByName(std::string name);
-		User						getUserBySessionId(std::string name);
-
-		void						addUser(User &new_user);
-
-		// Route 						*getRoute(std::string path);
-
 		std::map<std::string, std::string>	buildMimeTypes();
 		bool								isServerName(std::string name) const;
 		std::string							convertIpAddress(std::vector<std::string> address);
-		void								printDatas(void) const;
+		// void								printDatas(void) const;
 		std::list<Route *>					_routes;
-
-		// Cookies
-
-		std::string							applyCookieLang(std::string	&sessionId, std::string &filename);
-		std::string							applyCookieLoginInfo(std::string &sessionId, std::string &response_body);
-
 
 	private:
 		std::list<std::string>				_server_names;
 		std::list<std::string>				_index;
-		std::list<User>						_users;
 		std::map<int, std::string>			_error_pages;
 		std::map<std::string, std::string>	_mime_types;
 		std::string							_host;

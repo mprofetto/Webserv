@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 14:22:20 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/16 16:18:32 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 11:23:53 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,15 @@
 
 void	TcpListener::readRequest(int client_socket)
 {
-	std::cout << "Reading new request\n";
-
 	char		buffer[this->_buffer_max];
 	int			bytesReceveid = recv(client_socket, buffer, this->_buffer_max, 0);
 
-	if (bytesReceveid <= 0)
+	if (bytesReceveid < 0)
+	{
+		std::cerr << "Error on reading request" << std::endl;
+		return;
+	}
+	else if (bytesReceveid == 0)
 	{
 		FD_CLR(client_socket, &this->_read_master_fd);
 		close(client_socket);
