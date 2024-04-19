@@ -6,11 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/04/18 13:35:26 by nesdebie         ###   ########.fr       */
-=======
-/*   Updated: 2024/04/19 00:52:44 by nesdebie         ###   ########.fr       */
->>>>>>> Nestor_branch
+/*   Updated: 2024/04/19 11:02:11 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
