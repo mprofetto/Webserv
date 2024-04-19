@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 13:41:36 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:24:11 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,25 +124,20 @@ int Response::receiveFile() {
     }
 
     std::string fileBody = extractFileBody(_request->getRaw());
-    // if (fileBody.empty()) {
-    //     return 400;
-    // }
+    if (fileBody.empty()) {
+        return 400;
+    }
     std::string destination = "." + _request->getPath() + "/" + fileName;
-    // std::cout << "dest : " << destination << std::endl;
-    // std::ofstream outputFile(destination);
-    // if (!outputFile) {
-    //     std::cerr << "Error creating file" << std::endl;
-    //     return 500;
-    // }
-    // outputFile << fileBody;
-    // outputFile.close();
+    if (access(destination.c_str(), F_OK) != -1) {
+        std::cerr << "File already exists." << std::endl;
+        return 409;
+    }
 
     std::ofstream targetFile(destination, std::ios::binary);
     if (!targetFile) {
         std::cerr << "Error creating the file.\n";
     }
 
-    // ADD a check if ressource exists and return 200
     targetFile.write(fileBody.c_str(), fileBody.size());
     targetFile.close();
 	return 201;
@@ -226,6 +221,7 @@ std::string Response::getReason(int sc) {
     reasons.insert(std::make_pair(400, "Bad Request"));
     reasons.insert(std::make_pair(403, "Forbidden"));
     reasons.insert(std::make_pair(404, "Not Found"));
+    reasons.insert(std::make_pair(409, "Conflict"));
     reasons.insert(std::make_pair(500, "Internal Server Error"));
     reasons.insert(std::make_pair(501, "Not Implemented"));
 
@@ -266,6 +262,7 @@ void Response::getBody(bool autoindex, Route *route) {
     std::string             line;
 
 
+    std::cout << "CGI ????????\n";
 	if (route) {
 		if ((!route->getExtension().empty()) || _request->getMethod() == POST || (_request->getMethod() == GET && _request->getPath().compare("/"))) {
 				std::cout << "[CGI] START" << std::endl;
@@ -332,7 +329,7 @@ void      Response::buildResponse(Route *route) {
                 << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
                 << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
 
-    if ((!_extension.empty() && _extension.compare(".html")) || _method != GET) {
+    if (((!_extension.empty() && _extension.compare(".html")) || _method != GET)  && _statusCode == 200) {
             _statusCode = fileTransfer();
     } else {
         std::cout << "No access to fileTransfer." << std::endl;
@@ -347,8 +344,8 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
-    std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
+    // std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
     return;
 }
 
@@ -476,11 +473,13 @@ void	Response::getFullPath(Route *route, std::string uri) {
 	} else {
         if (isDirectory("." + uri)) {
             std::cout << "STEP 1" << std::endl;
-            _path = "." + uri;
+            _path = uri;
         } else if (_method == DELETE) {
             std::cout << "STEP 2" << std::endl;
             std::string parsedUri = uri.substr(uri.find_last_of('/'));
             _path = "./upload" + parsedUri;
+        } else if (_extension == ".py" || _extension == ".pl") {
+            _path = uri;
         } else {
             std::cout << "STEP 3" << std::endl;
             _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
