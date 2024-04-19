@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 12:30:10 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/18 16:26:47 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <cstdlib>
 
 class Server;
 class Response {

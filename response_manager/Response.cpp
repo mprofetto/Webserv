@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/18 14:31:42 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/18 16:29:21 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ int Response::deleteFile() {
 #include <strings.h>
 void Response::sendFile() {
 
-    std::cout << "IN SENDFILE\n" << std::endl;
+    // std::cout << "IN SENDFILE\n" << std::endl;
     
     //check size, a virer --------------------------------------------
     std::ifstream   sizeFile(_path, std::ios::binary | std::ios::in);
@@ -85,20 +85,14 @@ void Response::sendFile() {
 		std::cerr << "Error opening local file." << std::endl;
 		_statusCode = 500;
 	} else {
-
 		char buffer[8192];
-
         while (!infile.eof())
             {
                 bzero(buffer, sizeof(buffer));
                 infile.read(buffer, sizeof(buffer));
-                // std::cout << "BUFFER : " << buffer << std::endl;
                 _body.append(buffer, infile.gcount());
-                // responseBody << buffer;
             }
         infile.close();
-        // _body += "END_OF_FILE";
-        // _body = responseBody.str().c_str();
         std::cout << "So bodysize is : " << _body.length() << std::endl;
 	}
 	_statusCode = 201;
@@ -106,7 +100,7 @@ void Response::sendFile() {
 
 int Response::receiveFile() {
 
-    std::cout << "IN RECEIVE FILE" << std::endl;
+    // std::cout << "IN RECEIVE FILE" << std::endl;
 
     std::stringstream rawRequest(_request->getRaw());
     std::string line;
@@ -132,12 +126,10 @@ int Response::receiveFile() {
         std::cerr << "File already exists." << std::endl;
         return 409;
     }
-
     std::ofstream targetFile(destination, std::ios::binary);
     if (!targetFile) {
         std::cerr << "Error creating the file.\n";
     }
-
     targetFile.write(fileBody.c_str(), fileBody.size());
     targetFile.close();
 	return 201;
@@ -145,7 +137,6 @@ int Response::receiveFile() {
 
 // ==================================================================== GET METHOD
 
-#include <cstdlib>
 std::string    convertEncoding(std::string s) {
 
     std::string str = s;
@@ -279,10 +270,6 @@ void Response::getBody(bool autoindex, Route *route) {
     }
     
     if (_method == GET) {
-        // if (!_extension.empty() && _extension.compare(".html")) {
-        //     std::cout << "No, this sendfile :)" << std::endl;
-        //     sendFile();
-        // }
         if (isDirectory(_path)) {
             if (autoindex) {
                 _statusCode = generateAutoindex();
@@ -290,18 +277,7 @@ void Response::getBody(bool autoindex, Route *route) {
                 _statusCode = 403;
             }
         } else {
-            std::cout << "This sendfile ??" << std::endl;
             sendFile();
-            // myfile.open(_path);
-            // if (myfile.fail()) {
-            //     _statusCode = 500;
-            // }
-            // else {
-            //     while (std::getline(myfile, line)) {
-            //         _body += line;
-            //     }
-            // }
-            // myfile.close();
         }
     } else if (_method == POST || _method == DELETE) {
         _body = "";
@@ -312,7 +288,7 @@ void Response::getBody(bool autoindex, Route *route) {
 
 void      Response::buildResponse(Route *route) {
 
-    std::cout << "In buildResponse !" << std::endl;
+    // std::cout << "In buildResponse !" << std::endl;
     bool autodindex = false;
     if (route) {
         autodindex = route->getAutoindex();
@@ -446,8 +422,8 @@ std::string Response::extractFileBody(std::string request) {
 std::string     Response::getMimeType() {
 
     if (!_extension.empty()) {
-        if (_extension == ".py")
-            return _server->getMimeType(".html");//                 A DEL ABSOLUMENT
+        if (_extension == ".py")//                 A DEL ABSOLUMENT
+            return _server->getMimeType(".html");
         else
             return _server->getMimeType(_extension);
     }
@@ -471,16 +447,12 @@ void	Response::getFullPath(Route *route, std::string uri) {
         }
 	} else {
         if (isDirectory("." + uri)) {
-            std::cout << "STEP 1" << std::endl;
             _path = "." + uri;
         } else if (_method == DELETE) {
-            std::cout << "STEP 2" << std::endl;
             std::string parsedUri = uri.substr(uri.find_last_of('/'));
             _path = "./upload" + parsedUri;
         } else {
-            std::cout << "STEP 3" << std::endl;
             _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
-            std::cout << "Right after condition, _path is : " << _path << std::endl;
             std::ifstream myfile(_path.c_str());
             if (myfile.fail()) {
                 _statusCode = 404;
