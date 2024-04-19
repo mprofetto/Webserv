@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:08:23 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/19 14:55:24 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 15:13:14 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
 	if (!_route.getCgi())
 		throw NotCgiException();
     if (!_request.getQuery().size())
-	    _fileToExec = "." + _request.getPath(); // fichier a executer
+	    _fileToExec = "." + _request.getPath();
     else {
         _fileToExec = _request.getPath() + "?" + _request.getQuery();
     }
@@ -36,99 +36,6 @@ Cgi::~Cgi() {
 Cgi::Cgi(Cgi const &copy) {
     *this = copy;
 }
-
-// std::string Cgi::executeCgi() {
-//     std::string ret = "";
-
-//     if (access(_fileToExec.c_str(), F_OK) != 0)
-//         throw FileNotFoundException();
-
-//     std::string extension = _getFileExtension(_fileToExec, '.');
-//     if (!extension.size())
-//         throw UnsupportedExtensionException();
-
-//     if (_route.getExtension() != extension || (extension != ".py" && extension != ".pl"))
-//         throw UnsupportedExtensionException();
-
-//     int pipefd[2];
-//     if (pipe(pipefd) == -1) {
-//         throw PipeException();
-//     }
-
-//     int fdin = dup(STDIN_FILENO);
-//     int fdout = dup(STDOUT_FILENO);
-
-//     pid_t pid_execve = fork();
-//     if (pid == -1) {
-//         close(pipefd[0]);
-//         close(pipefd[1]);
-//         close(fdin);
-//         close(fdout);
-//         throw ForkException();
-//     }
-
-//     if (pid == 0) {
-//         close(pipefd[0]);
-//         dup2(pipefd[1], STDOUT_FILENO);
-//         close(pipefd[1]);
-
-//         const char *exec = _executablePath.c_str();
-//         std::string exe = _getFileExtension(_executablePath, '/');
-//         char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
-//         execve(exec, const_cast<char *const *>(args), _envp);
-//         std::cerr << "Error executing CGI." << std::endl;
-//         std::exit(EXIT_FAILURE);
-//     } else {
-//         pid_t pid_timeout = fork();
-//         if (pid_timeout == -1) {
-//             close(pipefd[0]);
-//             close(pipefd[1]);
-//             _envp = NULL;
-//             throw ForkException();
-//         }
-//         if (!pid_timeout) {
-//             struct timeval tv;
-//             tv.tv_sec = CGI_pid_timeout;
-//             tv.tv_usec = 0;
-//             select(0, NULL, NULL, NULL, &tv);
-//             kill(pid, SIGTERM);
-//             std::exit(0);
-//         } else {
-//             close(pipefd[1]);
-
-//             size_t post;
-//             if (_request.getMethod() == POST) {
-//                 post = write(pipefd[1], _request.getQuery().c_str(), _request.getQuery().size());
-//             }
-
-//             int status;
-//             int bytesRead;
-//             int result = waitpid(pid, &status, 0);
-//             if (result == 0) {
-//                _exitCode = 504;
-//                 return "";
-//             }
-//             kill(pid_timeout, SIGTERM);
-//             char buffer[1024];
-//             while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
-//                 ret.append(buffer, bytesRead);
-//             }
-//             close(pipefd[0]);
-
-//             dup2(fdin, STDIN_FILENO);
-//             dup2(fdout, STDOUT_FILENO);
-
-//             if (status || (_request.getMethod() == POST && post != _request.getQuery().size())) {
-//                 std::cerr << "Child process exited with an error." << std::endl;
-//             }
-//         }
-//     }
-//     close(fdin);
-//     close(fdout);
-
-//     _exitCode = 200;
-//     return ret;
-// }
 
 std::string Cgi::executeCgi() {
     std::string ret;
@@ -152,17 +59,10 @@ std::string Cgi::executeCgi() {
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
-        if (extension == ".py") {
-            const char *exec = "/usr/bin/python3";
-            char const *args[3] = {"python3", _fileToExec.c_str(), NULL};
-            execve(exec, const_cast<char *const *>(args), _envp);
-        }
-
-        if (extension == ".pl") {
-            const char *exec = "/usr/bin/perl";
-            char const *args[3] = {"perl",  _fileToExec.c_str(), NULL};
-            execve(exec, const_cast<char *const *>(args), _envp);
-        }
+        const char *exec = _executablePath.c_str();
+        std::string exe = _getFileExtension(_executablePath, '/');
+        char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
+        execve(exec, const_cast<char *const *>(args), _envp);
         std::cerr << "Error executing CGI." << std::endl;
         std::exit(500);
     } else if (pid_execve > 0) {
