@@ -11,6 +11,12 @@ print <<"END_HTML";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sample HTML Page</title>
+    <style>
+        p {
+            color: blue;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <h1>Hello, World!</h1>

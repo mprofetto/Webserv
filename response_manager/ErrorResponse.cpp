@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/08 16:09:15 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/19 10:48:23 by mprofett         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2024/04/19 14:19:08 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "Response.hpp"
 #include <sstream>
@@ -47,7 +48,7 @@ void    Response::buildErrorResponse() {
     std::string             line;
 
 
-    // std::cout << "Before redirect, statusCode is : " << _statusCode << std::endl;
+    std::cout << "Before redirect, statusCode is : " << _statusCode << std::endl;
     if (_statusCode == 301) {
         redirectClient();
         return;
@@ -55,7 +56,7 @@ void    Response::buildErrorResponse() {
     std::map<int, std::string> errorMap = _server->getErrorPages();
     std::map<int, std::string>::iterator it = errorMap.find(_statusCode);
     if (it != _server->getErrorPages().end() && it != errorMap.end()) {
-        myfile.open(it->second);
+        myfile.open(it->second.c_str());
     } else if (it != _server->getErrorPages().end() || myfile.fail()) {
         _statusCode = 500;
         _body = get500ErrorPage();

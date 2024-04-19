@@ -5,6 +5,12 @@ print("""
 <html>
 <head>
     <title>CGI Python Example</title>
+    <style>
+        p {
+            color: blue;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <h1>Hello, CGI Python!</h1>

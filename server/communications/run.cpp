@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 13:08:48 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 14:10:32 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,9 @@ void	TcpListener::handleRequest(int client_socket)
 	std::string checkRoute = _pending_request.getPath();
 	std::string cgi_ext = checkRoute;
     size_t dotPos = cgi_ext.find_last_of('.');
-    if (dotPos != std::string::npos)
+    if (dotPos != std::string::npos) {
         cgi_ext = cgi_ext.c_str() + dotPos;
+	}
 	if (!checkRoute.empty() && checkRoute[checkRoute.size() - 1] != '/')
 		checkRoute += "/";
 	std::list<Route *> r = server->getRoute();

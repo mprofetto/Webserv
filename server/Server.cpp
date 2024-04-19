@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 10:32:02 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 14:25:37 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,17 @@ std::string					Server::getDefaultErrorPage(int error_code) const
 	unsigned long		pos;
 	std::stringstream	mystream;
 	std::string			my_error_code;
-	std::string			result("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Error Page</title></head><body><div><h1>Error $</h1></div></body></html>");
+	std::string			result("
+	<!DOCTYPE html>
+	<html lang=\"en\">
+	<head>
+		<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+		<title>Error Page</title>
+	</head>
+	<body>
+		<h1>Error $</h1>
+	</body>
+	</html>");
 
 	mystream << error_code;
 	my_error_code = mystream.str();

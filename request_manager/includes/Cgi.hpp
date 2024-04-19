@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/17 13:03:57 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/19 14:13:48 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,10 @@ private:
 	char**		_envp;
 	int			_exitCode;
 
-    std::string _getFileExtension(std::string const &fileToExec);
+    std::string _getFileExtension(std::string const &fileToExec, char sep);
 	char**		_createEnv();
 	void		_freeArray(char **arr, int flag);
-
+	std::string _runCgi();
 public:
     Cgi();
 	Cgi(Request const &request, Route const &route);
@@ -50,7 +50,7 @@ public:
 	~Cgi();
 
 	Cgi     	&operator=(Cgi const &op);
-	
+
     std::string		executeCgi();
 
 	int			getExitCode() const;
@@ -77,6 +77,10 @@ public:
             const char *what() const throw();
 	};
 	class	FileNotFoundException : public std::exception {
+        public:
+            const char *what() const throw();
+	};
+	class	WaitpidException : public std::exception {
         public:
             const char *what() const throw();
 	};
