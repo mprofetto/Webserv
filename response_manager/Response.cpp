@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/19 15:15:33 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/22 13:14:17 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,6 +200,7 @@ int Response::fileTransfer() {
         // case GET:       return sendFile();
         case POST:      return handlePostRequest();
         case DELETE:    return deleteFile();
+        case UNVALID:   return 405;
         default:        return 200;
     }
 }
@@ -213,6 +214,7 @@ std::string Response::getReason(int sc) {
     reasons.insert(std::make_pair(400, "Bad Request"));
     reasons.insert(std::make_pair(403, "Forbidden"));
     reasons.insert(std::make_pair(404, "Not Found"));
+    reasons.insert(std::make_pair(405, "Method Not Allowed"));
     reasons.insert(std::make_pair(409, "Conflict"));
     reasons.insert(std::make_pair(500, "Internal Server Error"));
     reasons.insert(std::make_pair(501, "Not Implemented"));
@@ -292,24 +294,28 @@ void      Response::buildResponse(Route *route) {
 
     // std::cout << "In buildResponse !" << std::endl;
     bool autodindex = false;
-    if (route) {
-        autodindex = route->getAutoindex();
 
+    if (!route)
+        std::cout << "Y'en a pas de route " << std::endl;
+    if (route) {
+        _statusCode = checkPermissions(route);
+        autodindex = route->getAutoindex();
+        std::cout << "So statuscode est devenu " << _statusCode << std::endl;
     }
     _extension = extractExtension(_request->getPath());
     getFullPath(route, _request->getPath());
 
     std::stringstream   ss;
 
-    // std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
-    //             << _request->getRaw()
-    //             << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
-    //             << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
+    std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
+                << _request->getRaw()
+                << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
+                << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
 
     if (((!_extension.empty() && _extension.compare(".html")) || _method != GET)  && _statusCode == 200) {
             _statusCode = fileTransfer();
     } else {
-        // std::cout << "No access to fileTransfer." << std::endl;
+        std::cout << "No access to fileTransfer." << std::endl;
         ;
     }
 
@@ -323,7 +329,7 @@ void      Response::buildResponse(Route *route) {
     }
     _responseLine = _statusLine + _headers + _body;
     // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
-    // std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
+    std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
     return;
 }
 
@@ -380,14 +386,26 @@ void            Response::setHeaders(std::string& str) {
 
 // ============================================================================== UTILS
 
+int Response::checkPermissions(Route *route) {
+    
+
+    std::cout << "IN CHECK< METHOD IS : " << _method << std::endl;
+    route->printRoute();
+    
+    switch (_method) {
+        case GET: return (route->getGet() ? 200 : 403);
+        case POST: return (route->getPost() ? 200: 403);
+        case DELETE: return (route->getDelete() ? 200 : 403);
+        default: return 200;
+    }
+}
+
 std::string Response::extractExtension(std::string uri) {
 
-    // std::cout << "In extract extension, path : " << uri << std::endl;
     size_t extPos = uri.find_last_of(".");
     if (extPos != std::string::npos) {
         std::string extension = uri.substr(extPos, std::string::npos);
         return extension;
-        // std::cout << "EXTENSION IS : " << extension << std::endl;
     } else {
         std::cerr << "Couldn't extract extension.\n";
     }
@@ -437,7 +455,7 @@ std::string     Response::getMimeType() {
 
 void	Response::getFullPath(Route *route, std::string uri) {
 
-    // std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
+    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
 
 	if (route) {
 
@@ -470,7 +488,7 @@ void	Response::getFullPath(Route *route, std::string uri) {
             }
         }
 	}
-    // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
+    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
 	return;
 }
 

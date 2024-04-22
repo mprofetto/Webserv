@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/19 14:46:03 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/22 11:47:58 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Response {
         std::string     extractFileName();
         std::string     getMimeType();
         bool            isDirectory(std::string path);
+        int             checkPermissions(Route *route);
 
     // GET & SET
         unsigned long   getBytesSend() const;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 14:34:05 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/22 13:40:45 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,14 @@ void	TcpListener::handleNewConnection(Server *server)
 	FD_SET(client_socket, &this->_read_master_fd);
 }
 
+bool isFile(const char* path) {
+	struct stat fileInfo;
+	if (stat(path, & fileInfo) != 0) {
+		return false;
+	}
+	return S_ISREG(fileInfo.st_mode);
+}
+
 void	TcpListener::handleRequest(int client_socket)
 {
 
@@ -78,6 +86,8 @@ void	TcpListener::handleRequest(int client_socket)
 		checkRoute += "/";
 	std::list<Route *> r = server->getRoute();
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
+		std::cout << "CHECKING THE ROUTES !:\ncheckRoute : " << checkRoute << " | Path : " << (*it)->getPath() << std::endl;
+		std::cout << "Root : " << (*it)->getRoot() << " | Path : " << (*it)->getPath() << " | Extension : " << (*it)->getExtension() << std::endl;
 		if (!(*it)->getPath().compare(checkRoute)) { // la deuxieme condition necessaire car ne rentre pas dans cgi sinon
 			route = *it;
 			break;
@@ -95,6 +105,19 @@ void	TcpListener::handleRequest(int client_socket)
 			}
 		}
 	}
+
+	
+	// for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
+	// 	std::string path = "." + (*it)->getPath() + _pending_request.getPath();
+	// 	if (path == ".//index.html")
+	// 		path = "./index.html";
+	// 	std::cout << "IN NEW CHECK< PATH IS " << path << std::endl;
+	// 	if (isFile(path.c_str())) {
+	// 		route = *it;
+	// 		break;
+	// 	} 
+	// }
+	
 
 	// std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
 

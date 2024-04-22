@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/17 10:07:05 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 16:52:48 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,16 @@
 
 /*
 
-Je dois m'occuper des erreurs d'ouverture de fichier.
-Un code d'erreur doit me parvenir a l'avance depuis le parsing. par defaut,
-mon objet reponse est set a 200. dans ce cas, pas de probleme
+CHECK IF METHOD IS ALLOWED
+CAN WE LAUNCH MULTIPLE SERVERS ?
 
+CHECK 1
+chaque read/recv/write/send doit check le retour, et si une erreur existe, alors il faut supprimer le client de notre liste.
+Aussi, le retour d'erreur doit checker si = 0 ET si = -1;
+Supprimer check errno
+Writing or reading ANY filedescriptor without select is strictly forbidden
 
-Quel PATH ?
-Comment compiler le CSS ?
+CONFIGURATION
 
 */
 
