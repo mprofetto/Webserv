@@ -21,6 +21,7 @@ print <<"END_HTML";
 <body>
     <h1>Hello, World!</h1>
     <p>This is a sample HTML page generated using Perl.</p>
+    <button onclick="location.href='../cgi-bin/infinite.pl'">Go infinite</button>
     <button onclick="location.href='/index.html'">Go back</button>
 </body>
 </html>
