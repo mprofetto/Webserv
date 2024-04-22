@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/22 13:14:17 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/22 18:17:36 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int Response::deleteFile() {
 
     if (std::remove(_path.c_str()) != 0) {
         std::cerr << "Error deleting file !!!!" << std::endl;
-        return 500;
+        return 404;
     }
     return 204;
 }
@@ -243,7 +243,7 @@ std::string Response::getHeaders(const int s) {
         std::string fileName = extractFileName();
         if (_extension == ".css") {
 	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
-        } else if (_extension.compare(".html")) {
+        } else if (_extension.compare(".html") && _extension != ".ico") {
 	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
         }
     }
@@ -296,9 +296,9 @@ void      Response::buildResponse(Route *route) {
     bool autodindex = false;
 
     if (!route)
-        std::cout << "Y'en a pas de route " << std::endl;
+        _statusCode = 404;
     if (route) {
-        _statusCode = checkPermissions(route);
+        _statusCode = checkAllow(route);
         autodindex = route->getAutoindex();
         std::cout << "So statuscode est devenu " << _statusCode << std::endl;
     }
@@ -312,7 +312,7 @@ void      Response::buildResponse(Route *route) {
                 << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
                 << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
 
-    if (((!_extension.empty() && _extension.compare(".html")) || _method != GET)  && _statusCode == 200) {
+    if (((!_extension.empty() && _extension.compare(".html")) || _method != GET)  && _statusCode == 200 && !route->getCgi()) {
             _statusCode = fileTransfer();
     } else {
         std::cout << "No access to fileTransfer." << std::endl;
@@ -386,7 +386,7 @@ void            Response::setHeaders(std::string& str) {
 
 // ============================================================================== UTILS
 
-int Response::checkPermissions(Route *route) {
+int Response::checkAllow(Route *route) {
     
 
     std::cout << "IN CHECK< METHOD IS : " << _method << std::endl;
@@ -455,40 +455,35 @@ std::string     Response::getMimeType() {
 
 void	Response::getFullPath(Route *route, std::string uri) {
 
-    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
+    // std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
 
-	if (route) {
-
+    if (route) {
         if (!route->getRedirection().empty()) {
             _path = route->getRedirection();
             _statusCode = 301;
-        } else {
-            _path = route->getRoot();
-            if (!route->getAutoindex()) {
-                _path += "/" + route->getIndex().front();
-            }
         }
-	} else {
-        if (isDirectory("." + uri)) {
+        else if (isDirectory("." + uri) && route->getAutoindex() && _method != POST) {
             _path = "." + uri;
-        } else if (_method == DELETE) {
-            std::string parsedUri = uri.substr(uri.find_last_of('/'));
-            _path = "./upload" + parsedUri;
-        } else if (_extension == ".py" || _extension == ".pl") {
-            _path = uri;
-        } else {
-            _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
+        }
+        else if (route->getPath() != "/" && !route->getCgi() && _method != POST) {
+            _path = "." + route->getPath() + uri;
+        }
+        else if (_extension == ".py" || _extension == ".pl" || _method == POST) {
+            _path = "." + uri;
+        }
+        else if (route->getRoot() == uri) {
+            _path = "./" + route->getIndex().front();
+        }
+        else {
+            _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "." + uri;
             std::ifstream myfile(_path.c_str());
             if (myfile.fail()) {
                 _statusCode = 404;
-                if (uri == "/submitForm")
-                    _path = uri;
-                else
-                    _path = "/";
+                _path = "/";
             }
         }
-	}
-    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
+    }
+    // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
 	return;
 }
 

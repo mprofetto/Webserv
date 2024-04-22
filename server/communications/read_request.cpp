@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   read_request.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/28 14:22:20 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 11:23:53 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/22 17:03:46 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ void	TcpListener::readRequest(int client_socket)
 		return;
 	}
 	std::string	raw_request(buffer, bytesReceveid);
+	std::cout << "\n\nRAW REQUEST IS \n" << raw_request << std::endl;
 	if (this->incompleteRequestIsAlreadyStored(client_socket) == true)
 		this->_incomplete_requests.find(client_socket)->second.appendContent(raw_request);
 	else

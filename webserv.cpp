@@ -6,26 +6,11 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 16:52:48 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/22 18:24:27 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-
-/*
-
-CHECK IF METHOD IS ALLOWED
-CAN WE LAUNCH MULTIPLE SERVERS ?
-
-CHECK 1
-chaque read/recv/write/send doit check le retour, et si une erreur existe, alors il faut supprimer le client de notre liste.
-Aussi, le retour d'erreur doit checker si = 0 ET si = -1;
-Supprimer check errno
-Writing or reading ANY filedescriptor without select is strictly forbidden
-
-CONFIGURATION
-
-*/
 
 int	checkArguments(int argc, char **argv)
 {
@@ -60,7 +45,7 @@ int	main(int argc, char **argv)
 	catch (std::exception &e)
 	{
 		std::cout << e.what() << std::endl;
-		std::cout << strerror(errno) << std::endl;
+		// std::cout << strerror(errno) << std::endl;
 	}
 	return (0);
 }

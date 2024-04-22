@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:46:07 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/22 13:12:38 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:46:57 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,7 @@ void					Route::printRoute(void) const
 	std::cout << "Get method allowed: " << this->_get << "\n";
 	std::cout << "Delete method allowed: " << this->_delete << "\n";
 	std::cout << "Post method allowed: " << this->_post << "\n";
+	std::cout << "CGI : " << this->_cgi << "\n";
 	it_index = this->_index.begin();
 	std::cout << "Index files defined for this route: ";
 	while (it_index != this->_index.end())
