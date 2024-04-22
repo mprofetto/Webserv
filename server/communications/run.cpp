@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 14:34:05 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/22 12:02:47 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,12 +122,17 @@ void	TcpListener::writeResponse(int client_socket)
 	ssize_t		bytesSent = send(client_socket, to_send.c_str(), to_send.size(), 0);
 
 	if (bytesSent == -1)
+	{
 		std::cerr << "Error on sending response." << std::endl;
+		FD_CLR(client_socket, &this->_write_master_fd);
+		close(client_socket);
+	}
 	else
 		response->addToBytesSend(bytesSent);
-	if (response->getBytesSend() == response->getResponse().size() || bytesSent <= 0)
+	if (response->getBytesSend() == response->getResponse().size() || bytesSent == 0)
 	{
 		FD_CLR(client_socket, &this->_write_master_fd);
+		close(client_socket);
 		delete response;
 		this->_responses.erase(client_socket);
 	}

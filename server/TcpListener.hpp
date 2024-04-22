@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 11:03:47 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/22 11:35:40 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ class TcpListener
 
 	private:
 
-		long long int						_buffer_max;
+		long int							_buffer_max;
 		int									_socket_nbr;
 		int									_socket;
 		fd_set								_read_master_fd;
@@ -176,4 +176,3 @@ class TcpListener
 };
 
 #endif
-
