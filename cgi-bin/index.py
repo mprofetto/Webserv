@@ -15,6 +15,7 @@ print("""
 <body>
     <h1>Hello, CGI Python!</h1>
     <p>This is an example of executing Python script via CGI.</p>
+    <button onclick="location.href='../cgi-bin/upload.py'">Upload</button>
     <button onclick="location.href='../cgi-bin/infinite.py'">Go infinite</button>
     <button onclick="location.href='/index.html'">Go back</button>
 </body>

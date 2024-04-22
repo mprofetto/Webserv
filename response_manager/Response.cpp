@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/19 15:15:33 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/22 12:18:45 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,12 @@ int Response::receiveFile() {
     if (fileBody.empty()) {
         return 400;
     }
-    std::string destination = "." + _request->getPath() + "/" + fileName;
+    std::string destination = "";
+    if (!_request->getPath().compare(0, 9, "/cgi-bin/")) {
+        destination = "./upload/" + fileName;
+    } else {
+        destination = "." + _request->getPath() + "/" + fileName;
+    }
     if (access(destination.c_str(), F_OK) != -1) {
         std::cerr << "File already exists." << std::endl;
         return 409;
@@ -129,7 +134,7 @@ int Response::receiveFile() {
 
     std::ofstream targetFile(destination.c_str(), std::ios::binary);
     if (!targetFile) {
-        std::cerr << "Error creating the file.\n";
+        std::cerr << "Error creating the file: "<< destination<< ".\n";
     }
     targetFile.write(fileBody.c_str(), fileBody.size());
     targetFile.close();
