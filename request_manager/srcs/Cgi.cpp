@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 15:59:47 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/23 09:14:45 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,15 @@ Cgi::Cgi() {
 Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route(route), _envp(NULL), _exitCode(500) {
 	if (!_route.getCgi())
 		throw NotCgiException();
+    _fileToExec = _request.getPath();
+    size_t pos = _fileToExec.find_last_of('/');
+    if (pos != std::string::npos)
+        _fileToExec = std::string(_fileToExec.begin() + pos, _fileToExec.end());
+
     if (!_request.getQuery().size())
-	    _fileToExec = "." + _request.getPath();
+	    _fileToExec = "." + _fileToExec;
     else {
-        _fileToExec = _request.getPath() + "?" + _request.getQuery();
+        _fileToExec = "." + _fileToExec + "?" + _request.getQuery();
     }
 	_executablePath = _route.getPath();
     if (!_request.getHeaders().empty())
@@ -41,36 +46,53 @@ Cgi::Cgi(Cgi const &copy) {
 std::string Cgi::executeCgi() {
     std::string ret;
 
-    int pipefd[2];
-    if (pipe(pipefd) == -1) {
+    int pipefdout[2];
+    if (pipe(pipefdout) == -1) {
         throw PipeException();
     }
 
+    int pipefdin[2];
+    if (pipe(pipefdin) == -1) {
+        close(pipefdout[0]);
+        close(pipefdout[1]);
+        throw PipeException();
+    }
     int fdin = dup(STDIN_FILENO);
     int fdout = dup(STDOUT_FILENO);
     pid_t pid_execve = fork();
     if (pid_execve == -1) {
-        close(pipefd[0]);
-        close(pipefd[1]);
+        close(pipefdout[0]);
+        close(pipefdout[1]);
+        close(pipefdin[0]);
+        close(pipefdin[1]);
         close(fdin);
         close(fdout);
         throw ForkException();
     }
     if (pid_execve == 0) {
-        close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[1]);
+        // close(pipefdout[0]);
+        // dup2(pipefdout[1], STDOUT_FILENO);
+        // close(pipefdout[1]);
+		close(pipefdin[1]);
+		close(pipefdout[0]);
+		dup2(pipefdin[0], STDIN_FILENO);
+		dup2(pipefdout[1], STDOUT_FILENO);
         const char *exec = _executablePath.c_str();
         std::string exe = _getFileExtension(_executablePath, '/');
         char const *args[3] = {exe.c_str(), _fileToExec.c_str(), NULL};
-        execve(exec, const_cast<char *const *>(args), _envp);
-        std::cerr << "Error executing CGI." << std::endl;
+        std::string path = "." + _request.getPath();
+        path.erase(path.find_last_of('/'), path.size());
+		if (!chdir(path.c_str()))
+            execve(exec, const_cast<char *const *>(args), _envp);
+        std::cerr << "Error executing CGI :" << _fileToExec << std::endl;
         std::exit(500);
     } else if (pid_execve > 0) {
         pid_t pid_timeout = fork();
         if (pid_timeout == -1) {
-            close(pipefd[0]);
-            close(pipefd[1]);
+            close(pipefdout[0]);
+            close(pipefdout[1]);
+            close(pipefdin[0]);
+            close(pipefdin[1]);
             _envp = NULL;
             throw ForkException();
         }
@@ -82,11 +104,11 @@ std::string Cgi::executeCgi() {
             kill(pid_execve, SIGTERM);
             std::exit(504);
         } else if (pid_timeout > 0) {
-            close(pipefd[1]);
+            close(pipefdout[1]);
 
             size_t post;
             if (_request.getMethod() == POST) {
-                post = write(pipefd[1], _request.getQuery().c_str(), _request.getQuery().size());
+                post = write(pipefdin[1], _request.getQuery().c_str(), _request.getQuery().size());
             }
 
             int status;
@@ -98,10 +120,11 @@ std::string Cgi::executeCgi() {
                     _exitCode = 200;
                     char buffer[256];
                     ssize_t bytesRead;
-                    while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
+                    while ((bytesRead = read(pipefdout[0], buffer, sizeof(buffer))) > 0) {
                         ret.append(buffer, bytesRead);
                     }
-                    close(pipefd[0]);
+                    close(pipefdin[1]);
+                    close(pipefdout[0]);
 
                     dup2(fdin, STDIN_FILENO);
                     dup2(fdout, STDOUT_FILENO);
