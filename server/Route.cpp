@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:46:07 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/08 12:05:18 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:46:57 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
 
-Route::Route() : _autoindex(true), _cgi(false), _delete(true), _get(true), _post(true), _extension(""), _path("/"), _redirection("")
+Route::Route() : _autoindex(true), _cgi(false), _delete(false), _get(false), _post(false), _extension(""), _path("/"), _redirection("")
 {
 	return;
 }
 
-Route::Route(Server *server) : _autoindex(true), _cgi(false), _delete(true), _get(true), _post(true), _extension(""), _path("/"), _redirection("")
+Route::Route(Server *server) : _autoindex(true), _cgi(false), _delete(false), _get(false), _post(false), _extension(""), _path("/"), _redirection("")
 {
 	this->_server = server;
 	return;
@@ -152,6 +152,7 @@ void					Route::printRoute(void) const
 	std::cout << "Get method allowed: " << this->_get << "\n";
 	std::cout << "Delete method allowed: " << this->_delete << "\n";
 	std::cout << "Post method allowed: " << this->_post << "\n";
+	std::cout << "CGI : " << this->_cgi << "\n";
 	it_index = this->_index.begin();
 	std::cout << "Index files defined for this route: ";
 	while (it_index != this->_index.end())

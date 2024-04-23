@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/22 12:02:47 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/23 11:48:11 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,46 +59,59 @@ void	TcpListener::handleNewConnection(Server *server)
 	FD_SET(client_socket, &this->_read_master_fd);
 }
 
+bool isFile(const char* path) {
+	struct stat fileInfo;
+	if (stat(path, & fileInfo) != 0) {
+		return false;
+	}
+	return S_ISREG(fileInfo.st_mode);
+}
+
+Route*	TcpListener::selectRoute(Server *server, std::string cgi_ext) {
+
+	Route *route = NULL;
+	
+	std::list<Route *> r = server->getRoute();
+
+	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
+		std::string path = "." + (*it)->getPath() + _pending_request.getPath();
+		if (path == ".//index.html" || path == ".//")
+			path = "./index.html";
+		if ((*it)->getRoot() == "upload" && _pending_request.getMethod() == DELETE) {
+			route = *it;
+			break;
+		}
+		if (((*it)->getRoot() == "download" && _pending_request.getMethod() != GET && !(*it)->getAutoindex())
+			|| ((*it)->getRoot() == "upload" && _pending_request.getMethod() != POST && !(*it)->getAutoindex())) {
+				continue;
+			}
+		if ((isFile(path.c_str()) && cgi_ext != ".py" && cgi_ext != ".pl")
+			|| ((*it)->getPath() == "/usr/bin/python3" && cgi_ext == ".py")
+			|| ((*it)->getPath() == "/usr/bin/perl" && cgi_ext == ".pl")
+			|| ((*it)->getPath() == _pending_request.getPath())) {
+			route = *it;
+			break;
+		} 
+	}
+	return route;
+}
+
 void	TcpListener::handleRequest(int client_socket)
 {
-
-	// std::cout << "Right before habnleRequest, uri is : " << _pending_request.getPath() << std::endl;
-
 	int status_code = 200;
 	Route *route = NULL;
 	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
 
-	std::string checkRoute = _pending_request.getPath();
-	std::string cgi_ext = checkRoute;
+	std::string cgi_ext = _pending_request.getPath();
+	std::cout << "cgi_ext = " << cgi_ext << std::endl;
+	
     size_t dotPos = cgi_ext.find_last_of('.');
     if (dotPos != std::string::npos) {
         cgi_ext = cgi_ext.c_str() + dotPos;
 	}
-	if (!checkRoute.empty() && checkRoute[checkRoute.size() - 1] != '/')
-		checkRoute += "/";
-	std::list<Route *> r = server->getRoute();
-	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		if (!(*it)->getPath().compare(checkRoute)) { // la deuxieme condition necessaire car ne rentre pas dans cgi sinon
-			route = *it;
-			break;
-		}
-		if ((*it)->getPath() == "/usr/bin/python3") {
-			if (cgi_ext == ".py"){
-				route = *it;
-				break;
-			}
-		}
-		if ((*it)->getPath() == "/usr/bin/perl") {
-			if (cgi_ext == ".pl"){
-				route = *it;
-				break;
-			}
-		}
-	}
 
-	// std::cout << "Right after CGI, uri is : " << _pending_request.getPath() << std::endl;
-
-	Response* response = new Response(server, status_code, &_pending_request, client_socket);//                create response here
+	route = selectRoute(server, cgi_ext);
+	Response* response = new Response(server, status_code, &_pending_request, client_socket);
 	response->buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerResponse(client_socket, response);
