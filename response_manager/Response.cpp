@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/22 18:17:36 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/23 11:44:39 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,15 +71,6 @@ int Response::deleteFile() {
 #include <strings.h>
 void Response::sendFile() {
 
-    // std::cout << "IN SENDFILE\n" << std::endl;
-    //check size, a virer --------------------------------------------
-    std::ifstream   sizeFile(_path.c_str(), std::ios::binary | std::ios::in);
-    sizeFile.seekg(0, std::ios::end);
-    // int file_size = sizeFile.tellg();
-    // std::cout << "Size of file is : " << file_size << std::endl;
-    sizeFile.close();
-    //----------------------------------------------------------------
-
 	std::ifstream	infile(_path.c_str(), std::ios::binary | std::ios::in);
 	if (!infile) {
 		std::cerr << "Error opening local file." << std::endl;
@@ -95,7 +86,7 @@ void Response::sendFile() {
         infile.close();
         std::cout << "So bodysize is : " << _body.length() << std::endl;
 	}
-	_statusCode = 201;
+	_statusCode = 200;
 }
 
 int Response::receiveFile() {
@@ -195,9 +186,7 @@ int Response::handlePostRequest() {
 
 int Response::fileTransfer() {
 
-    // std::cout << "In file transfer, method is " << _method << std::endl;
     switch (_method) {
-        // case GET:       return sendFile();
         case POST:      return handlePostRequest();
         case DELETE:    return deleteFile();
         case UNVALID:   return 405;
@@ -217,6 +206,7 @@ std::string Response::getReason(int sc) {
     reasons.insert(std::make_pair(405, "Method Not Allowed"));
     reasons.insert(std::make_pair(409, "Conflict"));
     reasons.insert(std::make_pair(500, "Internal Server Error"));
+    reasons.insert(std::make_pair(504, "Gateway Timeout"));
     reasons.insert(std::make_pair(501, "Not Implemented"));
 
 
@@ -292,7 +282,6 @@ void Response::getBody(bool autoindex, Route *route) {
 
 void      Response::buildResponse(Route *route) {
 
-    // std::cout << "In buildResponse !" << std::endl;
     bool autodindex = false;
 
     if (!route)
@@ -301,9 +290,9 @@ void      Response::buildResponse(Route *route) {
         _statusCode = checkAllow(route);
         autodindex = route->getAutoindex();
         std::cout << "So statuscode est devenu " << _statusCode << std::endl;
+        _extension = extractExtension(_request->getPath());
+        getFullPath(route, _request->getPath());
     }
-    _extension = extractExtension(_request->getPath());
-    getFullPath(route, _request->getPath());
 
     std::stringstream   ss;
 
@@ -323,8 +312,9 @@ void      Response::buildResponse(Route *route) {
         getBody(autodindex, route);
         _headers = getHeaders(_body.length()) + "\n";
         ss << _statusCode;
-        _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason(_statusCode) + "\n";
-    } else {
+        _statusLine = "HTTP/1.1 " + ss.str() + " " + getReason(_statusCode) + "\n";
+    }
+    if (_statusCode != 200 && _statusCode != 204 && _statusCode != 201) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
@@ -456,31 +446,28 @@ std::string     Response::getMimeType() {
 void	Response::getFullPath(Route *route, std::string uri) {
 
     // std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
-
-    if (route) {
-        if (!route->getRedirection().empty()) {
-            _path = route->getRedirection();
-            _statusCode = 301;
-        }
-        else if (isDirectory("." + uri) && route->getAutoindex() && _method != POST) {
-            _path = "." + uri;
-        }
-        else if (route->getPath() != "/" && !route->getCgi() && _method != POST) {
-            _path = "." + route->getPath() + uri;
-        }
-        else if (_extension == ".py" || _extension == ".pl" || _method == POST) {
-            _path = "." + uri;
-        }
-        else if (route->getRoot() == uri) {
-            _path = "./" + route->getIndex().front();
-        }
-        else {
-            _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "." + uri;
-            std::ifstream myfile(_path.c_str());
-            if (myfile.fail()) {
-                _statusCode = 404;
-                _path = "/";
-            }
+    if (!route->getRedirection().empty()) {
+        _path = route->getRedirection();
+        _statusCode = 301;
+    }
+    else if (isDirectory("." + uri) && route->getAutoindex() && _method != POST) {
+        _path = "." + uri;
+    }
+    else if (route->getPath() != "/" && !route->getCgi() && _method != POST) {
+        _path = "." + route->getPath() + uri;
+    }
+    else if (_extension == ".py" || _extension == ".pl" || _method == POST) {
+        _path = "." + uri;
+    }
+    else if (route->getRoot() == uri) {
+        _path = "./" + route->getIndex().front();
+    }
+    else {
+        _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "." + uri;
+        std::ifstream myfile(_path.c_str());
+        if (myfile.fail()) {
+            _statusCode = 404;
+            _path = "/";
         }
     }
     // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;

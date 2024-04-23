@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/22 18:05:23 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/23 11:24:35 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ Route*	TcpListener::selectRoute(Server *server, std::string cgi_ext) {
 
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
 		std::string path = "." + (*it)->getPath() + _pending_request.getPath();
-		if (path == ".//index.html" || path == ".//")//                TO DELETE ABS
+		if (path == ".//index.html" || path == ".//")
 			path = "./index.html";
 		if ((*it)->getRoot() == "upload" && _pending_request.getMethod() == DELETE) {
 			route = *it;
@@ -90,7 +90,6 @@ Route*	TcpListener::selectRoute(Server *server, std::string cgi_ext) {
 			|| ((*it)->getPath() == "/usr/bin/perl" && cgi_ext == ".pl")
 			|| ((*it)->getPath() == _pending_request.getPath())) {
 			route = *it;
-			// std::cout << "ROUTE FOUND !" << std::endl;
 			break;
 		} 
 	}
