@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/22 12:18:45 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/24 13:53:57 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int Response::deleteFile() {
 
     if (std::remove(_path.c_str()) != 0) {
         std::cerr << "Error deleting file !!!!" << std::endl;
-        return 500;
+        return 404;
     }
     return 204;
 }
@@ -70,15 +70,6 @@ int Response::deleteFile() {
 
 #include <strings.h>
 void Response::sendFile() {
-
-    // std::cout << "IN SENDFILE\n" << std::endl;
-    //check size, a virer --------------------------------------------
-    std::ifstream   sizeFile(_path.c_str(), std::ios::binary | std::ios::in);
-    sizeFile.seekg(0, std::ios::end);
-    // int file_size = sizeFile.tellg();
-    // std::cout << "Size of file is : " << file_size << std::endl;
-    sizeFile.close();
-    //----------------------------------------------------------------
 
 	std::ifstream	infile(_path.c_str(), std::ios::binary | std::ios::in);
 	if (!infile) {
@@ -95,7 +86,7 @@ void Response::sendFile() {
         infile.close();
         std::cout << "So bodysize is : " << _body.length() << std::endl;
 	}
-	_statusCode = 201;
+	_statusCode = 200;
 }
 
 int Response::receiveFile() {
@@ -200,11 +191,10 @@ int Response::handlePostRequest() {
 
 int Response::fileTransfer() {
 
-    // std::cout << "In file transfer, method is " << _method << std::endl;
     switch (_method) {
-        // case GET:       return sendFile();
         case POST:      return handlePostRequest();
         case DELETE:    return deleteFile();
+        case UNVALID:   return 405;
         default:        return 200;
     }
 }
@@ -218,8 +208,10 @@ std::string Response::getReason(int sc) {
     reasons.insert(std::make_pair(400, "Bad Request"));
     reasons.insert(std::make_pair(403, "Forbidden"));
     reasons.insert(std::make_pair(404, "Not Found"));
+    reasons.insert(std::make_pair(405, "Method Not Allowed"));
     reasons.insert(std::make_pair(409, "Conflict"));
     reasons.insert(std::make_pair(500, "Internal Server Error"));
+    reasons.insert(std::make_pair(504, "Gateway Timeout"));
     reasons.insert(std::make_pair(501, "Not Implemented"));
 
 
@@ -246,7 +238,7 @@ std::string Response::getHeaders(const int s) {
         std::string fileName = extractFileName();
         if (_extension == ".css") {
 	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
-        } else if (_extension.compare(".html")) {
+        } else if (_extension.compare(".html") && _extension != ".ico") {
 	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
         }
     }
@@ -258,7 +250,7 @@ void Response::getBody(bool autoindex, Route *route) {
 	std::ifstream			myfile;
     std::string             line;
 
-
+    std::cout << _request->getBody() << std::endl;
     // std::cout << "CGI ????????\n";
 	if (route) {
 		if ((!route->getExtension().empty()) || _request->getMethod() == POST || (_request->getMethod() == GET && _request->getPath().compare("/"))) {
@@ -295,26 +287,29 @@ void Response::getBody(bool autoindex, Route *route) {
 
 void      Response::buildResponse(Route *route) {
 
-    // std::cout << "In buildResponse !" << std::endl;
     bool autodindex = false;
-    if (route) {
-        autodindex = route->getAutoindex();
 
+    if (!route)
+        _statusCode = 404;
+    if (route) {
+        _statusCode = checkAllow(route);
+        autodindex = route->getAutoindex();
+        std::cout << "So statuscode est devenu " << _statusCode << std::endl;
+        _extension = extractExtension(_request->getPath());
+        getFullPath(route, _request->getPath());
     }
-    _extension = extractExtension(_request->getPath());
-    getFullPath(route, _request->getPath());
 
     std::stringstream   ss;
 
-    // std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
-    //             << _request->getRaw()
-    //             << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
-    //             << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
+    std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
+                << _request->getRaw()
+                << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
+                << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
 
-    if (((!_extension.empty() && _extension.compare(".html")) || _method != GET)  && _statusCode == 200) {
+    if (((!_extension.empty() && _extension.compare(".html")) || _method != GET)  && _statusCode == 200 && !route->getCgi()) {
             _statusCode = fileTransfer();
     } else {
-        // std::cout << "No access to fileTransfer." << std::endl;
+        std::cout << "No access to fileTransfer." << std::endl;
         ;
     }
 
@@ -322,13 +317,14 @@ void      Response::buildResponse(Route *route) {
         getBody(autodindex, route);
         _headers = getHeaders(_body.length()) + "\n";
         ss << _statusCode;
-        _statusLine = "HTTP/1.0 " + ss.str() + " " + getReason(_statusCode) + "\n";
-    } else {
+        _statusLine = "HTTP/1.1 " + ss.str() + " " + getReason(_statusCode) + "\n";
+    }
+    if (_statusCode != 200 && _statusCode != 204 && _statusCode != 201) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
     // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
-    // std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
+    std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
     return;
 }
 
@@ -385,14 +381,26 @@ void            Response::setHeaders(std::string& str) {
 
 // ============================================================================== UTILS
 
+int Response::checkAllow(Route *route) {
+    
+
+    std::cout << "IN CHECK< METHOD IS : " << _method << std::endl;
+    route->printRoute();
+    
+    switch (_method) {
+        case GET: return (route->getGet() ? 200 : 403);
+        case POST: return (route->getPost() ? 200: 403);
+        case DELETE: return (route->getDelete() ? 200 : 403);
+        default: return 200;
+    }
+}
+
 std::string Response::extractExtension(std::string uri) {
 
-    // std::cout << "In extract extension, path : " << uri << std::endl;
     size_t extPos = uri.find_last_of(".");
     if (extPos != std::string::npos) {
         std::string extension = uri.substr(extPos, std::string::npos);
         return extension;
-        // std::cout << "EXTENSION IS : " << extension << std::endl;
     } else {
         std::cerr << "Couldn't extract extension.\n";
     }
@@ -443,38 +451,30 @@ std::string     Response::getMimeType() {
 void	Response::getFullPath(Route *route, std::string uri) {
 
     // std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
-
-	if (route) {
-
-        if (!route->getRedirection().empty()) {
-            _path = route->getRedirection();
-            _statusCode = 301;
-        } else {
-            _path = route->getRoot();
-            if (!route->getAutoindex()) {
-                _path += "/" + route->getIndex().front();
-            }
+    if (!route->getRedirection().empty()) {
+        _path = route->getRedirection();
+        _statusCode = 301;
+    }
+    else if (isDirectory("." + uri) && route->getAutoindex() && _method != POST) {
+        _path = "." + uri;
+    }
+    else if (route->getPath() != "/" && !route->getCgi() && _method != POST) {
+        _path = "." + route->getPath() + uri;
+    }
+    else if (_extension == ".py" || _extension == ".pl" || _method == POST) {
+        _path = "." + uri;
+    }
+    else if (route->getRoot() == uri) {
+        _path = "./" + route->getIndex().front();
+    }
+    else {
+        _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "." + uri;
+        std::ifstream myfile(_path.c_str());
+        if (myfile.fail()) {
+            _statusCode = 404;
+            _path = "/";
         }
-	} else {
-        if (isDirectory("." + uri)) {
-            _path = "." + uri;
-        } else if (_method == DELETE) {
-            std::string parsedUri = uri.substr(uri.find_last_of('/'));
-            _path = "./upload" + parsedUri;
-        } else if (_extension == ".py" || _extension == ".pl") {
-            _path = uri;
-        } else {
-            _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "./docs" + uri;
-            std::ifstream myfile(_path.c_str());
-            if (myfile.fail()) {
-                _statusCode = 404;
-                if (uri == "/submitForm")
-                    _path = uri;
-                else
-                    _path = "/";
-            }
-        }
-	}
+    }
     // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
 	return;
 }

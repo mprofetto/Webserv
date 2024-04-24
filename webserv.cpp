@@ -3,26 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:43:54 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/17 10:07:05 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/22 18:24:27 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-
-/*
-
-Je dois m'occuper des erreurs d'ouverture de fichier.
-Un code d'erreur doit me parvenir a l'avance depuis le parsing. par defaut,
-mon objet reponse est set a 200. dans ce cas, pas de probleme
-
-
-Quel PATH ?
-Comment compiler le CSS ?
-
-*/
 
 int	checkArguments(int argc, char **argv)
 {
@@ -57,7 +45,7 @@ int	main(int argc, char **argv)
 	catch (std::exception &e)
 	{
 		std::cout << e.what() << std::endl;
-		std::cout << strerror(errno) << std::endl;
+		// std::cout << strerror(errno) << std::endl;
 	}
 	return (0);
 }

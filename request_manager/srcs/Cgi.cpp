@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/23 09:14:45 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/24 14:14:38 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ std::string Cgi::executeCgi() {
 
             size_t post;
             if (_request.getMethod() == POST) {
-                post = write(pipefdin[1], _request.getQuery().c_str(), _request.getQuery().size());
+                post = write(pipefdin[1], _request.getBody().c_str(), _request.getBody().size());
             }
 
             int status;

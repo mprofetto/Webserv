@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:45:12 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 14:52:16 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/23 11:46:45 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ std::map<std::string, std::string>	Server::buildMimeTypes() {
     MIMEtypes.insert(std::make_pair(".jpg", "image/jpeg"));
     MIMEtypes.insert(std::make_pair(".jpeg", "image/jpeg"));
     MIMEtypes.insert(std::make_pair(".png", "image/png"));
+    MIMEtypes.insert(std::make_pair(".ico", "image/x-icon"));
     MIMEtypes.insert(std::make_pair(".pdf", "application/pdf"));
     MIMEtypes.insert(std::make_pair("default", "text/html"));
 	return MIMEtypes;

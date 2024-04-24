@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorResponse.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 14:33:23 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/19 16:12:45 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,6 @@
 #include <fstream>
 #include <sys/socket.h>
 #include <filesystem>
-
-std::string get500ErrorPage() {//     TEMPORARY.... or not ?
-    std::string page = "<!DOCTYPE html>\n";
-    page += "<html>\n";
-    page += "<head>\n";
-    page += "<title>500 Internal Server Error</title>\n";
-    page += "</head>\n";
-    page += "<body>\n";
-    page += "<h1>500 Internal Server Error</h1>\n";
-    page += "<p>Sorry, something went wrong on the server.</p>\n";
-    page += "</body>\n";
-    page += "</html>\n";
-    return page;
-}
 
 void    Response::redirectClient() {
 
@@ -47,8 +33,6 @@ void    Response::buildErrorResponse() {
 	std::ifstream			myfile;
     std::string             line;
 
-
-    std::cout << "Before redirect, statusCode is : " << _statusCode << std::endl;
     if (_statusCode == 301) {
         redirectClient();
         return;
@@ -57,16 +41,18 @@ void    Response::buildErrorResponse() {
     std::map<int, std::string>::iterator it = errorMap.find(_statusCode);
     if (it != _server->getErrorPages().end() && it != errorMap.end()) {
         myfile.open(it->second.c_str());
+        if (myfile.fail()) {
+            _body = _server->getDefaultErrorPage(500);
+        }
+        else {
+            while (std::getline(myfile, line)) {
+                _body += line;
+            }
+            myfile.close();
+        }
     } else if (it != _server->getErrorPages().end() || myfile.fail()) {
-        _statusCode = 500;
-        _body = get500ErrorPage();
-        return;
+        _body = _server->getDefaultErrorPage(_statusCode);
     }
-
-    while (std::getline(myfile, line)) {
-        _body += line;
-    }
-    myfile.close();
 
     std::ostringstream intss;
     intss << _body.size();

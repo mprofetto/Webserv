@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   directives.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:25:19 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 14:34:32 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/22 13:31:38 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,9 +148,9 @@ std::list<std::string>	TcpListener::getLocationDirective(std::list<std::string> 
 	if (*(arg.c_str()) == '.')
 		new_route->setExtension(arg);
 	else if (*(arg.c_str()) == '/') {
-		if (arg[arg.length() - 1] != '/')
-			new_route->setPath(arg + '/');
-		else
+		// if (arg[arg.length() - 1] != '/')
+		// 	new_route->setPath(arg + '/');
+		// else
 			new_route->setPath(arg);
 	}
 	else
