@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/25 13:20:35 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/25 13:31:36 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ Cgi::Cgi(Cgi const &copy) {
 }
 
 std::string Cgi::executeCgi() {
-    std::string ret;
+    std::string ret = "";
 
     int pipefdout[2];
     if (pipe(pipefdout) == -1) {
@@ -140,7 +140,6 @@ std::string Cgi::executeCgi() {
             waitpid(pid_timeout, &status, 0);
             if (WIFEXITED(status) && WEXITSTATUS(status) == 504) {
                 _exitCode = 504;
-                return "";
             }
         }
     }

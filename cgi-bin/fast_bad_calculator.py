@@ -7,7 +7,7 @@ import os
 def create_file(int1, int2):
     filename = "cgi_{}_{}".format(int1, int2)
     with open(filename, "w") as file:
-        file.write("42\0")
+        file.write("42")
     return filename
 
 # Create an instance of FieldStorage
