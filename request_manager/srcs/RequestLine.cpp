@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestLine.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 20:28:18 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/22 11:36:11 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/25 14:12:43 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,6 @@ RequestLine& RequestLine::operator=(RequestLine const &op) {
 
 std::ostream & operator<<(std::ostream &o, RequestLine const &obj) {
     std::string httpMethods[4] = {"DELETE", "GET", "POST", obj.getNotValid()};
-	o << httpMethods[obj.getMethod()]<< ": " << obj.getPath() << " " << obj.getHTTPVersion() << std::endl;
+	o << httpMethods[obj.getMethod()]<< " " << obj.getPath() << " " << obj.getHTTPVersion() << std::endl;
     return o;
 }
