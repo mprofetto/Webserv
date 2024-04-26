@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/26 12:40:34 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/26 15:21:10 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ std::string Cgi::executeCgi() {
                 kill(pid_timeout, SIGTERM);
                 int exitStatus = WEXITSTATUS(status);
                 if (exitStatus == 0) {
-                    _exitCode = 200;
+                    
                     char buffer[254];
                     ssize_t bytesRead;
                     while ((bytesRead = read(pipefdout[0], buffer, 253)) > 0) {
@@ -128,6 +128,9 @@ std::string Cgi::executeCgi() {
 
                     dup2(fdin, STDIN_FILENO);
                     dup2(fdout, STDOUT_FILENO);
+                    _exitCode = 200;
+                    if (_request.getMethod() == POST)
+                        _exitCode = 201;
                 } else {
                     _exitCode = 500;
                 }
