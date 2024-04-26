@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/25 13:31:36 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/26 12:40:34 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,14 +278,3 @@ const   char* Cgi::NotCgiException::what() const throw() {
     return "CgiException: not a CGI.";
 }
 
-const   char* Cgi::FileNotFoundException::what() const throw() {
-    return "CgiException: file not found.";
-}
-
-const   char* Cgi::UnsupportedExtensionException::what() const throw() {
-    return "CgiException: unsupported extention.";
-}
-
-const   char* Cgi::WaitpidException::what() const throw() {
-    return "CgiException: Waitpid() failed.";
-}

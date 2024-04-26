@@ -19,7 +19,6 @@ def save_uploaded_file(fileitem):
     return filename
 
 def main():
-    print("Content-Type: text/html\n")  # Required header for CGI
 
     # Check if the form was submitted
     if os.environ['REQUEST_METHOD'] == 'POST':

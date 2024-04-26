@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/24 14:15:56 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/26 12:40:43 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,18 +69,6 @@ public:
             const char *what() const throw();
 	};
     class	NotCgiException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-    class	UnsupportedExtensionException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-	class	FileNotFoundException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-	class	WaitpidException : public std::exception {
         public:
             const char *what() const throw();
 	};

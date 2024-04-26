@@ -6,7 +6,7 @@ import os
 # Function to create the file with the desired content
 def create_file(int1, int2):
     filename = "cgi_{}_{}".format(int1, int2)
-    with open(filename, "w") as file:
+    with open("../upload/" + filename, "w") as file:
         file.write("42")
     return filename
 
@@ -15,7 +15,6 @@ form = cgi.FieldStorage()
 
 # Print the Content-type header and the start of the HTML response
 print("<!DOCTYPE html>")
-print("Content-type:text/html\r\n\r\n")
 print("<html>")
 print("<head>")
 print("<title>CGI Form Example</title>")
@@ -28,6 +27,7 @@ print("Integer 1: <input type='text' name='int1'><br>")
 print("Integer 2: <input type='text' name='int2'><br>")
 print("<input type='submit' value='Submit'>")
 print("</form>")
+print("""<button onclick="location.href='index.py'">Go back</button>""")
 
 # Check if the form has been submitted
 if form:
