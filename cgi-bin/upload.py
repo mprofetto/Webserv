@@ -34,6 +34,7 @@ def main():
                 # Save the uploaded file
                 filename = save_uploaded_file(fileitem)
                 print(f"<p>File '{filename}' uploaded successfully.</p>")
+                print("""<button onclick="location.href='index.py'">Go back</button>""")
             else:
                 print("<p>No file was uploaded.</p>")
         else:
@@ -45,6 +46,7 @@ def main():
                 <input type="file" name="file">
                 <input type="submit" value="Upload File">
             </form>
+            <button onclick="location.href='index.py'">Go back</button>
         ''')
 
 if __name__ == '__main__':
