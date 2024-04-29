@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/29 12:12:26 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:30:06 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,8 @@ vec_str Request::_vectorSplit(std::string str, char sep) {
     while (getline(iss, token, sep))
         if (!token.empty())
             tokens.push_back(token);
-    for (int i = 0; i < 3; i++)
-        std::cout << "============> ARR=[" << tokens[i] << "]\n";
+    // for (int i = 0; i < 3; i++)
+    //     std::cout << "============> ARR=[" << tokens[i] << "]\n";
     return tokens;
 }
 

@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/29 18:22:41 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:35:45 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,6 @@ int Response::deleteFile() {
 
 // ==================================================================== POST
 
-#include <strings.h>
 void Response::sendFile() {
 
 	std::ifstream	infile(_path.c_str(), std::ios::binary | std::ios::in);
@@ -85,15 +84,12 @@ void Response::sendFile() {
                 _body.append(buffer, infile.gcount());
             }
         infile.close();
-        std::cout << "So bodysize is : " << _body.length() << std::endl;
 	}
 	_statusCode = 200;
     return;
 }
 
 int Response::receiveFile() {
-
-    // std::cout << "IN RECEIVE FILE" << std::endl;
 
     std::stringstream rawRequest(_request->getRaw());
     std::string line;
@@ -175,9 +171,6 @@ int Response::handleForm() {
         formInfos[key] = value;
     }
 
-    // for (std::map<std::string, std::string>::iterator it = formInfos.begin(); it != formInfos.end(); it++) {
-    //     std::cout << "[" << it->first << "] = " << it->second << std::endl;
-    // }
     return 201;
 }
 
@@ -252,11 +245,9 @@ void Response::getBody(bool autoindex, Route *route) {
 	std::ifstream			myfile;
     std::string             line;
 
-    std::cout << _request->getBody() << std::endl;
-    // std::cout << "CGI ????????\n";
 	if (route) {
 		if ((!route->getExtension().empty()) || _request->getMethod() == POST || (_request->getMethod() == GET && _request->getPath().compare("/"))) {
-				std::cout << "[CGI] START" << std::endl;
+				// std::cout << "[CGI] START" << std::endl;
 				try {
 					Cgi cgi(*_request, *route);
 				    _body = cgi.executeCgi();
@@ -318,23 +309,18 @@ void      Response::buildResponse(Route *route) {
         _statusCode = checkAllow(route);
         autodindex = route->getAutoindex();
         _extension = extractExtension(_request->getPath());
-        getFullPath(route, _request->getPath());
+        getFullPath(route);
     }
 
     std::stringstream   ss;
 
     std::cout   << "\n\nREQUEST IN BUILD:\n------------------------------------------------------------------------------------------------------\n"
                 << _request->getRaw()
-                << "\nELEMENTS; StatusCode : " << _statusCode << " | Path : " << _path << std::endl
                 << "\n------------------------------------------------------------------------------------------------------\n\n" << std::endl;
 
     if (((!_extension.empty() && _extension.compare(".html")) || _method != GET)  && _statusCode == 200 && !route->getCgi()) {
             _statusCode = fileTransfer();
-    } else {
-        std::cout << "No access to fileTransfer." << std::endl;
-        ;
     }
-
 
     if (_statusCode == 200 || _statusCode == 201 || _statusCode == 204) {
         getBody(autodindex, route);
@@ -346,8 +332,11 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
-    // std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
+    
+    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
+    std::cout   << "\nRESPONSE HEAD:\n------------------------------------------------------------------------------------------------------\n"
+                << _statusLine << _headers
+                << "------------------------------------------------------------------------------------------------------\n\n" << std::endl;
     return;
 }
 
@@ -406,10 +395,6 @@ void            Response::setHeaders(std::string& str) {
 
 int Response::checkAllow(Route *route) {
     
-
-    std::cout << "IN CHECK< METHOD IS : " << _method << std::endl;
-    route->printRoute();
-    
     switch (_method) {
         case GET: return (route->getGet() ? 200 : 403);
         case POST: return (route->getPost() ? 200: 403);
@@ -425,7 +410,8 @@ std::string Response::extractExtension(std::string uri) {
         std::string extension = uri.substr(extPos, std::string::npos);
         return extension;
     } else {
-        std::cerr << "Couldn't extract extension.\n";
+        // std::cerr << "Couldn't extract extension.\n";
+        ;
     }
     return "";
 }
@@ -437,7 +423,7 @@ std::string Response::extractFileName() {
         std::string fileName = _path.substr(extPos + 1, std::string::npos);
         return fileName;
     } else {
-        std::cerr << "Couldn't extract file name.\n";
+        // std::cerr << "Couldn't extract file name.\n";
         return NULL;
     }
 }
@@ -464,81 +450,30 @@ std::string     Response::getMimeType() {
 
     if (!_extension.empty()) {
         if (_extension == ".py" || _extension == ".pl")
-            return _server->getMimeType("default");//                 A DEL ABSOLUMENT
+            return _server->getMimeType("default");
         else
             return _server->getMimeType(_extension);
     }
     return _server->getMimeType("default");
 }
 
-void	Response::getFullPath(Route *route, std::string uri) {
-
-    //std::cout << "ROOT : " << route->getRoot() << std::endl;
-
-    // if (route->getPath() == uri) {
-    //     _path = "." + route->getRoot() + "/" + route->getIndex().front();
-    //     return;
-    // }
-
-    (void)route;
-    (void)uri;
-
-    // std::string root = route->getRoot();
-    // // if (!root.empty() && root != route->getPath())
-    // if (!root.empty() && root != "/")
-    //     uri = root + uri;
-    // std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
-
-    // if (!route->getRedirection().empty()) {
-    //     _path = route->getRedirection();
-    //     _statusCode = 301;
-    // }
-    // else if ((isDirectory("." + uri))/* && route->getAutoindex() && _method != POST*/) {
-    //     if (route->getAutoindex() && _method != POST)
-    //         _path = "." + uri;
-    //     else
-    //         _path = "./" + route->getIndex().front();
-    // }
-    // // else if (route->getPath() != "/" && !route->getCgi() && _method == GET) {
-    // //     std::cout << "HERE3\n";
-    // //     _path = "." + route->getPath() + uri;
-    // // }
-    // else if (_extension == ".py" || _extension == ".pl" || _method == POST) {
-    //     _path = "." + uri;
-    // }
-    // // else if (route->getPath() == uri) {
-    // //     _path = "./" + route->getIndex().front();
-    // // }
-    // else {
-    //     std::cout << "HERE4\n";
-    //     _path = "." + uri;
-    //     // _path = (_extension != ".html" && _extension != ".css") ? "." + uri : "." + uri;
-    //     std::ifstream myfile(_path.c_str());
-    //     if (myfile.fail()) {
-    //         _statusCode = 404;
-    //         _path = "/";
-    //     }
-    // }
+void	Response::getFullPath(Route *route) {
 
     _path = "." + _path;
-    std::cout << "START OF GETFULLPATH , URI IS [" << _path << "]" << std::endl;
-    
+    // std::cout << "START OF GETFULLPATH , URI IS [" << _path << "]" << std::endl;
     if (!route->getRedirection().empty()) {
         _path = route->getRedirection();
         _statusCode = 301;
     }
     else if ((_path.back() != '/' || _path == "./") && isDirectory(_path) && _method == GET) {
-        std::cout << "Yes, " << _path << " is a directory" << std::endl;
         _path = "./" + route->getIndex().front();
     }
-    
-    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
+    // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
 	return;
 }
 
 bool Response::isDirectory(std::string path) {
     struct stat fileStat;
-    std::cout << "Is " << path << " a directory ?" << std::endl;
     if (path[_path.size() - 1] != '/')
                 path += "/";
     if (stat(path.c_str(), &fileStat) == 0) {

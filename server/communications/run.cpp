@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/29 18:19:44 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:31:47 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,6 @@ std::string	TcpListener::buildURI(std::string uri, Server *server, std::string c
 	}
 	std::string location = uri.substr(0, pos);
 	std::string resource = uri.substr(pos);
-	
-	std::cout << "Location is " << location << std::endl;
-	std::cout << "Resource is " << resource << std::endl;
 
 	*route = selectRoute(server, location, cgi_ext);
 	if (*route) {
@@ -132,44 +129,8 @@ void	TcpListener::handleRequest(int client_socket)
         cgi_ext = cgi_ext.c_str() + dotPos;
 	}
 
-	// std::string uri = _pending_request.getPath();
-
 	std::string uri = buildURI(_pending_request.getPath(), server, cgi_ext, &route);
 
-
-//======================================================== to put in fucntion
-	// size_t pos = uri.find("/");
-	// pos = uri.find("/", pos + 1);
-
-	// if (pos == std::string::npos) {
-	// 	if (uri.find(".") != std::string::npos)
-	// 		pos = 1;
-	// 	else
-	// 		pos = uri.length();
-	// }
-	// std::string location = uri.substr(0, pos);
-	// std::string resource = uri.substr(pos);
-	
-	
-	// std::cout << "Location is " << location << std::endl;
-	// std::cout << "Resource is " << resource << std::endl;
-
-	// route = selectRoute(server, location, cgi_ext);
-	// if (route) {
-	// 	// std::cout << "URI : " << uri << " and path : " << route->getPath() << std::endl;
-	// 	if ((route->getPath() == uri))
-	// 		uri = route->getRoot();
-	// 	else
-	// 		uri = route->getRoot() + resource;
-	// }
-	// else
-	// 	uri = "/";
-	if (route) {
-		std::cout << "YES ROUTE 2 !!" << std::endl;
-	}
-	std::cout << "New URI is " << uri << "\n" << std::endl;
-//==============================================================
-	 
 	Response* response = new Response(server, status_code, &_pending_request, client_socket, uri);
 	response->buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
