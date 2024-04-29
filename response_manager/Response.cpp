@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/24 13:53:57 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/29 12:04:21 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,8 +262,29 @@ void Response::getBody(bool autoindex, Route *route) {
                     _cgi = true;
 					return ;
 				}
-				catch(std::exception &e) {
+                catch (Cgi::NotCgiException const &e) {
+                    std::cerr << e.what() << std::endl;
+                }
+				catch (Cgi::PipeException const &e) {
 					std::cerr << e.what() << std::endl;
+                    _body = "";
+                    _statusCode = 500;
+                    _cgi = true;
+                    return ;
+				}
+				catch (Cgi::ForkException const &e) {
+					std::cerr << e.what() << std::endl;
+                    _body = "";
+                    _statusCode = 500;
+                    _cgi = true;
+                    return ;
+				}
+				catch (std::bad_alloc const &e) {
+					std::cerr << e.what() << std::endl;
+                    _body = "";
+                    _statusCode = 500;
+                    _cgi = true;
+                    return ;
 				}
 		}
     }

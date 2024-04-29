@@ -6,12 +6,14 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/26 15:21:10 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/29 12:18:21 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../includes/Cgi.hpp"
+
+/*______CONSTRUCTORS_&_DESTRUCTORS_____*/
 
 Cgi::Cgi() {
 }
@@ -34,14 +36,17 @@ Cgi::Cgi(Request const &request, Route const &route) : _request(request), _route
         _envp = _createEnv();
 }
 
+Cgi::Cgi(Cgi const &copy) {
+    *this = copy;
+}
+
 Cgi::~Cgi() {
     if (_envp)
         _freeArray(_envp, -1);
 }
 
-Cgi::Cgi(Cgi const &copy) {
-    *this = copy;
-}
+
+/*_____PUBLIC_FUNCTIONS_____*/
 
 std::string Cgi::executeCgi() {
     std::string ret = "";
@@ -57,16 +62,13 @@ std::string Cgi::executeCgi() {
         close(pipefdout[1]);
         throw PipeException();
     }
-    int fdin = dup(STDIN_FILENO);
-    int fdout = dup(STDOUT_FILENO);
+
     pid_t pid_execve = fork();
     if (pid_execve == -1) {
         close(pipefdout[0]);
         close(pipefdout[1]);
         close(pipefdin[0]);
         close(pipefdin[1]);
-        close(fdin);
-        close(fdout);
         throw ForkException();
     }
     if (pid_execve == 0) {
@@ -126,8 +128,6 @@ std::string Cgi::executeCgi() {
                     close(pipefdin[1]);
                     close(pipefdout[0]);
 
-                    dup2(fdin, STDIN_FILENO);
-                    dup2(fdout, STDOUT_FILENO);
                     _exitCode = 200;
                     if (_request.getMethod() == POST)
                         _exitCode = 201;
@@ -146,28 +146,35 @@ std::string Cgi::executeCgi() {
             }
         }
     }
-    close(fdin);
-    close(fdout);
     return ret;
 }
 
+
+/*_____PRIVATE_FUNCTIONS_____*/
+
 char **Cgi::_createEnv() {
 	map_strstr mapEnv;
+
 	const char *methods[] = {"DELETE", "GET", "POST", NULL};
 	mapEnv.insert(std::make_pair("REQUEST_METHOD", methods[_request.getMethod()]));
+
     std::string pwd(_executablePath);
     pwd.erase(pwd.find_last_of('/'), pwd.size());
 	mapEnv.insert(std::make_pair("PWD", pwd));
-	if (_request.getMethod() != POST)
-		mapEnv.insert(std::make_pair("QUERY_STRING", _request.getQuery()));
-	mapEnv.insert(std::make_pair("CONTENT_TYPE", _request.getHeader("Content-Type")));
+
 	std::stringstream content_length;
 	content_length << _request.getContentLength();
 	mapEnv.insert(std::make_pair("CONTENT_LENGTH", content_length.str()));
-	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front()));
+
     std::stringstream port;
 	port << _route.getServer()->getPort();
 	mapEnv.insert(std::make_pair("SERVER_PORT", port.str()));
+
+	if (_request.getMethod() != POST)
+		mapEnv.insert(std::make_pair("QUERY_STRING", _request.getQuery()));
+
+	mapEnv.insert(std::make_pair("CONTENT_TYPE", _request.getHeader("Content-Type")));
+	mapEnv.insert(std::make_pair("SERVER_NAME", _route.getServer()->getServerNames().front()));
 	mapEnv.insert(std::make_pair("SCRIPT_NAME", _request.getPath()));
 	mapEnv.insert(std::make_pair("PATH_INFO", _request.getPath()));
 	mapEnv.insert(std::make_pair("SERVER_PROTOCOL", _request.getHttpVersion()));
@@ -215,7 +222,8 @@ std::string Cgi::_getFileExtension(const std::string& _fileToExec, char sep) {
     return "";
 }
 
-/* ----- GETTERS ----- */
+
+/* _____GETTERS_____ */
 
 int Cgi::getExitCode() const {
 	return _exitCode;
@@ -242,7 +250,7 @@ char** Cgi::getEnvp() const {
 }
 
 
-/* ----- OPERATORS ----- */
+/* _____OPERATORS_____ */
 
 Cgi & Cgi::operator=(Cgi const &op) {
     _request = op._request;
@@ -250,6 +258,7 @@ Cgi & Cgi::operator=(Cgi const &op) {
     _fileToExec = op._fileToExec;
     _executablePath = op._executablePath;
     _envp = op._envp;
+    _exitCode = op._exitCode;
     return *this;
 }
 
@@ -267,7 +276,7 @@ std::ostream & operator<<(std::ostream &o, Cgi const &obj) {
 }
 
 
-/* ----- EXCEPTIONS ----- */
+/* _____EXCEPTIONS_____ */
 
 const   char* Cgi::PipeException::what() const throw() {
     return "CgiException: pipe() failed.";
