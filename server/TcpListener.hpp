@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TcpListener.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/22 11:35:40 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/23 11:48:13 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,7 @@ class TcpListener
 		int							getPortBySocket(int *socket);
 		Response					*getResponseToSend(int socket);
 		std::vector<std::string>	chunkResponse(std::string response);
+		Route*						selectRoute(Server *server, std::string cgi_ext);
 
 
 		//Parse config file
