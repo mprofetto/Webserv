@@ -6,7 +6,7 @@
 /*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/03 21:03:56 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/19 15:13:15 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/29 12:11:04 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,59 +31,48 @@
 # define CGI_TIMEOUT 3
 
 class Cgi {
-private:
-    Request		_request;
-	Route		_route;
-	std::string	_fileToExec;
-	std::string _executablePath;
-	char**		_envp;
-	int			_exitCode;
+	private:
+		Request		_request;
+		Route		_route;
+		std::string	_fileToExec;
+		std::string _executablePath;
+		char**		_envp;
+		int			_exitCode;
 
-    std::string _getFileExtension(std::string const &fileToExec, char sep);
-	char**		_createEnv();
-	void		_freeArray(char **arr, int flag);
-	std::string _runCgi();
-public:
-    Cgi();
-	Cgi(Request const &request, Route const &route);
-	Cgi(Cgi const &copy);
-	~Cgi();
+		std::string _getFileExtension(std::string const &fileToExec, char sep);
+		char**		_createEnv();
+		void		_freeArray(char **arr, int flag);
+		std::string _runCgi();
 
-	Cgi     	&operator=(Cgi const &op);
+	public:
+		Cgi();
+		Cgi(Request const &request, Route const &route);
+		Cgi(Cgi const &copy);
+		~Cgi();
 
-    std::string		executeCgi();
+		Cgi     	&operator=(Cgi const &op);
 
-	int			getExitCode() const;
-	Request		getRequest() const;
-	Route		getRoute() const;
-	std::string getFileToExec() const;
-	std::string getExecutablePath() const;
-	char**		getEnvp() const;
+		std::string	executeCgi();
 
-    class	PipeException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-    class	ForkException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-    class	NotCgiException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-    class	UnsupportedExtensionException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-	class	FileNotFoundException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
-	class	WaitpidException : public std::exception {
-        public:
-            const char *what() const throw();
-	};
+		int			getExitCode() const;
+		Request		getRequest() const;
+		Route		getRoute() const;
+		std::string getFileToExec() const;
+		std::string getExecutablePath() const;
+		char**		getEnvp() const;
+
+		class	PipeException : public std::exception {
+			public:
+				const char *what() const throw();
+		};
+		class	ForkException : public std::exception {
+			public:
+				const char *what() const throw();
+		};
+		class	NotCgiException : public std::exception {
+			public:
+				const char *what() const throw();
+		};
 };
 
 std::ostream	&operator<<(std::ostream &o, Cgi const &obj);

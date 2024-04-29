@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/29 17:23:03 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 17:44:32 by nesdebie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,12 @@ int Response::receiveFile() {
     if (fileBody.empty()) {
         return 400;
     }
-    std::string destination = "." + _request->getPath() + "/" + fileName;
+    std::string destination = "";
+    if (!_request->getPath().compare(0, 9, "/cgi-bin/")) {
+        destination = "./upload/" + fileName;
+    } else {
+        destination = "." + _request->getPath() + "/" + fileName;
+    }
     if (access(destination.c_str(), F_OK) != -1) {
         std::cerr << "File already exists." << std::endl;
         return 409;
@@ -122,7 +127,7 @@ int Response::receiveFile() {
 
     std::ofstream targetFile(destination.c_str(), std::ios::binary);
     if (!targetFile) {
-        std::cerr << "Error creating the file.\n";
+        std::cerr << "Error creating the file: "<< destination<< ".\n";
     }
     targetFile.write(fileBody.c_str(), fileBody.size());
     targetFile.close();
@@ -247,7 +252,7 @@ void Response::getBody(bool autoindex, Route *route) {
 	std::ifstream			myfile;
     std::string             line;
 
-
+    std::cout << _request->getBody() << std::endl;
     // std::cout << "CGI ????????\n";
 	if (route) {
 		if ((!route->getExtension().empty()) || _request->getMethod() == POST || (_request->getMethod() == GET && _request->getPath().compare("/"))) {
@@ -259,8 +264,29 @@ void Response::getBody(bool autoindex, Route *route) {
                     _cgi = true;
 					return ;
 				}
-				catch(std::exception &e) {
+                catch (Cgi::NotCgiException const &e) {
+                    std::cerr << e.what() << std::endl;
+                }
+				catch (Cgi::PipeException const &e) {
 					std::cerr << e.what() << std::endl;
+                    _body = "";
+                    _statusCode = 500;
+                    _cgi = true;
+                    return ;
+				}
+				catch (Cgi::ForkException const &e) {
+					std::cerr << e.what() << std::endl;
+                    _body = "";
+                    _statusCode = 500;
+                    _cgi = true;
+                    return ;
+				}
+				catch (std::bad_alloc const &e) {
+					std::cerr << e.what() << std::endl;
+                    _body = "";
+                    _statusCode = 500;
+                    _cgi = true;
+                    return ;
 				}
 		}
     }
