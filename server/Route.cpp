@@ -6,13 +6,13 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:46:07 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/22 15:46:57 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:11:49 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Route.hpp"
 
-Route::Route() : _autoindex(true), _cgi(false), _delete(false), _get(false), _post(false), _extension(""), _path("/"), _redirection("")
+Route::Route() : _autoindex(true), _cgi(false), _delete(false), _get(false), _post(false), _extension(""), _path("/"), _redirection(""), _root("/")
 {
 	return;
 }

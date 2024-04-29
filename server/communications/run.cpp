@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/29 17:35:35 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:19:44 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,8 @@ Route*	TcpListener::selectRoute(Server *server, std::string location, std::strin
 			break;
 		}
 	}
+	if (route->getRoot().empty())
+		route->setRoot("/");
 	return route;
 }
 
@@ -107,7 +109,6 @@ std::string	TcpListener::buildURI(std::string uri, Server *server, std::string c
 
 	*route = selectRoute(server, location, cgi_ext);
 	if (*route) {
-		std::cout << "YES ROUTE ! URI : " << uri << " and path : " << (*route)->getPath() << std::endl;
 		if (((*route)->getPath() == uri))
 			uri = (*route)->getRoot();
 		else

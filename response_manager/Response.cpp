@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/29 17:23:03 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:14:13 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -495,7 +495,7 @@ void	Response::getFullPath(Route *route, std::string uri) {
     // }
 
     _path = "." + _path;
-    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
+    std::cout << "START OF GETFULLPATH , URI IS [" << _path << "]" << std::endl;
     
     if (!route->getRedirection().empty()) {
         _path = route->getRedirection();
