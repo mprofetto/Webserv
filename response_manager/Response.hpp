@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/22 14:27:35 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 13:54:05 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ class Response {
     public:
 
     // CONSTRUCTORS
-        Response(Server* server, int statusCode, Request* request, const int socket);
+        Response(Server* server, int statusCode, Request* request, const int socket, std::string uri);
         Response(const Response& src);
         Response& operator=(const Response& src);
         ~Response();

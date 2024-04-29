@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/23 11:44:39 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 17:23:03 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 // ============================================================================== CONSTRUCTORS
 
-Response::Response(Server* server, int statusCode, Request* request, const int socket) :
+Response::Response(Server* server, int statusCode, Request* request, const int socket, std::string uri) :
         _bytesSend(0),
         _cgi(false),
         _clientSocket(socket),
         _method(request->getMethod()),
         _statusCode(statusCode),
-        _path("/"),
+        _path(uri),
         _server(server),
         _request(request) {
 
@@ -75,6 +75,7 @@ void Response::sendFile() {
 	if (!infile) {
 		std::cerr << "Error opening local file." << std::endl;
 		_statusCode = 500;
+        return;
 	} else {
 		char buffer[8192];
         while (!infile.eof())
@@ -87,6 +88,7 @@ void Response::sendFile() {
         std::cout << "So bodysize is : " << _body.length() << std::endl;
 	}
 	_statusCode = 200;
+    return;
 }
 
 int Response::receiveFile() {
@@ -289,7 +291,6 @@ void      Response::buildResponse(Route *route) {
     if (route) {
         _statusCode = checkAllow(route);
         autodindex = route->getAutoindex();
-        std::cout << "So statuscode est devenu " << _statusCode << std::endl;
         _extension = extractExtension(_request->getPath());
         getFullPath(route, _request->getPath());
     }
@@ -308,7 +309,8 @@ void      Response::buildResponse(Route *route) {
         ;
     }
 
-    if (_statusCode == 200 || _statusCode == 204) {
+
+    if (_statusCode == 200 || _statusCode == 201 || _statusCode == 204) {
         getBody(autodindex, route);
         _headers = getHeaders(_body.length()) + "\n";
         ss << _statusCode;
@@ -318,8 +320,8 @@ void      Response::buildResponse(Route *route) {
         buildErrorResponse();
     }
     _responseLine = _statusLine + _headers + _body;
-    // std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
-    std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
+    std::cout << "\nRESPONSE :: \n" << _responseLine << std::endl << "And SOCKET IS : " << _clientSocket << std::endl;
+    // std::cout << "\nRESPONSE HEAD :: \n" << _statusLine << _headers << std::endl;
     return;
 }
 
@@ -445,37 +447,72 @@ std::string     Response::getMimeType() {
 
 void	Response::getFullPath(Route *route, std::string uri) {
 
+    //std::cout << "ROOT : " << route->getRoot() << std::endl;
+
+    // if (route->getPath() == uri) {
+    //     _path = "." + route->getRoot() + "/" + route->getIndex().front();
+    //     return;
+    // }
+
+    (void)route;
+    (void)uri;
+
+    // std::string root = route->getRoot();
+    // // if (!root.empty() && root != route->getPath())
+    // if (!root.empty() && root != "/")
+    //     uri = root + uri;
     // std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
+
+    // if (!route->getRedirection().empty()) {
+    //     _path = route->getRedirection();
+    //     _statusCode = 301;
+    // }
+    // else if ((isDirectory("." + uri))/* && route->getAutoindex() && _method != POST*/) {
+    //     if (route->getAutoindex() && _method != POST)
+    //         _path = "." + uri;
+    //     else
+    //         _path = "./" + route->getIndex().front();
+    // }
+    // // else if (route->getPath() != "/" && !route->getCgi() && _method == GET) {
+    // //     std::cout << "HERE3\n";
+    // //     _path = "." + route->getPath() + uri;
+    // // }
+    // else if (_extension == ".py" || _extension == ".pl" || _method == POST) {
+    //     _path = "." + uri;
+    // }
+    // // else if (route->getPath() == uri) {
+    // //     _path = "./" + route->getIndex().front();
+    // // }
+    // else {
+    //     std::cout << "HERE4\n";
+    //     _path = "." + uri;
+    //     // _path = (_extension != ".html" && _extension != ".css") ? "." + uri : "." + uri;
+    //     std::ifstream myfile(_path.c_str());
+    //     if (myfile.fail()) {
+    //         _statusCode = 404;
+    //         _path = "/";
+    //     }
+    // }
+
+    _path = "." + _path;
+    std::cout << "START OF GETFULLPATH , URI IS [" << uri << "]" << std::endl;
+    
     if (!route->getRedirection().empty()) {
         _path = route->getRedirection();
         _statusCode = 301;
     }
-    else if (isDirectory("." + uri) && route->getAutoindex() && _method != POST) {
-        _path = "." + uri;
-    }
-    else if (route->getPath() != "/" && !route->getCgi() && _method != POST) {
-        _path = "." + route->getPath() + uri;
-    }
-    else if (_extension == ".py" || _extension == ".pl" || _method == POST) {
-        _path = "." + uri;
-    }
-    else if (route->getRoot() == uri) {
+    else if ((_path.back() != '/' || _path == "./") && isDirectory(_path) && _method == GET) {
+        std::cout << "Yes, " << _path << " is a directory" << std::endl;
         _path = "./" + route->getIndex().front();
     }
-    else {
-        _path = (_extension != ".html" && _extension != ".css") ? "./download" + uri : "." + uri;
-        std::ifstream myfile(_path.c_str());
-        if (myfile.fail()) {
-            _statusCode = 404;
-            _path = "/";
-        }
-    }
-    // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
+    
+    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
 	return;
 }
 
 bool Response::isDirectory(std::string path) {
     struct stat fileStat;
+    std::cout << "Is " << path << " a directory ?" << std::endl;
     if (path[_path.size() - 1] != '/')
                 path += "/";
     if (stat(path.c_str(), &fileStat) == 0) {

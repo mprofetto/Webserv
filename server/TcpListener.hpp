@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/23 11:48:13 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 17:35:03 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,8 @@ class TcpListener
 		int							getPortBySocket(int *socket);
 		Response					*getResponseToSend(int socket);
 		std::vector<std::string>	chunkResponse(std::string response);
-		Route*						selectRoute(Server *server, std::string cgi_ext);
+		std::string					buildURI(std::string uri, Server *server, std::string cgi_ext, Route **route);
+		Route*						selectRoute(Server *server, std::string location, std::string cgi_ext);
 
 
 		//Parse config file
