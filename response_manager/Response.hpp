@@ -6,10 +6,9 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:42:45 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/22 14:27:35 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:35:22 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
@@ -27,6 +26,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <cstdlib>
+#include <strings.h>
 
 class Server;
 class Response {
@@ -34,7 +34,7 @@ class Response {
     public:
 
     // CONSTRUCTORS
-        Response(Server* server, int statusCode, Request* request, const int socket);
+        Response(Server* server, int statusCode, Request* request, const int socket, std::string uri);
         Response(const Response& src);
         Response& operator=(const Response& src);
         ~Response();
@@ -57,7 +57,7 @@ class Response {
         int             handleForm();
 
     // UTILS
-        void	        getFullPath(Route *route, std::string uri);
+        void	        getFullPath(Route *route);
         std::string     extractExtension(std::string uri);
         std::string     extractFileName();
         std::string     getMimeType();

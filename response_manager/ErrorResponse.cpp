@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorResponse.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/19 16:12:45 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/30 11:56:23 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,21 +37,29 @@ void    Response::buildErrorResponse() {
         redirectClient();
         return;
     }
-    std::map<int, std::string> errorMap = _server->getErrorPages();
-    std::map<int, std::string>::iterator it = errorMap.find(_statusCode);
-    if (it != _server->getErrorPages().end() && it != errorMap.end()) {
-        myfile.open(it->second.c_str());
-        if (myfile.fail()) {
-            _body = _server->getDefaultErrorPage(500);
-        }
-        else {
-            while (std::getline(myfile, line)) {
-                _body += line;
+    if (!_server)
+    {
+        Server  my_server;
+        _body = my_server.getDefaultErrorPage(404);
+    }
+    else
+    {
+        std::map<int, std::string> errorMap = _server->getErrorPages();
+        std::map<int, std::string>::iterator it = errorMap.find(_statusCode);
+        if (it != _server->getErrorPages().end() && it != errorMap.end()) {
+            myfile.open(it->second.c_str());
+            if (myfile.fail()) {
+                _body = _server->getDefaultErrorPage(500);
             }
-            myfile.close();
+            else {
+                while (std::getline(myfile, line)) {
+                    _body += line;
+                }
+                myfile.close();
+            }
+        } else if (it != _server->getErrorPages().end() || myfile.fail()) {
+            _body = _server->getDefaultErrorPage(_statusCode);
         }
-    } else if (it != _server->getErrorPages().end() || myfile.fail()) {
-        _body = _server->getDefaultErrorPage(_statusCode);
     }
 
     std::ostringstream intss;

@@ -1,63 +1,53 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python3
 import cgi
 import os
 
-# Set the directory where uploaded files will be stored
-UPLOAD_DIR = "/upload"
+# Set the directory for storing uploaded files
+UPLOAD_DIR = '../upload/'
 
-# HTML template for the upload form
-UPLOAD_FORM = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>File Upload</title>
-</head>
-<body>
-    <h2>Upload a File</h2>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" />
-        <input type="submit" value="Upload" />
-    </form>
-</body>
-</html>
-"""
+def save_uploaded_file(fileitem):
+    # Get the filename
+    filename = os.path.basename(fileitem.filename)
+    # Create a new file in the upload directory
+    with open(os.path.join(UPLOAD_DIR, filename), 'wb') as f:
+        # Read and write the file in chunks
+        while True:
+            chunk = fileitem.file.read(1024)
+            if not chunk:
+                break
+            f.write(chunk)
+    return filename
 
-# Function to handle file uploads
-def handle_upload():
-    form = cgi.FieldStorage()
-
-    if "file" in form:
-        fileitem = form["file"]
-
-        # Check if the file was successfully uploaded
-        if fileitem.file:
-            # Save the uploaded file to the upload directory
-            filename = os.path.join(UPLOAD_DIR, fileitem.filename)
-            with open(filename, "wb") as f:
-                f.write(fileitem.file.read())
-
-            print("Content-Type: text/html")
-            print()
-            print("<p>File '{}' uploaded successfully.</p>".format(fileitem.filename))
-        else:
-            print("Content-Type: text/html")
-            print()
-            print("<p>No file was uploaded.</p>")
-    else:
-        print("Content-Type: text/html")
-        print()
-        print("<p>No file field found in the request.</p>")
-
-# Main function to handle requests
 def main():
-    print("Content-Type: text/html")
-    print()
 
-    if os.environ.get("REQUEST_METHOD", "") == "POST":
-        handle_upload()
+    # Check if the form was submitted
+    if os.environ['REQUEST_METHOD'] == 'POST':
+        # Create instance of FieldStorage
+        form = cgi.FieldStorage()
+
+        # Check if the file upload field is in the form
+        if 'file' in form:
+            fileitem = form['file']
+            
+            # Check if the file was uploaded successfully
+            if fileitem.filename:
+                # Save the uploaded file
+                filename = save_uploaded_file(fileitem)
+                print(f"<p>File '{filename}' uploaded successfully.</p>")
+                print("""<button onclick="location.href='index.py'">Go back</button>""")
+            else:
+                print("<p>No file was uploaded.</p>")
+        else:
+            print("<p>File upload field not found in the form.</p>")
     else:
-        print(UPLOAD_FORM)
+        # Display the upload form
+        print('''
+            <form enctype="multipart/form-data" action="upload.py" method="post">
+                <input type="file" name="file">
+                <input type="submit" value="Upload File">
+            </form>
+            <button onclick="location.href='index.py'">Go back</button>
+        ''')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

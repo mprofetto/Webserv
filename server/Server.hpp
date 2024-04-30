@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:15:25 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 10:32:07 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/30 09:55:06 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ class Server
 		std::map<std::string, std::string>	buildMimeTypes();
 		bool								isServerName(std::string name) const;
 		std::string							convertIpAddress(std::vector<std::string> address);
-		// void								printDatas(void) const;
+		void								printDatas(void) const;
 		std::list<Route *>					_routes;
 
 	private:

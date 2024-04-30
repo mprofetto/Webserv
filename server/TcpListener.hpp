@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TcpListener.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/23 11:48:13 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/30 09:54:52 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,6 @@ class TcpListener
 		std::list<Server *>					_servers;
 		Request								_pending_request;
 		std::map<int, IncompleteRequest>	_incomplete_requests;
-		// std::map<int, IncompleteResponse>	_incomplete_response;
 		std::map<int, Response*>			_responses;
 
 		//Init Methods
@@ -148,8 +147,8 @@ class TcpListener
 		int							getPortBySocket(int *socket);
 		Response					*getResponseToSend(int socket);
 		std::vector<std::string>	chunkResponse(std::string response);
-		Route*						selectRoute(Server *server, std::string cgi_ext);
-
+		std::string					buildURI(std::string uri, Server *server, std::string cgi_ext, Route **route);
+		Route*						selectRoute(Server *server, std::string location, std::string cgi_ext);
 
 		//Parse config file
 		void					isDigit(std::string) const;

@@ -5,10 +5,9 @@
     <link rel="stylesheet" type="text/css" href="file.css">
 </head>
 <body>
-    <h1>File exchange</h1>
+    <h1>File exchange ---- Admin Version</h1>
 
     <h2>File Upload</h2>
-
 
     <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
         <input type="file" name="fileInput" id="fileInput">
@@ -68,6 +67,7 @@
             }
         }
     </script>
+
     <script>
         function deleteFile() {
             const fileName = document.getElementById('fileName').value;

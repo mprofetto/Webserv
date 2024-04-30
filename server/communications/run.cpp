@@ -6,10 +6,9 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/30 09:38:10 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/30 11:57:35 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 # include "../TcpListener.hpp"
 # include "../../request_manager/includes/Cgi.hpp"
@@ -67,53 +66,77 @@ bool isFile(const char* path) {
 	return S_ISREG(fileInfo.st_mode);
 }
 
-Route*	TcpListener::selectRoute(Server *server, std::string cgi_ext) {
+Route*	TcpListener::selectRoute(Server *server, std::string location, std::string cgi_ext) {
 
 	Route *route = NULL;
-
 	std::list<Route *> r = server->getRoute();
 
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
-		std::string path = "." + (*it)->getPath() + _pending_request.getPath();
-		if (path == ".//index.html" || path == ".//")
-			path = "./index.html";
-		if ((*it)->getRoot() == "upload" && _pending_request.getMethod() == DELETE) {
+		std::cout << "CHECKING " << location << " WITH " << (*it)->getPath() << std::endl;
+		std::string path = "." + (*it)->getPath() + location;
+		if (location == (*it)->getPath()) {
 			route = *it;
 			break;
 		}
-		if (((*it)->getRoot() == "download" && _pending_request.getMethod() != GET && !(*it)->getAutoindex())
-			|| ((*it)->getRoot() == "upload" && _pending_request.getMethod() != POST && !(*it)->getAutoindex())) {
-				continue;
-			}
 		if ((isFile(path.c_str()) && cgi_ext != ".py" && cgi_ext != ".pl")
 			|| ((*it)->getPath() == "/usr/bin/python3" && cgi_ext == ".py")
-			|| ((*it)->getPath() == "/usr/bin/perl" && cgi_ext == ".pl")
-			|| ((*it)->getPath() == _pending_request.getPath())) {
+			|| ((*it)->getPath() == "/usr/bin/perl" && cgi_ext == ".pl")) {
 			route = *it;
 			break;
 		}
 	}
+	if (route->getRoot().empty())
+		route->setRoot("/");
 	return route;
 }
 
+std::string	TcpListener::buildURI(std::string uri, Server *server, std::string cgi_ext, Route **route) {
 
+	size_t pos = uri.find("/");
+	pos = uri.find("/", pos + 1);
+
+	if (pos == std::string::npos) {
+		if (uri.find(".") != std::string::npos)
+			pos = 1;
+		else
+			pos = uri.length();
+	}
+	std::string location = uri.substr(0, pos);
+	std::string resource = uri.substr(pos);
+
+	std::cout << "LOCATION : " << location << " | REOSURCE : " << resource << std::endl;
+
+	*route = selectRoute(server, location, cgi_ext);
+	if (*route) {
+		if (((*route)->getPath() == uri))
+			uri = (*route)->getRoot();
+		else
+			uri = (*route)->getRoot() + resource;
+	}
+	else
+		uri = "/";
+	std::cout << "NEW URI :  " << uri << std::endl;
+	return uri;
+}
 
 void	TcpListener::handleRequest(int client_socket)
 {
-	int status_code = 200;
-	Route *route = NULL;
-	Server *server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
+	int			status_code = 200;
+	Route		*route = NULL;
+	Server		*server = getServerByHost(getPortBySocket(&client_socket), _pending_request.getHeader("Host"));
+	Response*	response = new Response(server, status_code, &_pending_request, client_socket, "");
 
-	std::string cgi_ext = _pending_request.getPath();
-	std::cout << "cgi_ext = " << cgi_ext << std::endl;
+	if (server)
+	{
+		std::string cgi_ext = _pending_request.getPath();
+		size_t dotPos = cgi_ext.find_last_of('.');
+		if (dotPos != std::string::npos) {
+			cgi_ext = cgi_ext.c_str() + dotPos;
+		}
 
-    size_t dotPos = cgi_ext.find_last_of('.');
-    if (dotPos != std::string::npos) {
-        cgi_ext = cgi_ext.c_str() + dotPos;
+		std::string uri = buildURI(_pending_request.getPath(), server, cgi_ext, &route);
+		response->setPath(uri);
 	}
-
-	route = selectRoute(server, cgi_ext);
-	Response* response = new Response(server, status_code, &_pending_request, client_socket);
 	response->buildResponse(route);
 	FD_SET(client_socket, &this->_write_master_fd);
 	this->registerResponse(client_socket, response);

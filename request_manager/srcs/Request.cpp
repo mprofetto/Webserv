@@ -3,29 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:12:53 by nesdebie          #+#    #+#             */
-/*   Updated: 2024/04/19 14:33:20 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:30:06 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Request.hpp"
 
- /* ----- CONSTRUCTORS & DESTRUCTOR ----- */
+ /*_____CONSTRUCTORS_&_DESTRUCTOR_____*/
 
 Request::Request() {
 }
 
 Request::Request(std::string &head, std::string &body): _body(body), _complete(true),  _expect(false), _content_length(0), _boundary_string(""){
     _raw = head + body;
-    // std::cout << "------ HEAD + BODY -------" << std::endl << head + body << std::endl;
     _parseRequest(head);
     if (_req.getMethod() == POST && getHeader("Content-Length").size()) {
         _content_length = atoi(getHeader("Content-Length").c_str());
         if (_content_length > CONTENT_LENGTH_MAX)
             throw ContentLengthException();
-        // std::cout << "Content lenght in request manager: " << _content_length << " Body lenght in request manager: " << _body.size() << std::endl;
         if (_body.size() < _content_length)
             _complete = false;
     }
@@ -46,7 +44,16 @@ Request::~Request() {
 }
 
 
-/* ----- PRIVATE FUNCTIONS ----- */
+/*_____PUBLIC_FUNCTIONS_____*/
+
+void Request::catToBody(std::string & str) {
+    _body += str;
+    if (_body.size() == _content_length)
+        _complete = true;
+}
+
+
+/*_____PRIVATE_FUNCTIONS_____*/
 
 void Request::_parseRequest(std::string const & head) {
     std::istringstream  iss(head);
@@ -86,8 +93,8 @@ vec_str Request::_vectorSplit(std::string str, char sep) {
     while (getline(iss, token, sep))
         if (!token.empty())
             tokens.push_back(token);
-    for (int i = 0; i < 3; i++)
-        std::cout << "============> ARR=[" << tokens[i] << "]\n";
+    // for (int i = 0; i < 3; i++)
+    //     std::cout << "============> ARR=[" << tokens[i] << "]\n";
     return tokens;
 }
 
@@ -97,16 +104,8 @@ std::string Request::_strtrim(std::string &s) {
     return s;
 }
 
-/* ----- PUBLIC FUNCTIONS ----- */
 
-void Request::catToBody(std::string & str) {
-    _body += str;
-    if (_body.size() == _content_length)
-        _complete = true;
-}
-
-
-/* ----- GETTERS ----- */
+/*_____GETTERS_____*/
 
 std::string Request::getRaw() const {
     return _raw;
@@ -165,7 +164,7 @@ std::string Request::getBoundaryString() const {
     return _boundary_string;
 }
 
-/* ----- SETTERS ----- */
+/*_____SETTERS_____*/
 
 void        Request::setHeaders(map_strstr const &headers) {
     if (!headers.empty())
@@ -188,7 +187,7 @@ void        Request::setBody(std::string const &body) {
 }
 
 
-/* ----- OPERATORS ----- */
+/*_____OPERATORS_____*/
 
 Request & Request::operator=(Request const &op) {
     _raw = op._raw;
@@ -214,7 +213,7 @@ std::ostream & operator<<(std::ostream &o, Request const &obj) {
 }
 
 
-/* ----- EXCEPTIONS ----- */
+/*_____EXCEPTIONS_____*/
 
 const   char* Request::ContentLengthException::what() const throw() {
     return "Content-Length too big";
