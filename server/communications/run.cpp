@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/29 18:31:47 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/30 10:16:52 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ Route*	TcpListener::selectRoute(Server *server, std::string location, std::strin
 			break;
 		}
 	}
-	if (route->getRoot().empty())
+	if (route && route->getRoot().empty())
 		route->setRoot("/");
 	return route;
 }
