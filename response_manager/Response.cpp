@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/30 10:32:54 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:02:23 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void Response::sendFile() {
 	std::ifstream	infile(_path.c_str(), std::ios::binary | std::ios::in);
 	if (!infile) {
 		std::cerr << "Error opening local file." << std::endl;
-		_statusCode = 500;
+		_statusCode = 404;
         return;
 	} else {
 		char buffer[8192];
@@ -297,7 +297,24 @@ void Response::getBody(bool autoindex, Route *route) {
     }
 }
 
-// ==================================================================== SWITCH
+// ==================================================================== BUILD RESPONSE
+
+void	Response::getFullPath(Route *route) {
+
+    _path = "." + _path;
+    // std::cout << "START OF GETFULLPATH , URI IS [" << _path << "]" << std::endl;
+    if (!route->getRedirection().empty()) {
+        _path = route->getRedirection();
+        _statusCode = 301;
+    }
+    else if ((_path.back() != '/' || _path == "./") && isDirectory(_path) && _method == GET) {
+        if (_path.back() != '/')
+            _path += "/";
+        _path += route->getIndex().front();
+    }
+    // std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
+	return;
+}
 
 void      Response::buildResponse(Route *route) {
 
@@ -395,9 +412,9 @@ void            Response::setHeaders(std::string& str) {
 
 int Response::checkAllow(Route *route) {
     switch (_method) {
-        case GET: return (route->getGet() ? 200 : 403);
-        case POST: return (route->getPost() ? 200: 403);
-        case DELETE: return (route->getDelete() ? 200 : 403);
+        case GET: return (route->getGet() ? 200 : 405);
+        case POST: return (route->getPost() ? 200: 405);
+        case DELETE: return (route->getDelete() ? 200 : 405);
         default: return 200;
     }
 }
@@ -454,21 +471,6 @@ std::string     Response::getMimeType() {
             return _server->getMimeType(_extension);
     }
     return _server->getMimeType("default");
-}
-
-void	Response::getFullPath(Route *route) {
-
-    _path = "." + _path;
-    std::cout << "START OF GETFULLPATH , URI IS [" << _path << "]" << std::endl;
-    if (!route->getRedirection().empty()) {
-        _path = route->getRedirection();
-        _statusCode = 301;
-    }
-    else if ((_path.back() != '/' || _path == "./") && isDirectory(_path) && _method == GET) {
-        _path += "/" + route->getIndex().front();
-    }
-    std::cout << "END OF GETFULLPATH , PATH IS [" << _path << "]" << std::endl;
-	return;
 }
 
 bool Response::isDirectory(std::string path) {

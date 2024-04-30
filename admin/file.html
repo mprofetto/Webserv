@@ -5,16 +5,25 @@
     <link rel="stylesheet" type="text/css" href="file.css">
 </head>
 <body>
-    <h1>File exchange ---- Admin Version</h1>
+    <h1>File exchange</h1>
 
     <h2>File Upload</h2>
+
 
     <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
         <input type="file" name="fileInput" id="fileInput">
         <button type="button" onclick="uploadFile()">Upload</button>
     </form>
 
-    <h2>Download File</h2>
+    <h2>Download</h2>
+    <p>By typing a file name</p>
+
+    <label for="fileDownlaodName"></label>
+    <input type="text" id="fileDownlaodName" required>
+    <button id="downloadButton">Download</button>
+
+    <p>Or a preselected file</p>
+
     <form action="/download/hello.txt" method="get">
         <button type="submit">Download a .txt File</button>
     </form>
@@ -24,6 +33,9 @@
     <form action="/download/map.jpeg" method="get">
         <button type="submit">Download a .jpeg File</button>
     </form>
+
+
+
 
     <h2>Delete Resource</h2>
     <input type="text" id="fileName" name="fileName" placeholder="Enter file name...">
@@ -67,7 +79,6 @@
             }
         }
     </script>
-
     <script>
         function deleteFile() {
             const fileName = document.getElementById('fileName').value;
@@ -101,5 +112,14 @@
             });
         }
     </script>
+
+    <script>
+        document.getElementById("downloadButton").addEventListener("click", function() {
+  var fileName = document.getElementById("fileDownlaodName").value;
+  var downloadUrl = "/upload/" + encodeURIComponent(fileName);
+  window.location.href = downloadUrl;
+});
+    </script>
+
 </body>
 </html>

@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/30 11:57:35 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:02:34 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ Route*	TcpListener::selectRoute(Server *server, std::string location, std::strin
 			break;
 		}
 	}
-	if (route->getRoot().empty())
+	if (route && route->getRoot().empty())
 		route->setRoot("/");
 	return route;
 }
