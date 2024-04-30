@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nesdebie <nesdebie@student.s19.be>         +#+  +:+       +#+        */
+/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/29 12:18:21 by nesdebie         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:57:54 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ std::string Cgi::executeCgi() {
         path.erase(path.find_last_of('/'), path.size());
 		if (!chdir(path.c_str()))
             execve(exec, const_cast<char *const *>(args), _envp);
-        std::cerr << "Error executing CGI :" << _fileToExec << std::endl;
+        // std::cerr << "Error executing CGI :" << _fileToExec << std::endl;
         std::exit(500);
     } else if (pid_execve > 0) {
         pid_t pid_timeout = fork();
@@ -136,9 +136,9 @@ std::string Cgi::executeCgi() {
                 }
             } else {
                 _exitCode = 504;
-                if (_request.getMethod() == POST && post != _request.getQuery().size()) {
-                    std::cerr << "Child process exited with an error." << std::endl;
-                }
+                // if (_request.getMethod() == POST && post != _request.getQuery().size()) {
+                    // std::cerr << "Child process exited with an error." << std::endl;
+                // }
             }
             waitpid(pid_timeout, &status, 0);
             if (WIFEXITED(status) && WEXITSTATUS(status) == 504) {
@@ -287,6 +287,6 @@ const   char* Cgi::ForkException::what() const throw() {
 }
 
 const   char* Cgi::NotCgiException::what() const throw() {
-    return "CgiException: not a CGI.";
+    return "";
 }
 
