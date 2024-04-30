@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/30 13:10:27 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/30 14:10:10 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ Response::~Response() {
 int Response::deleteFile() {
 
     if (std::remove(_path.c_str()) != 0) {
-        std::cerr << "Error deleting file !!!!" << std::endl;
         return 404;
     }
     return 204;
