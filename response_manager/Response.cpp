@@ -6,7 +6,7 @@
 /*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/30 11:07:12 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:46:54 by achansar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,7 +231,9 @@ std::string Response::getHeaders(const int s) {
 
     if (!_extension.empty() && _cgi == false) {
         std::string fileName = extractFileName();
-        if (_extension == ".css") {
+        if (_path.find("/upload/") != std::string::npos)
+	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
+        else if (_extension == ".css") {
 	        h += "Content-Disposition: inline; filename=\"" + fileName + "\"\r\n";
         } else if (_extension.compare(".html") && _extension != ".ico") {
 	        h += "Content-Disposition: attachment; filename=\"" + fileName + "\"\r\n";
