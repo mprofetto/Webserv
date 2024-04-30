@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 09:32:35 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/30 09:54:52 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/30 13:41:28 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 # include <ctime>
 # include <fcntl.h>
 # include <exception>
-# include <errno.h>
 # include <sys/socket.h>
 # include <sys/select.h>
 # include <arpa/inet.h>
@@ -144,7 +143,9 @@ class TcpListener
 
 		//Utils
 		Server						*getServerBySocket(int socket);
+		Server						*getServerByHostAndPort(int port, std::string host);
 		int							getPortBySocket(int *socket);
+		bool						serverAlreadyExistForThisPortAndHost(Server *server);
 		Response					*getResponseToSend(int socket);
 		std::vector<std::string>	chunkResponse(std::string response);
 		std::string					buildURI(std::string uri, Server *server, std::string cgi_ext, Route **route);

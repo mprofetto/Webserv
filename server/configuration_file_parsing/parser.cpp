@@ -6,7 +6,7 @@
 /*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:43:00 by mprofett          #+#    #+#             */
-/*   Updated: 2024/04/19 10:33:50 by mprofett         ###   ########.fr       */
+/*   Updated: 2024/04/30 13:37:28 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,14 @@ std::list<std::string>	TcpListener::getServerDirectives(std::list<std::string> t
 		token_list = getNextServerDirective(token_list, new_server);
 	if (new_server->getIndex().empty() == true)
 		new_server->addIndex("index.html");
-	// if not enough error pages, set default error pages
 	token_list.pop_front();
-	this->_servers.push_back(new_server);
+	if (this->serverAlreadyExistForThisPortAndHost(new_server) == false)
+		this->_servers.push_back(new_server);
+	else
+	{
+		std::cerr << "Server already setup for port " << new_server->getPort() << " and host " << new_server->getHost() << std::endl;
+		delete new_server;
+	}
 	return (token_list);
 }
 
