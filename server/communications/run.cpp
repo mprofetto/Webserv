@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/04/23 11:48:11 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/30 09:38:10 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ bool isFile(const char* path) {
 Route*	TcpListener::selectRoute(Server *server, std::string cgi_ext) {
 
 	Route *route = NULL;
-	
+
 	std::list<Route *> r = server->getRoute();
 
 	for (std::list<Route *>::iterator it = r.begin(); it != r.end(); it++) {
@@ -91,10 +91,12 @@ Route*	TcpListener::selectRoute(Server *server, std::string cgi_ext) {
 			|| ((*it)->getPath() == _pending_request.getPath())) {
 			route = *it;
 			break;
-		} 
+		}
 	}
 	return route;
 }
+
+
 
 void	TcpListener::handleRequest(int client_socket)
 {
@@ -104,7 +106,7 @@ void	TcpListener::handleRequest(int client_socket)
 
 	std::string cgi_ext = _pending_request.getPath();
 	std::cout << "cgi_ext = " << cgi_ext << std::endl;
-	
+
     size_t dotPos = cgi_ext.find_last_of('.');
     if (dotPos != std::string::npos) {
         cgi_ext = cgi_ext.c_str() + dotPos;

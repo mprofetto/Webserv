@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achansar <achansar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mprofett <mprofett@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 16:58:55 by achansar          #+#    #+#             */
-/*   Updated: 2024/04/23 11:44:39 by achansar         ###   ########.fr       */
+/*   Updated: 2024/04/29 10:06:24 by mprofett         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -377,11 +377,11 @@ void            Response::setHeaders(std::string& str) {
 // ============================================================================== UTILS
 
 int Response::checkAllow(Route *route) {
-    
+
 
     std::cout << "IN CHECK< METHOD IS : " << _method << std::endl;
     route->printRoute();
-    
+
     switch (_method) {
         case GET: return (route->getGet() ? 200 : 403);
         case POST: return (route->getPost() ? 200: 403);
